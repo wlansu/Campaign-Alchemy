@@ -26,37 +26,32 @@ jobs:
       - name: Checkout Code Repository
         uses: actions/checkout@v3
 
-#      - name: Install Poetry
-#        uses: snok/install-poetry@v1
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-#          cache: poetry
-#          cache-dependency-path: |
-#            poetry.lock
 
       - name: Run pre-commit
         uses: pre-commit/action@v3.0.0
 
-  # With no caching at all the entire ci process takes 4m 30s to complete!
   pytest:
     runs-on: ubuntu-latest
 
     steps:
+      - env:
+          DJANGO_SETTINGS_MODULE: "campaigncreator.settings"
 
       - name: Checkout Code Repository
         uses: actions/checkout@v3
 
       - name: Build the Stack
-        run:  docker-compose -f docker-compose.yml build -d
+        run:  docker-compose -f docker-compose.yml build
 
       - name: Run DB Migrations
-        run:  docker-compose -f docker-compose.yml run --rm django python manage.py migrate
+        run:  docker-compose -f docker-compose.yml run --rm web python manage.py migrate
 
       - name: Run Django Tests
-        run:  docker-compose -f docker-compose.yml run django pytest
+        run:  docker-compose -f docker-compose.yml run web pytest
 
       - name: Tear down the Stack
         run:  docker-compose -f docker-compose.yml down
