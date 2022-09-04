@@ -26,13 +26,16 @@ jobs:
       - name: Checkout Code Repository
         uses: actions/checkout@v3
 
+#      - name: Install Poetry
+#        uses: snok/install-poetry@v1
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-          cache: poetry
-          cache-dependency-path: |
-            poetry.lock
+#          cache: poetry
+#          cache-dependency-path: |
+#            poetry.lock
 
       - name: Run pre-commit
         uses: pre-commit/action@v3.0.0
@@ -47,7 +50,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build the Stack
-        run:  docker-compose -f docker-compose.yml build
+        run:  docker-compose -f docker-compose.yml build -d
 
       - name: Run DB Migrations
         run:  docker-compose -f docker-compose.yml run --rm django python manage.py migrate
