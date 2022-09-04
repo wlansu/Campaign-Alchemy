@@ -36,8 +36,6 @@ jobs:
 
   pytest:
     runs-on: ubuntu-latest
-    env:
-      DJANGO_SETTINGS_MODULE: "campaigncreator.settings"
 
     steps:
       - name: Checkout Code Repository
