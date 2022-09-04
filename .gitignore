@@ -133,3 +133,5 @@ dmypy.json
 
 # Postgres data
 /data/
+/.envs/.production/
+/apps/media/

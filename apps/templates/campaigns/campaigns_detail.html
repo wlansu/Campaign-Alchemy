@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Campaign: {{ campaign.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="row">
+    <div class="col-sm-12">
+
+      <h2>{{ campaign.name }}</h2>
+      {% if campaign.description %}
+        <p>{{ campaign.description }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+<!-- Action buttons -->
+<div class="row">
+
+  <div class="col-sm-12">
+    <a class="btn btn-primary" href="{% url 'campaigns:update' campaign.id %}" role="button">Update Campaign</a>
+    <a class="btn btn-danger" href="{% url 'campaigns:delete' campaign.id %}" role="button">Delete Campaign</a>
+  </div>
+
+</div>
+
+<div class="row">
+  {% if campaign.maps %}
+    <div class="col-sm-12">
+      <h3>Maps</h3>
+      <ul>
+        {% for map in campaign.maps.all %}
+          <li><a href="{% url 'maps:detail' map.id %}">{{ map.name }}</a></li>
+        {% endfor %}
+      </ul>
+      <a class="btn btn-primary" href="{% url 'maps:create' %}" role="button">Create Map</a>
+    </div>
+  {% endif %}
+</div>
+
+</div>
+{% endblock content %}

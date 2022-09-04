@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if map %}{{ map.name }}{% else %}Create Map{% endif %}{% endblock %}
+
+{% block content %}
+  <form class="form-horizontal" method="post" enctype="multipart/form-data" action="{% if map %}{% url 'maps:update' map.id %}{% else %}{% url 'maps:create' %}{% endif %}">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <div class="control-group">
+      <div class="controls">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </form>
+{% endblock %}

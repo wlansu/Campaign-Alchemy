@@ -1,0 +1,38 @@
+# General
+# ------------------------------------------------------------------------------
+# DJANGO_READ_DOT_ENV_FILE=True
+USE_DOCKER=yes
+DJANGO_SETTINGS_MODULE=campaigncreator.settings.production
+DJANGO_SECRET_KEY=tTSItgb1xsVrjDmICBY4k9P6P32BnzqmW1xyD1zA9OSOSq2NdJqdtZ3xXmCfFM66
+DJANGO_ADMIN_URL=2SzOQRMqHovBCdlT2sn63JeNOqjaPUko/
+DJANGO_ALLOWED_HOSTS=.example.com
+
+# Security
+# ------------------------------------------------------------------------------
+# TIP: better off using DNS, however, redirect is OK too
+DJANGO_SECURE_SSL_REDIRECT=False
+
+# Email
+# ------------------------------------------------------------------------------
+DJANGO_SERVER_EMAIL=
+
+MAILGUN_API_KEY=
+MAILGUN_DOMAIN=
+
+
+# django-allauth
+# ------------------------------------------------------------------------------
+DJANGO_ACCOUNT_ALLOW_REGISTRATION=True
+
+# Gunicorn
+# ------------------------------------------------------------------------------
+WEB_CONCURRENCY=4
+
+# Sentry
+# ------------------------------------------------------------------------------
+SENTRY_DSN=
+
+
+# Redis
+# ------------------------------------------------------------------------------
+REDIS_URL=redis://redis:6379/0

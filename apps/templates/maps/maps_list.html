@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Maps{% endblock %}
+
+{% block content %}
+<div class="container">
+  {% if maps %}
+    {% for map in maps %}
+    <div class="row">
+      <div class="col-sm-12">
+
+        <h2>{{ map.name }}</h2>
+        {% if map.description %}
+          <p>{{ map.description }}</p>
+        {% endif %}
+        <img src="{{ map.image }}" class="img-responsive" alt="{{ map.name }}">
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p>No maps found.</p>
+    <a class="btn btn-primary" href="{% url 'map:create' %}" role="button">Create</a>
+  {% endif %}
+</div>
+{% endblock %}

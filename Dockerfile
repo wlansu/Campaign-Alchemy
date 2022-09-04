@@ -4,12 +4,28 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/root/.local/bin:$PATH"
 WORKDIR /code
-RUN apt-get update && apt-get -y install curl
-RUN pip install --upgrade pip
+RUN apt-get update && apt-get install -y \
+  # Poetry needs curl \
+  curl \
+  # psycopg2 dependencies
+  libpq-dev \
+  # Translations dependencies
+  gettext \
+  # cleaning up unused files
+  && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+  && rm -rf /var/lib/apt/lists/*
+RUN pip3 install --upgrade pip
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
 COPY poetry.lock pyproject.toml /code/
 
 RUN poetry config virtualenvs.create false
 RUN poetry install --sync
+RUN pip3 install -U setuptools wheel
 COPY . /code/
+
+# Expose port used for django server
+EXPOSE 8000
+
+# Run server entrypoint
+ENTRYPOINT ["/code/entrypoint.sh"]
