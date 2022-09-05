@@ -1,4 +1,3 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -11,11 +10,11 @@ from django.views.generic import (
 )
 
 from apps.campaigns.models import Campaign
+from apps.campaigns.views import CampaignIncluded
 from apps.maps.models import Map
-from apps.utils.decorators import campaign_not_set
 
 
-class MapListView(LoginRequiredMixin, ListView):
+class MapListView(CampaignIncluded, ListView):
     """
     View for Maps List.
     """
@@ -24,17 +23,16 @@ class MapListView(LoginRequiredMixin, ListView):
     template_name = "maps/maps_list.html"
     context_object_name = "maps"
 
-    @campaign_not_set
     def get_queryset(self):
         """
         Get queryset for Maps List.
         """
         return Map.objects.filter(is_active=True).filter(
-            campaign=self.request.session["campaign_id"]
+            campaign=self.kwargs["campaign_pk"]
         )
 
 
-class MapDetailView(LoginRequiredMixin, DetailView):
+class MapDetailView(CampaignIncluded, DetailView):
     """
     View for Maps Detail.
     """
@@ -44,7 +42,7 @@ class MapDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "map"
 
 
-class MapCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class MapCreateView(CampaignIncluded, SuccessMessageMixin, CreateView):
     """
     View for Map Create.
     """
@@ -58,19 +56,20 @@ class MapCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         """
         Override get_success_url method to redirect to Campaigns Detail.
         """
-        return reverse("maps:detail", kwargs={"pk": self.object.pk})
+        return reverse(
+            "campaigns:maps:detail",
+            kwargs={"campaign_pk": self.campaign.pk, "pk": self.object.pk},
+        )
 
     def form_valid(self, form):
         """
         Override form_valid method to set the active campaign.
         """
-        form.instance.campaign = Campaign.objects.get(
-            id=self.request.session["campaign_id"]
-        )
+        form.instance.campaign = Campaign.objects.get(id=self.kwargs["campaign_pk"])
         return super().form_valid(form)
 
 
-class MapUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class MapUpdateView(CampaignIncluded, SuccessMessageMixin, UpdateView):
     """
     View for Campaigns Update.
     """
@@ -88,7 +87,7 @@ class MapUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         return reverse("maps:detail", kwargs={"pk": self.object.pk})
 
 
-class MapDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class MapDeleteView(CampaignIncluded, SuccessMessageMixin, DeleteView):
     """
     View for Map Delete.
     """

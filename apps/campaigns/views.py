@@ -1,10 +1,26 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import QuerySet
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from apps.campaigns.models import Campaign
+
+
+class CampaignIncluded(LoginRequiredMixin):
+    """Mixin that adds the campaign to the context."""
+
+    def setup(self, request, *args, **kwargs) -> None:
+        """Overloaded to set the campaign."""
+        super().setup(request, *args, **kwargs)
+        self.campaign = get_object_or_404(Campaign, pk=self.kwargs["campaign_pk"])
+
+    def get_context_data(self, **kwargs) -> dict:
+        context = super().get_context_data(**kwargs)
+        context["campaign"] = self.campaign
+        return context
 
 
 class CampaignsListView(LoginRequiredMixin, ListView):
@@ -16,7 +32,7 @@ class CampaignsListView(LoginRequiredMixin, ListView):
     template_name = "campaigns/campaigns_list.html"
     context_object_name = "campaigns"
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
         """
         Get queryset for Campaigns List.
         """
@@ -31,13 +47,6 @@ class CampaignsDetailView(LoginRequiredMixin, DetailView):
     model = Campaign
     template_name = "campaigns/campaigns_detail.html"
     context_object_name = "campaign"
-
-    def get(self, request, *args, **kwargs):
-        """
-        Override get method to set the active campaign.
-        """
-        self.request.session["campaign_id"] = self.get_object().id
-        return super().get(request, *args, **kwargs)
 
 
 class CampaignsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
@@ -57,7 +66,7 @@ class CampaignsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         form.instance.dm = self.request.user
         return super().form_valid(form)
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         """
         Override get_success_url method to redirect to Campaigns Detail.
         """
@@ -75,7 +84,7 @@ class CampaignsUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     context_object_name = "campaign"
     success_message = _("Campaign successfully updated")
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         """
         Override get_success_url method to redirect to Campaigns Detail.
         """

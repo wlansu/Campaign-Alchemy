@@ -32,10 +32,10 @@
       <h3>Maps</h3>
       <ul>
         {% for map in campaign.maps.all %}
-          <li><a href="{% url 'maps:detail' map.id %}">{{ map.name }}</a></li>
+          <li><a href="{% url 'campaigns:maps:detail' campaign_pk=campaign.id pk=map.id %}">{{ map.name }}</a></li>
         {% endfor %}
       </ul>
-      <a class="btn btn-primary" href="{% url 'maps:create' %}" role="button">Create Map</a>
+      <a class="btn btn-primary" href="{% url 'campaigns:maps:create' campaign_pk=campaign.id %}" role="button">Create Map</a>
     </div>
   {% endif %}
 </div>

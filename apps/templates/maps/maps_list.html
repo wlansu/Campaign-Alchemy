@@ -20,7 +20,7 @@
     {% endfor %}
   {% else %}
     <p>No maps found.</p>
-    <a class="btn btn-primary" href="{% url 'map:create' %}" role="button">Create</a>
+    <a class="btn btn-primary" href="{% url 'campaigns:maps:create' campaign_pk=campaign.id %}" role="button">Create</a>
   {% endif %}
 </div>
 {% endblock %}

@@ -1,7 +1,0 @@
-# PostgreSQL
-# ------------------------------------------------------------------------------
-POSTGRES_HOST=postgres
-POSTGRES_PORT=5432
-POSTGRES_DB=campaign_creator
-POSTGRES_USER=eVADrrqQyvGrJMaQkdaebBDzjynRNpoz
-POSTGRES_PASSWORD=ISzp1zPn78BhCAo07A2T3ZsVhrQ5zqc1Poa0BQnjFemIPS5ECyeqzOCLDodGa38m

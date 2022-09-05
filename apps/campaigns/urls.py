@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import include, path
 
 from apps.campaigns.views import (
     CampaignsCreateView,
@@ -14,4 +14,5 @@ urlpatterns = [
     path("update/<int:pk>/", view=CampaignsUpdateView.as_view(), name="update"),
     path("<int:pk>/", view=CampaignsDetailView.as_view(), name="detail"),
     path("<int:pk>/delete/", view=CampaignsUpdateView.as_view(), name="delete"),
+    path("<int:campaign_pk>/maps/", include("apps.maps.urls", namespace="maps")),
 ]

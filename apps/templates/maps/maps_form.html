@@ -5,7 +5,7 @@
 {% block title %}{% if map %}{{ map.name }}{% else %}Create Map{% endif %}{% endblock %}
 
 {% block content %}
-  <form class="form-horizontal" method="post" enctype="multipart/form-data" action="{% if map %}{% url 'maps:update' map.id %}{% else %}{% url 'maps:create' %}{% endif %}">
+  <form class="form-horizontal" method="post" enctype="multipart/form-data" action="{% if map %}{% url 'campaigns:maps:update' campaign_pk=campaign.id pk=map.id %}{% else %}{% url 'campaigns:maps:create' campaign_pk=campaign.id %}{% endif %}">
     {% csrf_token %}
     {{ form|crispy }}
     <div class="control-group">
