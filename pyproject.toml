@@ -37,7 +37,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "campaigncreator.settings"
+DJANGO_SETTINGS_MODULE = "campaigncreator.settings.test"
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
 filterwarnings = [
     "ignore::UserWarning",
