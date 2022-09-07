@@ -21,7 +21,6 @@ COPY poetry.lock pyproject.toml /code/
 
 RUN poetry config virtualenvs.create false
 RUN poetry install --sync
-RUN pip3 install -U setuptools wheel
 COPY . /code/
 
 # Expose port used for django server
