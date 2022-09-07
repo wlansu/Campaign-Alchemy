@@ -20,7 +20,7 @@
   <!-- Action buttons -->
   <div class="row">
     <div class="col-sm-12">
-      <a class="btn btn-primary" href="{% url 'campaigns:maps:update' campaign_pk=campaign.id pk=map.id %}" role="button">Edit</a>
+      <a class="btn btn-primary" href="{% url 'campaigns:maps:update' campaign_pk=campaign.id map_pk=map.id %}" role="button">Edit</a>
     </div>
   </div>
 </div>
@@ -32,15 +32,7 @@
       <button class="close-modal" aria-label="close modal" data-close>✕</button>
     </header>
     <section class="modal-content">
-      <form class="form-horizontal" method="post" action="{% url 'campaigns:maps:location:create' campaign_pk=campaign.id map_pk=map.id %}">
-        {% csrf_token %}
-        {{ form|crispy }}
-        <div class="control-group">
-          <div class="controls">
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
-        </div>
-      </form>
+      {% include "maps/location_form.html" %}
     </section>
     <footer class="modal-footer">...</footer>
   </div>

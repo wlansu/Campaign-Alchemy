@@ -1,26 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import QuerySet
-from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from apps.campaigns.models import Campaign
-
-
-class CampaignIncluded(LoginRequiredMixin):
-    """Mixin that adds the campaign to the context."""
-
-    def setup(self, request, *args, **kwargs) -> None:
-        """Overloaded to set the campaign."""
-        super().setup(request, *args, **kwargs)
-        self.campaign = get_object_or_404(Campaign, pk=self.kwargs["campaign_pk"])
-
-    def get_context_data(self, **kwargs) -> dict:
-        context = super().get_context_data(**kwargs)
-        context["campaign"] = self.campaign
-        return context
 
 
 class CampaignsListView(LoginRequiredMixin, ListView):

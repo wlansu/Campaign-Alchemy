@@ -1,0 +1,11 @@
+{% load crispy_forms_tags crispy_forms_filters %}
+
+<form class="form-horizontal" method="post" action="{% url 'campaigns:maps:create_location' campaign_pk=campaign.id map_pk=map.id %}">
+  {% csrf_token %}
+  {{ form|crispy }}
+  <div class="control-group">
+    <div class="controls">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </div>
+</form>
