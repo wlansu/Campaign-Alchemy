@@ -13,28 +13,62 @@
       {% if map.description %}
         <p>{{ map.description }}</p>
       {% endif %}
-      <img src="{{ map.image.url }}" class="img-responsive" alt="{{ map.name }}">
+      <div id="map">
+        <div id="modal" class="modal fade">
+          <div id="dialog" class="modal-dialog"></div>
+        </div>
+        <div class="overlay" hx-trigger="load, locationListChanged from:body" hx-get="{% url 'campaigns:maps:locations:list' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="this"></div>
+      </div>
     </div>
   </div>
 
   <!-- Action buttons -->
   <div class="row">
     <div class="col-sm-12">
-      <a class="btn btn-primary" href="{% url 'campaigns:maps:update' campaign_pk=campaign.id map_pk=map.id %}" role="button">Edit</a>
+      <a class="btn btn-primary" href="{% url 'campaigns:maps:update' campaign_pk=map.campaign.id map_pk=map.id %}" role="button">Edit</a>
     </div>
   </div>
 </div>
-
-<div class="modal-body modal" id="modal1">
-  <div class="modal-dialog">
-    <header class="modal-header">
-      Create Location
-      <button class="close-modal" aria-label="close modal" data-close>✕</button>
-    </header>
-    <section class="modal-content">
-      {% include "maps/location_form.html" %}
-    </section>
-    <footer class="modal-footer">...</footer>
-  </div>
-</div>
 {% endblock content %}
+
+{% block modal %}
+
+{% endblock modal %}
+
+{% block inline_javascript %}
+<script>
+const modal = new bootstrap.Modal(document.getElementById("modal"))
+
+htmx.on("hidden.bs.modal", () => {
+  document.getElementById("dialog").innerHTML = ""
+})
+
+const map = L.map("map", {
+  crs: L.CRS.Simple
+})
+
+function onMapClick(e) {
+  if (!e.originalEvent.shiftKey) {
+    return
+  }
+
+  const lng = e.latlng.lng
+  const lat = e.latlng.lat
+  const url = "{% url 'campaigns:maps:locations:create' campaign_pk=map.campaign.id map_pk=map.id %}"
+  fetch(url).then(response => {
+    return response.text()
+  }).then(newHTML => {
+    document.getElementById("dialog").innerHTML = newHTML
+    document.getElementById("id_latitude").value = lat
+    document.getElementById("id_longitude").value = lng
+  })
+  modal.show()
+}
+map.on('click', onMapClick);
+
+const image_url = "http://" + "{{ request.get_host }}" + "{{ map.image.url }}"
+const bounds = [[0,0], [1000,1000]];
+L.imageOverlay(image_url, bounds).addTo(map)
+map.fitBounds(bounds)
+</script>
+{% endblock inline_javascript %}

@@ -32,6 +32,7 @@ class CampaignsDetailView(LoginRequiredMixin, DetailView):
     model = Campaign
     template_name = "campaigns/campaigns_detail.html"
     context_object_name = "campaign"
+    pk_url_kwarg = "campaign_pk"
 
 
 class CampaignsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
@@ -55,7 +56,7 @@ class CampaignsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         """
         Override get_success_url method to redirect to Campaigns Detail.
         """
-        return reverse("campaigns:detail", kwargs={"pk": self.object.pk})
+        return reverse("campaigns:detail", kwargs={"campaign_pk": self.object.pk})
 
 
 class CampaignsUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
@@ -68,9 +69,10 @@ class CampaignsUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     template_name = "campaigns/campaigns_form.html"
     context_object_name = "campaign"
     success_message = _("Campaign successfully updated")
+    pk_url_kwarg = "campaign_pk"
 
     def get_success_url(self) -> str:
         """
         Override get_success_url method to redirect to Campaigns Detail.
         """
-        return reverse("campaigns:detail", kwargs={"pk": self.object.pk})
+        return reverse("campaigns:detail", kwargs={"campaign_pk": self.object.pk})

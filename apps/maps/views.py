@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404
@@ -14,7 +12,8 @@ from django.views.generic import (
 )
 
 from apps.campaigns.models import Campaign
-from apps.maps.models import Location, Map
+from apps.locations.forms import LocationForm
+from apps.maps.models import Map
 
 
 class CampaignIncluded(LoginRequiredMixin):
@@ -59,6 +58,14 @@ class MapDetailView(CampaignIncluded, DetailView):
     context_object_name = "map"
     pk_url_kwarg = "map_pk"
 
+    def get_context_data(self, **kwargs) -> dict:
+        """Add location form to context."""
+        context = super().get_context_data(**kwargs)
+        context["location_form"] = LocationForm(
+            initial={"map": Map.objects.get(id=self.kwargs["map_pk"])}
+        )
+        return context
+
 
 class MapCreateView(CampaignIncluded, SuccessMessageMixin, CreateView):
     """
@@ -76,7 +83,7 @@ class MapCreateView(CampaignIncluded, SuccessMessageMixin, CreateView):
         """
         return reverse(
             "campaigns:maps:detail",
-            kwargs={"campaign_pk": self.campaign.pk, "pk": self.object.pk},
+            kwargs={"campaign_pk": self.campaign.pk, "map_pk": self.object.pk},
         )
 
     def form_valid(self, form):
@@ -97,12 +104,13 @@ class MapUpdateView(CampaignIncluded, SuccessMessageMixin, UpdateView):
     template_name = "maps/maps_form.html"
     context_object_name = "map"
     success_message = _("Map successfully updated")
+    pk_url_kwarg = "map_pk"
 
     def get_success_url(self):
         """
         Override get_success_url method to redirect to Campaigns Detail.
         """
-        return reverse("maps:detail", kwargs={"pk": self.object.pk})
+        return reverse("maps:detail", kwargs={"map_pk": self.object.pk})
 
 
 class MapDeleteView(CampaignIncluded, SuccessMessageMixin, DeleteView):
@@ -113,102 +121,10 @@ class MapDeleteView(CampaignIncluded, SuccessMessageMixin, DeleteView):
     model = Map
     template_name = "confirm_delete.html"
     success_message = _("Map successfully deleted")
+    pk_url_kwarg = "map_pk"
 
     def get_success_url(self):
         """
         Override get_success_url method to redirect to Campaigns List.
         """
-        return reverse("campaigns:detail", kwargs={"pk": self.object.campaign.pk})
-
-
-@dataclass()
-class MapIncluded(LoginRequiredMixin):
-    """Mixin that adds the Map to the context."""
-
-    map: Map
-
-    def setup(self, request, *args, **kwargs) -> None:
-        """Overloaded to set the campaign."""
-        super().setup(request, *args, **kwargs)
-        self.map = get_object_or_404(Map, pk=kwargs["map_pk"])
-
-    def get_context_data(self, **kwargs) -> dict:
-        context = super().get_context_data(**kwargs)
-        context["map"] = self.map
-        return context
-
-
-class LocationCreateView(MapIncluded, SuccessMessageMixin, CreateView):
-    """
-    View for Location Create.
-    """
-
-    model = Location
-    fields = ["name", "description", "image", "pixel_y", "pixel_x"]
-    template_name = "locations/locations_form.html"
-    success_message = _("Location successfully created")
-
-    def get_success_url(self):
-        """
-        Override get_success_url method to redirect to Maps Detail.
-        """
-        return reverse(
-            "campaigns:maps:detail",
-            kwargs={
-                "campaign_pk": self.object.map.campaign_pk,
-                "map_pk": self.object.map.pk,
-            },
-        )
-
-    def form_valid(self, form):
-        """
-        Override form_valid method to set the active map.
-        """
-        form.instance.map = Map.objects.get(id=self.kwargs["map_pk"])
-        return super().form_valid(form)
-
-
-class LocationUpdateView(MapIncluded, SuccessMessageMixin, UpdateView):
-    """
-    View for Campaigns Update.
-    """
-
-    model = Location
-    fields = ["name", "description", "is_active", "image"]
-    template_name = "locations/locations_form.html"
-    context_object_name = "location"
-    success_message = _("Location successfully updated")
-
-    def get_success_url(self):
-        """
-        Override get_success_url method to redirect to Map Detail.
-        """
-        return reverse(
-            "campaigns:maps:detail",
-            kwargs={
-                "campaign_pk": self.object.map.campaign_pk,
-                "map_pk": self.object.map.pk,
-            },
-        )
-
-
-class LocationDeleteView(MapIncluded, SuccessMessageMixin, DeleteView):
-    """
-    View for Location Delete.
-    """
-
-    model = Location
-    template_name = "confirm_delete.html"
-    success_message = _("Location successfully deleted")
-
-    def get_success_url(self):
-        """
-        Override get_success_url method to redirect to Map Detail.
-        """
-        return reverse(
-            "campaigns:maps:detail",
-            kwargs={
-                "campaign_pk": self.object.map.campaign_pk,
-                "map_pk": self.object.map.pk,
-            },
-        )
+        return reverse("campaigns:detail", kwargs={"map_pk": self.object.campaign.pk})

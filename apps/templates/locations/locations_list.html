@@ -1,0 +1,21 @@
+<script>
+  let data = {
+    "type": "FeatureCollection",
+    "features": [],
+  }
+  {% for location in locations %}
+    data.features.push({
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": ["{{ location.longitude }}", "{{ location.latitude }}"] {# Coordinates here need to be reversed. #}
+      },
+      "properties": {
+        "name": "{{ location.name }}",
+        "description": "{{ location.description }}",
+        "url": "{% url 'campaigns:maps:locations:update' campaign_pk=location.map.campaign_id map_pk=location.map_id location_pk=location.id %}"
+      }
+    })
+  {% endfor %}
+  L.geoJSON(data, {}).addTo(map)
+</script>
