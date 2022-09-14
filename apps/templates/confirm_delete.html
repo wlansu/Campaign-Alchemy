@@ -1,10 +1,13 @@
-{% extends "base.html" %}
-
-{% block title %}Delete {{ object }}{% endblock %}
-
-{% block content %}
-  <form method="post">{% csrf_token %}
+<form action="{% url 'campaigns:maps:locations:delete' campaign_pk=location.map.campaign.id map_pk=location.map.id location_pk=location.id %}" method="post" class="modal-content">{% csrf_token %}
+  <div class="modal-header">
+    <h5 class="modal-title">Edit Location</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  </div>
+  <div class="modal-body">
     <p>Are you sure you want to delete "{{ object }}"?</p>
-    <input type="submit" value="Confirm">
-  </form>
-{% endblock %}
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    <button type="submit" class="btn btn-primary">Yes</button>
+  </div>
+</form>

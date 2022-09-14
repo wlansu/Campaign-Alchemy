@@ -1,15 +1,30 @@
 <script>
+  function getFeature(featureID) {
+    return data.features.find(({id}) => id === featureID)
+  }
+
   function openEditModal(featureID) {
     map.closePopup()
-    const feature = data.features.find(({id}) => id === featureID)
-    const { update_url, longitude, latitude } = feature.properties
-    fetch(update_url).then(response => {
+    const feature = getFeature(featureID);
+    const { updateURL, longitude, latitude } = feature.properties
+    fetch(updateURL).then(response => {
       return response.text()
     }).then(newHTML => {
-      console.log(newHTML)
       document.getElementById("dialog").innerHTML = newHTML
       document.getElementById("id_latitude").value = latitude
       document.getElementById("id_longitude").value = longitude
+    })
+    modal.show()
+  }
+
+  function deleteLocation(featureID) {
+    map.closePopup()
+    const feature = getFeature(featureID)
+    const deleteURL = feature.properties.deleteURL
+    fetch(deleteURL).then(response => {
+      return response.text()
+    }).then(newHTML => {
+      document.getElementById("dialog").innerHTML = newHTML
     })
     modal.show()
   }
@@ -27,18 +42,23 @@
         "coordinates": ["{{ location.longitude }}", "{{ location.latitude }}"] {# Coordinates here need to be reversed. #}
       },
       "properties": {
-        "location_id": "{{ location.id }}",
         "name": "{{ location.name }}",
         "description": "{{ location.description }}",
         "latitude": "{{ location.latitude }}",
         "longitude": "{{ location.longitude }}",
-        "update_url": "{% url 'campaigns:maps:locations:update' campaign_pk=location.map.campaign.id map_pk=location.map.id location_pk=location.id %}"
+        "updateURL": "{% url 'campaigns:maps:locations:update' campaign_pk=location.map.campaign.id map_pk=location.map.id location_pk=location.id %}",
+        "deleteURL": "{% url 'campaigns:maps:locations:delete' campaign_pk=location.map.campaign.id map_pk=location.map.id location_pk=location.id %}"
       }
     })
   {% endfor %}
   L.geoJSON(data, {
     onEachFeature: function(feature, layer) {
-      layer.bindPopup(feature.properties.name + '<br />' + feature.properties.description + '<br />' + '<button class="btn btn-primary" type="button" onclick="openEditModal(\'' + feature.id + '\')">Edit</button>')
+      layer.bindPopup(
+        feature.properties.name +
+        '<br />' + feature.properties.description +
+        '<br />' + '<button class="btn btn-primary" type="button" onclick="openEditModal(\'' + feature.id + '\')">Edit</button>' +
+        '<br />' + '<button class="btn btn-warning" type="button" onclick="deleteLocation(\'' + feature.id + '\')">Delete</button>')
+
     }
   }).addTo(map)
 </script>

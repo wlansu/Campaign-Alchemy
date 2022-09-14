@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.forms import HiddenInput
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
@@ -14,21 +14,7 @@ from apps.locations.models import Location
 from apps.maps.models import Map
 
 
-class MapIncluded(LoginRequiredMixin):
-    """Mixin that adds the Map to the context."""
-
-    def setup(self, request, *args, **kwargs) -> None:
-        """Overloaded to set the campaign."""
-        super().setup(request, *args, **kwargs)
-        self.map = get_object_or_404(Map, pk=kwargs["map_pk"])
-
-    def get_context_data(self, **kwargs) -> dict:
-        context = super().get_context_data(**kwargs)
-        context["map"] = self.map
-        return context
-
-
-class LocationCreateView(MapIncluded, SuccessMessageMixin, CreateView):
+class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     """
     View for Location Create.
     """
@@ -56,6 +42,12 @@ class LocationCreateView(MapIncluded, SuccessMessageMixin, CreateView):
         """
         form.instance.map = Map.objects.get(id=self.kwargs["map_pk"])
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs) -> dict:
+        context = super().get_context_data(**kwargs)
+        context["campaign_pk"] = self.object.map.campaign_id
+        context["map_pk"] = self.object.map.id
+        return context
 
 
 @login_required
@@ -98,7 +90,7 @@ def location_list(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpRe
     )
 
 
-class LocationUpdateView(MapIncluded, SuccessMessageMixin, UpdateView):
+class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     """
     View for Campaigns Update.
     """
@@ -124,8 +116,8 @@ class LocationUpdateView(MapIncluded, SuccessMessageMixin, UpdateView):
 
     def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
-        context["campaign_pk"] = self.map.campaign_id
-        context["map_pk"] = self.map.id
+        context["campaign_pk"] = self.object.map.campaign_id
+        context["map_pk"] = self.object.map.id
         return context
 
     def get_form(self, form_class=None) -> LocationForm:
@@ -135,7 +127,7 @@ class LocationUpdateView(MapIncluded, SuccessMessageMixin, UpdateView):
         return form
 
 
-class LocationDeleteView(MapIncluded, SuccessMessageMixin, DeleteView):
+class LocationDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     """
     View for Location Delete.
     """
@@ -152,7 +144,13 @@ class LocationDeleteView(MapIncluded, SuccessMessageMixin, DeleteView):
         return reverse(
             "campaigns:maps:detail",
             kwargs={
-                "campaign_pk": self.object.map.campaign_pk,
+                "campaign_pk": self.object.map.campaign_id,
                 "map_pk": self.object.map.pk,
             },
         )
+
+    def get_context_data(self, **kwargs) -> dict:
+        context = super().get_context_data(**kwargs)
+        context["campaign_pk"] = self.object.map.campaign_id
+        context["map_pk"] = self.object.map.id
+        return context
