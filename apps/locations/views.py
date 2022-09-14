@@ -82,7 +82,7 @@ def add_location(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpRes
         return render(
             request,
             "locations/locations_form.html",
-            {"location_form": form, "campaign_pk": campaign_pk, "map_pk": map_pk},
+            {"form": form, "campaign_pk": campaign_pk, "map_pk": map_pk},
         )
 
 
@@ -104,7 +104,7 @@ class LocationUpdateView(MapIncluded, SuccessMessageMixin, UpdateView):
     """
 
     model = Location
-    fields = ["name", "description", "is_active", "image"]
+    form_class = LocationForm
     template_name = "locations/locations_form.html"
     context_object_name = "location"
     success_message = _("Location successfully updated")
@@ -121,6 +121,18 @@ class LocationUpdateView(MapIncluded, SuccessMessageMixin, UpdateView):
                 "map_pk": self.object.map.pk,
             },
         )
+
+    def get_context_data(self, **kwargs) -> dict:
+        context = super().get_context_data(**kwargs)
+        context["campaign_pk"] = self.map.campaign_id
+        context["map_pk"] = self.map.id
+        return context
+
+    def get_form(self, form_class=None) -> LocationForm:
+        form = super().get_form(form_class)
+        form.fields["longitude"].widget = HiddenInput()
+        form.fields["latitude"].widget = HiddenInput()
+        return form
 
 
 class LocationDeleteView(MapIncluded, SuccessMessageMixin, DeleteView):

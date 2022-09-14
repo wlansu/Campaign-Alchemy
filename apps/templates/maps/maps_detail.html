@@ -49,6 +49,7 @@ const map = L.map("map", {
 
 function onMapClick(e) {
   if (!e.originalEvent.shiftKey) {
+    // Only on shift + click do we open the modal. In order not to interfere with normal click events.
     return
   }
 

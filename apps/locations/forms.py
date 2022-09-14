@@ -8,4 +8,4 @@ class LocationForm(ModelForm):
 
     class Meta:
         model = Location
-        fields = ["name", "description", "image", "longitude", "latitude"]
+        fields = ["name", "description", "longitude", "latitude"]
