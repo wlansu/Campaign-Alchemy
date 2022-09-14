@@ -17,10 +17,10 @@ class Campaign(TimeStampedModel):
         related_name="dm_in_campaigns",
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Campaign: {self.name}>"
 
     class Meta:

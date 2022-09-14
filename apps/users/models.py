@@ -17,11 +17,6 @@ class User(AbstractUser):
     last_name = None  # type: ignore
     can_be_dm = BooleanField(default=True)
 
-    def get_absolute_url(self):
-        """Get url for user's detail view.
-
-        Returns:
-            str: URL for user detail.
-
-        """
+    def get_absolute_url(self) -> str:
+        """Get url for user's detail view."""
         return reverse("users:detail", kwargs={"username": self.username})

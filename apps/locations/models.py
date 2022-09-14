@@ -41,7 +41,9 @@ class Location(TimeStampedModel):
             pass
 
     def save(self, *args, **kwargs) -> None:
+        """Overloaded to create the thumbnail."""
         super().save(*args, **kwargs)
+        # TODO: doesn't work yet.
         if self.image:
             self.create_thumbnail()
 

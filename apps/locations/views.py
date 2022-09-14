@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.forms import HiddenInput
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -37,7 +38,7 @@ class LocationCreateView(MapIncluded, SuccessMessageMixin, CreateView):
     template_name = "locations/locations_form.html"
     success_message = _("Location successfully created")
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         """
         Override get_success_url method to redirect to Maps Detail.
         """
@@ -49,7 +50,7 @@ class LocationCreateView(MapIncluded, SuccessMessageMixin, CreateView):
             },
         )
 
-    def form_valid(self, form):
+    def form_valid(self, form) -> HttpResponse:
         """
         Override form_valid method to set the active map.
         """
@@ -59,7 +60,7 @@ class LocationCreateView(MapIncluded, SuccessMessageMixin, CreateView):
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def add_location(request, campaign_pk, map_pk):
+def add_location(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpResponse:
     if request.method == "POST":
         form = LocationForm(request.POST, files=request.FILES)
         form.instance.map = Map.objects.get(id=map_pk)
@@ -87,7 +88,7 @@ def add_location(request, campaign_pk, map_pk):
 
 @login_required
 @require_http_methods(["GET"])
-def location_list(request, campaign_pk, map_pk):
+def location_list(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpResponse:
     return render(
         request,
         "locations/locations_list.html",
@@ -109,7 +110,7 @@ class LocationUpdateView(MapIncluded, SuccessMessageMixin, UpdateView):
     success_message = _("Location successfully updated")
     pk_url_kwarg = "location_pk"
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         """
         Override get_success_url method to redirect to Map Detail.
         """
@@ -132,7 +133,7 @@ class LocationDeleteView(MapIncluded, SuccessMessageMixin, DeleteView):
     success_message = _("Location successfully deleted")
     pk_url_kwarg = "location_pk"
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         """
         Override get_success_url method to redirect to Map Detail.
         """

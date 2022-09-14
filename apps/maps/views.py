@@ -1,5 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import QuerySet
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -39,7 +41,7 @@ class MapListView(CampaignIncluded, ListView):
     template_name = "maps/maps_list.html"
     context_object_name = "maps"
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
         """
         Get queryset for Maps List.
         """
@@ -77,7 +79,7 @@ class MapCreateView(CampaignIncluded, SuccessMessageMixin, CreateView):
     template_name = "maps/maps_form.html"
     success_message = _("Map successfully created")
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         """
         Override get_success_url method to redirect to Campaigns Detail.
         """
@@ -86,7 +88,7 @@ class MapCreateView(CampaignIncluded, SuccessMessageMixin, CreateView):
             kwargs={"campaign_pk": self.campaign.pk, "map_pk": self.object.pk},
         )
 
-    def form_valid(self, form):
+    def form_valid(self, form) -> HttpResponse:
         """
         Override form_valid method to set the active campaign.
         """
@@ -106,7 +108,7 @@ class MapUpdateView(CampaignIncluded, SuccessMessageMixin, UpdateView):
     success_message = _("Map successfully updated")
     pk_url_kwarg = "map_pk"
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         """
         Override get_success_url method to redirect to Campaigns Detail.
         """
@@ -123,7 +125,7 @@ class MapDeleteView(CampaignIncluded, SuccessMessageMixin, DeleteView):
     success_message = _("Map successfully deleted")
     pk_url_kwarg = "map_pk"
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         """
         Override get_success_url method to redirect to Campaigns List.
         """

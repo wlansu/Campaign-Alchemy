@@ -1,6 +1,8 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import QuerySet
+from django.forms import BaseForm
+from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
@@ -45,10 +47,11 @@ class CampaignsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     template_name = "campaigns/campaigns_form.html"
     success_message = _("Campaign successfully created")
 
-    def form_valid(self, form):
+    def form_valid(self, form: BaseForm) -> HttpResponse:
         """
         Override form_valid method to set user as DM.
         """
+        # TODO: check type of form, it's likely not correct.
         form.instance.dm = self.request.user
         return super().form_valid(form)
 
