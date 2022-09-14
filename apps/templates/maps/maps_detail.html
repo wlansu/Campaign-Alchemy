@@ -9,7 +9,7 @@
   <div class="row">
     <div class="col-sm-12">
 
-      <h2>{{ map.name }}</h2>
+      <h2 class="text-center">{{ map.name }}</h2>
       {% if map.description %}
         <p>{{ map.description }}</p>
       {% endif %}
@@ -23,9 +23,10 @@
   </div>
 
   <!-- Action buttons -->
-  <div class="row">
-    <div class="col-sm-12">
+  <div class="row mt-3">
+    <div class="col-sm-12 ">
       <a class="btn btn-primary" href="{% url 'campaigns:maps:update' campaign_pk=map.campaign.id map_pk=map.id %}" role="button">Edit</a>
+      <a class="btn btn-danger" href="{% url 'campaigns:maps:delete' campaign_pk=map.campaign.id map_pk=map.id %}" role="button">Delete</a>
     </div>
   </div>
 </div>
@@ -44,12 +45,14 @@ htmx.on("hidden.bs.modal", () => {
 })
 
 const map = L.map("map", {
+  scrollWheelZoom: false,
+  attributionControl: false,
   crs: L.CRS.Simple
 })
 
 function onMapClick(e) {
   if (!e.originalEvent.shiftKey) {
-    // Only on shift + click do we open the modal. In order not to interfere with normal click events.
+    // In order not to interfere with normal click events, only open modal on shift + click events.
     return
   }
 
@@ -67,7 +70,7 @@ function onMapClick(e) {
 }
 map.on('click', onMapClick);
 
-const image_url = "http://" + "{{ request.get_host }}" + "{{ map.image.url }}"
+const image_url = window.location.protocol + "//" + "{{ request.get_host }}" + "{{ map.image.url }}"
 const bounds = [[0,0], [1000,1000]];
 L.imageOverlay(image_url, bounds).addTo(map)
 map.fitBounds(bounds)
