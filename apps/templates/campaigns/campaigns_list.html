@@ -5,21 +5,34 @@
 
 {% block content %}
 <div class="container">
-  {% if campaigns %}
+  <div class="row mb-3">
+    <div class="text-center">
+      <a class="btn btn-primary" href="{% url 'campaigns:create' %}" role="button">Create New Campaign</a>
+    </div>
+  </div>
+  <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-4">
     {% for campaign in campaigns %}
-    <div class="row">
-      <div class="col-sm-12">
-
-        <h2><a href="{% url 'campaigns:detail' campaign.id %}">{{ campaign.name }}</a></h2>
-        {% if campaign.description %}
-          <p>{{ campaign.description }}</p>
-        {% endif %}
+    <div class="col">
+      <div class="card radius-15 bg">
+        <div class="card-body text-center">
+          <div class="p-4 border radius-15">
+            {% if campaign.image %}
+              <img src="{{ campaign.image.url }}" width="110" height="110" class="rounded-circle shadow" alt="">
+            {% else %}
+              <img src="{% static 'images/default_image.png' %}" width="110" height="110" class="rounded-circle shadow" alt="">
+            {% endif %}
+            <h5 class="mb-0 mt-5">{{ campaign.name }}</h5>
+            <p class="mb-3">{{ campaign.description }}</p>
+            <div class="list-inline contacts-social mt-3 mb-3"> <a href="javascript:;" class="list-inline-item bg-facebook text-white border-0"><i class="bx bxl-facebook"></i></a>
+              <a href="{% url 'users:detail' campaign.dm_id %}" class="list-inline-item bg-twitter text-white border-0"><i class="bx bxl-twitter"></i></a>
+            </div>
+            <div class="d-grid"> <a href="{% url 'campaigns:detail' campaign.id %}">View Campaign</a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     {% endfor %}
-  {% else %}
-    <p>No campaigns found.</p>
-    <a class="btn btn-primary" href="{% url 'campaigns:create' %}" role="button">Create</a>
-  {% endif %}
+  </div>
 </div>
 {% endblock %}

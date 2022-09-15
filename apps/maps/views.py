@@ -85,7 +85,7 @@ class MapCreateView(CampaignIncluded, SuccessMessageMixin, CreateView):
         """
         return reverse(
             "campaigns:maps:detail",
-            kwargs={"campaign_pk": self.campaign.pk, "map_pk": self.object.pk},
+            kwargs={"campaign_pk": self.object.campaign_id, "map_pk": self.object.pk},
         )
 
     def form_valid(self, form) -> HttpResponse:
@@ -112,7 +112,10 @@ class MapUpdateView(CampaignIncluded, SuccessMessageMixin, UpdateView):
         """
         Override get_success_url method to redirect to Campaigns Detail.
         """
-        return reverse("maps:detail", kwargs={"map_pk": self.object.pk})
+        return reverse(
+            "campaigns:maps:detail",
+            kwargs={"campaign_pk": self.object.campaign_id, "map_pk": self.object.pk},
+        )
 
 
 class MapDeleteView(CampaignIncluded, SuccessMessageMixin, DeleteView):
@@ -129,4 +132,6 @@ class MapDeleteView(CampaignIncluded, SuccessMessageMixin, DeleteView):
         """
         Override get_success_url method to redirect to Campaigns List.
         """
-        return reverse("campaigns:detail", kwargs={"map_pk": self.object.campaign.pk})
+        return reverse(
+            "campaigns:detail", kwargs={"campaign_pk": self.object.campaign_id}
+        )

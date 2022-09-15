@@ -41,10 +41,10 @@
 
   </head>
 
-  <body>
+  <body class="bg-light">
 
-    <div class="mb-1">
-      <nav class="navbar navbar-expand-md navbar-light bg-light">
+    <div class="mb-3">
+      <nav class="navbar navbar-expand-md navbar-light bg-dark-gray">
         <div class="container-fluid">
           <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -54,10 +54,7 @@
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
               <li class="nav-item active">
-                <a class="nav-link" href="{% url 'home' %}">Home <span class="visually-hidden">(current)</span></a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'campaigns:list' %}">Campaigns</a>
+                <a class="nav-link" href="{% url 'campaigns:list' %}">Campaigns <span class="visually-hidden">(current)</span></a>
               </li>
               {% if request.user.is_authenticated %}
                 <li class="nav-item">

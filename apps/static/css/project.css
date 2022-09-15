@@ -23,3 +23,7 @@
 #map {
   height: 1000px;
 }
+
+.bg-dark-gray {
+  background-color: darkgray;
+}
