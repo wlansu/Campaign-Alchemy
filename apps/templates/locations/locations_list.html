@@ -1,8 +1,20 @@
 <script>
+  /**
+   * Find a feature for a certain id.
+   * The id was added while looping through the locations.
+   *
+   * @param featureID int
+   * @returns {*}
+   */
   function getFeature(featureID) {
     return data.features.find(({id}) => id === featureID)
   }
 
+  /**
+   * Get the update form HTML from the backend and push it into the modal.
+   *
+   * @param featureID int
+   */
   function openEditModal(featureID) {
     map.closePopup()
     const feature = getFeature(featureID);
@@ -17,6 +29,11 @@
     modal.show()
   }
 
+  /**
+   * Get the delete confirmation form HTML from the backend and push it into the modal.
+   *
+   * @param featureID int
+   */
   function deleteLocation(featureID) {
     map.closePopup()
     const feature = getFeature(featureID)
@@ -34,6 +51,7 @@
     "features": [],
   }
   {% for location in locations %}
+    // Loop over locations and add them to a FeatureCollection which is then used to build the markers on the map.
     data.features.push({
       "type": "Feature",
       "id": "{{ location.id }}",
@@ -54,8 +72,9 @@
   L.geoJSON(data, {
     onEachFeature: function(feature, layer) {
       layer.bindPopup(
-        feature.properties.name +
-        '<br />' + feature.properties.description +
+        // Add location data to the location popup.
+        '<h4>' + feature.properties.name + '</h4>' +
+        '<br />' + '<p class="mb-3">' + feature.properties.description + '</p>' +
         '<br />' + '<button class="btn btn-primary" type="button" onclick="openEditModal(\'' + feature.id + '\')">Edit</button>' +
         '<button class="btn btn-danger" type="button" onclick="deleteLocation(\'' + feature.id + '\')">Delete</button>')
 
