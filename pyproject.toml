@@ -24,6 +24,7 @@ pytz = "^2022.2.1"
 uvicorn = {extras = ["standard"], version = "^0.18.3"}
 python-slugify = "^6.1.2"
 django-htmx = "^1.12.2"
+django-cleanup = "^6.0.0"
 
 [tool.poetry.group.dev.dependencies]
 factory-boy = "^3.2.1"

@@ -1,6 +1,6 @@
-<form action="{% url 'campaigns:maps:locations:delete' campaign_pk=location.map.campaign.id map_pk=location.map.id location_pk=location.id %}" method="post" class="modal-content">{% csrf_token %}
+<form action="{{ request.path }}" method="post" class="modal-content">{% csrf_token %}
   <div class="modal-header">
-    <h5 class="modal-title">Edit Location</h5>
+    <h5 class="modal-title">Delete {{ object }}</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
   </div>
   <div class="modal-body">

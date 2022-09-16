@@ -41,7 +41,7 @@
 
   </head>
 
-  <body class="bg-light">
+  <body class="bg-light" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
     <div class="mb-3">
       <nav class="navbar navbar-expand-md navbar-light bg-dark-gray">

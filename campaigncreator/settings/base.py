@@ -79,6 +79,8 @@ THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "django_cleanup.apps.CleanupConfig",
+    "django_htmx",
 ]
 
 LOCAL_APPS = [
@@ -87,7 +89,6 @@ LOCAL_APPS = [
     "apps.characters",
     "apps.maps",
     "apps.locations",
-    "django_htmx",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

@@ -1,4 +1,3 @@
-from typing import Any
 from urllib.parse import urlparse
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -148,11 +147,3 @@ class MapDeleteView(CampaignIncluded, SuccessMessageMixin, DeleteView):
         return reverse(
             "campaigns:detail", kwargs={"campaign_pk": self.object.campaign_id}
         )
-
-    def render_to_response(
-        self, context: dict[str, Any], **response_kwargs: Any
-    ) -> HttpResponse:
-        """On delete send the HTMX trigger so the map list will reload."""
-        response = super().render_to_response(context, **response_kwargs)
-        response.headers["HX-Trigger"] = "mapListChanged"
-        return response

@@ -5,12 +5,18 @@ from django.forms import BaseForm
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, DetailView, ListView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
 
 from apps.campaigns.models import Campaign
 
 
-class CampaignsListView(LoginRequiredMixin, ListView):
+class CampaignListView(LoginRequiredMixin, ListView):
     """
     View for Campaigns List.
     """
@@ -26,7 +32,7 @@ class CampaignsListView(LoginRequiredMixin, ListView):
         return Campaign.objects.filter(is_active=True)
 
 
-class CampaignsDetailView(LoginRequiredMixin, DetailView):
+class CampaignDetailView(LoginRequiredMixin, DetailView):
     """
     View for Campaigns Detail.
     """
@@ -37,7 +43,7 @@ class CampaignsDetailView(LoginRequiredMixin, DetailView):
     pk_url_kwarg = "campaign_pk"
 
 
-class CampaignsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class CampaignCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     """
     View for Campaigns Create.
     """
@@ -62,7 +68,7 @@ class CampaignsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         return reverse("campaigns:detail", kwargs={"campaign_pk": self.object.pk})
 
 
-class CampaignsUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class CampaignUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     """
     View for Campaigns Update.
     """
@@ -79,3 +85,20 @@ class CampaignsUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         Override get_success_url method to redirect to Campaigns Detail.
         """
         return reverse("campaigns:detail", kwargs={"campaign_pk": self.object.pk})
+
+
+class CampaignDeleteView(SuccessMessageMixin, DeleteView):
+    """
+    View for Campaign Delete.
+    """
+
+    model = Campaign
+    template_name = "confirm_delete.html"
+    success_message = _("Campaign successfully deleted")
+    pk_url_kwarg = "campaign_pk"
+
+    def get_success_url(self) -> str:
+        """
+        Override get_success_url method to redirect to Campaigns List.
+        """
+        return reverse("campaigns:list")

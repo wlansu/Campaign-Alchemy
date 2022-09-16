@@ -26,7 +26,7 @@
   <div class="row mt-3">
     <div class="col-sm-12 ">
       <a class="btn btn-primary" href="{% url 'campaigns:maps:update' campaign_pk=map.campaign.id map_pk=map.id %}" role="button">Edit</a>
-      <a class="btn btn-danger" href="{% url 'campaigns:maps:delete' campaign_pk=map.campaign.id map_pk=map.id %}" role="button">Delete</a>
+      <button type="button" class="btn btn-danger" hx-get="{% url 'campaigns:maps:delete' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="#dialog">Delete</button>
     </div>
   </div>
 </div>
@@ -34,12 +34,6 @@
 
 {% block inline_javascript %}
 <script>
-const modal = new bootstrap.Modal(document.getElementById("modal"))
-
-htmx.on("hidden.bs.modal", () => {
-  document.getElementById("dialog").innerHTML = ""
-})
-
 const map = L.map("map", {
   scrollWheelZoom: false,
   attributionControl: false,

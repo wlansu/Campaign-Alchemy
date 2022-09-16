@@ -12,7 +12,7 @@
       <p>{{ campaign.description }}</p>
       <div class="mb-3">
         <a class="btn btn-primary" href="{% url 'campaigns:update' campaign.id %}" role="button">Update Campaign</a>
-        <a class="btn btn-danger" href="{% url 'campaigns:delete' campaign.id %}" role="button">Delete Campaign</a>
+        <button type="button" class="btn btn-danger" hx-get="{% url 'campaigns:delete' campaign.id %}" hx-target="#dialog">Delete Campaign</button>
       </div>
     </div>
   </div>
@@ -22,7 +22,13 @@
       <a class="btn btn-primary" href="{% url 'campaigns:maps:create' campaign_pk=campaign.id %}" role="button">Create New Map</a>
     </div>
   </div>
-  <div hx-trigger="load, mapListChanged from:body" hx-get="{% url 'campaigns:maps:list' campaign_pk=campaign.id %}" hx-target="this" class="row row-cols-1 row-cols-lg-2 row-cols-xl-4">
+  <div hx-trigger="load from:body" hx-get="{% url 'campaigns:maps:list' campaign_pk=campaign.id %}" hx-target="this" class="row row-cols-1 row-cols-lg-2 row-cols-xl-4">
   </div>
 </div>
 {% endblock content %}
+
+{% block modal %}
+<div id="modal" class="modal fade">
+  <div id="dialog" class="modal-dialog"></div>
+</div>
+{% endblock modal %}
