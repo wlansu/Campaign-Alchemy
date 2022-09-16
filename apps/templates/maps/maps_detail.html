@@ -17,7 +17,7 @@
         <div id="modal" class="modal fade">
           <div id="dialog" class="modal-dialog"></div>
         </div>
-        <div class="overlay" hx-trigger="load, locationListChanged from:body" hx-get="{% url 'campaigns:maps:locations:list' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="this"></div>
+        <div class="overlay" hx-trigger="load from:body" hx-get="{% url 'campaigns:maps:locations:list' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="this"></div>
       </div>
     </div>
   </div>
@@ -43,7 +43,9 @@ htmx.on("hidden.bs.modal", () => {
 const map = L.map("map", {
   scrollWheelZoom: false,
   attributionControl: false,
-  crs: L.CRS.Simple
+  crs: L.CRS.Simple,
+  minZoom: -5,
+  maxZoom: 5
 })
 
 function onMapClick(e) {
@@ -67,7 +69,8 @@ function onMapClick(e) {
 map.on('click', onMapClick);
 
 const image_url = window.location.protocol + "//" + "{{ request.get_host }}" + "{{ map.image.url }}"
-const bounds = [[0,0], [1200,1500]];
+const bounds = [[0,0], ["{{ map.resolution_height }}","{{ map.resolution_width }}"]];
+console.log(bounds)
 L.imageOverlay(image_url, bounds).addTo(map)
 map.fitBounds(bounds)
 </script>

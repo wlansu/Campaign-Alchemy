@@ -1,10 +1,11 @@
 from typing import Any
+from urllib.parse import urlparse
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import QuerySet
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
@@ -42,6 +43,16 @@ class MapListView(CampaignIncluded, ListView):
     model = Map
     template_name = "maps/maps_list.html"
     context_object_name = "maps"
+
+    def get(self, request, *args, **kwargs) -> HttpResponse:
+        """Prevent this view from being called from any other url than the campaigns:detail view."""
+        campaign_pk = kwargs.get("campaign_pk")
+        canonical_url = reverse("campaigns:detail", kwargs={"campaign_pk": campaign_pk})
+        sections = urlparse(request.htmx.current_url)
+        if not sections.path == canonical_url:
+            return redirect(canonical_url)
+
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self) -> QuerySet:
         """
@@ -141,5 +152,7 @@ class MapDeleteView(CampaignIncluded, SuccessMessageMixin, DeleteView):
     def render_to_response(
         self, context: dict[str, Any], **response_kwargs: Any
     ) -> HttpResponse:
+        """On delete send the HTMX trigger so the map list will reload."""
         response = super().render_to_response(context, **response_kwargs)
         response.headers["HX-Trigger"] = "mapListChanged"
+        return response
