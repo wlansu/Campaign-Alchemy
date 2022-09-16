@@ -25,7 +25,7 @@
   <!-- Action buttons -->
   <div class="row mt-3">
     <div class="col-sm-12 ">
-      <a class="btn btn-primary" href="{% url 'campaigns:maps:update' campaign_pk=map.campaign.id map_pk=map.id %}" role="button">Edit</a>
+      <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:maps:update' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="#dialog">Edit</button>
       <button type="button" class="btn btn-danger" hx-get="{% url 'campaigns:maps:delete' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="#dialog">Delete</button>
     </div>
   </div>

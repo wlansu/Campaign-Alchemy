@@ -11,15 +11,15 @@
       <h2>{{ campaign.name }}</h2>
       <p>{{ campaign.description }}</p>
       <div class="mb-3">
-        <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:update' campaign.id %}" hx-target="#dialog">Update Campaign</button>
-        <button type="button" class="btn btn-danger" hx-get="{% url 'campaigns:delete' campaign.id %}" hx-target="#dialog">Delete Campaign</button>
+        <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:update' campaign.id %}" hx-target="#dialog">Edit</button>
+        <button type="button" class="btn btn-danger" hx-get="{% url 'campaigns:delete' campaign.id %}" hx-target="#dialog">Delete</button>
       </div>
     </div>
   </div>
 
   <div class="row mb-3">
     <div class="text-center">
-      <a class="btn btn-primary" href="{% url 'campaigns:maps:create' campaign_pk=campaign.id %}" role="button">Create New Map</a>
+      <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:maps:create' campaign_pk=campaign.id %}" hx-target="#dialog">Create New Map</button>
     </div>
   </div>
   <div hx-trigger="load from:body" hx-get="{% url 'campaigns:maps:list' campaign_pk=campaign.id %}" hx-target="this" class="row row-cols-1 row-cols-lg-2 row-cols-xl-4">
