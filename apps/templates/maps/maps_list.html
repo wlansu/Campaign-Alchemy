@@ -1,26 +1,19 @@
-{% extends "base.html" %}
 {% load static %}
-
-{% block title %}Maps{% endblock %}
-
-{% block content %}
-<div class="container">
-  {% if maps %}
-    {% for map in maps %}
-    <div class="row">
-      <div class="col-sm-12">
-
-        <h2>{{ map.name }}</h2>
-        {% if map.description %}
-          <p>{{ map.description }}</p>
+{% for map in maps %}
+<div class="col">
+  <a class="text-decoration-none text-reset" href="{% url 'campaigns:maps:detail' campaign_pk=map.campaign_id map_pk=map.id %}">
+  <div class="card radius-15 bg">
+    <div class="card-body text-center">
+      <div class="p-4 border radius-15">
+        {% if map.image %}
+          <img src="{{ map.image.url }}" width="110" height="110" class="rounded-circle shadow" alt="">
+        {% else %}
+          <img src="{% static 'images/default_image.png' %}" width="110" height="110" class="rounded-circle shadow" alt="">
         {% endif %}
-        <img src="{{ map.image }}" class="img-responsive" alt="{{ map.name }}">
+        <h5 class="mb-0 mt-5">{{ map.name }}</h5>
       </div>
     </div>
-    {% endfor %}
-  {% else %}
-    <p>No maps found.</p>
-    <a class="btn btn-primary" href="{% url 'campaigns:maps:create' campaign_pk=campaign.id %}" role="button">Create</a>
-  {% endif %}
+  </div>
+  </a>
 </div>
-{% endblock %}
+{% endfor %}

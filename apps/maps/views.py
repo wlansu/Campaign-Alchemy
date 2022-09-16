@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import QuerySet
@@ -135,3 +137,9 @@ class MapDeleteView(CampaignIncluded, SuccessMessageMixin, DeleteView):
         return reverse(
             "campaigns:detail", kwargs={"campaign_pk": self.object.campaign_id}
         )
+
+    def render_to_response(
+        self, context: dict[str, Any], **response_kwargs: Any
+    ) -> HttpResponse:
+        response = super().render_to_response(context, **response_kwargs)
+        response.headers["HX-Trigger"] = "mapListChanged"

@@ -6,39 +6,23 @@
 {% block content %}
 <div class="container">
 
-  <div class="row">
-    <div class="col-sm-12">
-
+  <div class="row mb-3 border-bottom">
+    <div class="text-center">
       <h2>{{ campaign.name }}</h2>
-      {% if campaign.description %}
-        <p>{{ campaign.description }}</p>
-      {% endif %}
+      <p>{{ campaign.description }}</p>
+      <div class="mb-3">
+        <a class="btn btn-primary" href="{% url 'campaigns:update' campaign.id %}" role="button">Update Campaign</a>
+        <a class="btn btn-danger" href="{% url 'campaigns:delete' campaign.id %}" role="button">Delete Campaign</a>
+      </div>
     </div>
   </div>
 
-<!-- Action buttons -->
-<div class="row">
-
-  <div class="col-sm-12">
-    <a class="btn btn-primary" href="{% url 'campaigns:update' campaign.id %}" role="button">Update Campaign</a>
-    <a class="btn btn-danger" href="{% url 'campaigns:delete' campaign.id %}" role="button">Delete Campaign</a>
-  </div>
-
-</div>
-
-<div class="row">
-  {% if campaign.maps %}
-    <div class="col-sm-12">
-      <h3>Maps</h3>
-      <ul>
-        {% for map in campaign.maps.all %}
-          <li><a href="{% url 'campaigns:maps:detail' campaign_pk=campaign.id map_pk=map.id %}">{{ map.name }}</a></li>
-        {% endfor %}
-      </ul>
-      <a class="btn btn-primary" href="{% url 'campaigns:maps:create' campaign_pk=campaign.id %}" role="button">Create Map</a>
+  <div class="row mb-3">
+    <div class="text-center">
+      <a class="btn btn-primary" href="{% url 'campaigns:maps:create' campaign_pk=campaign.id %}" role="button">Create New Map</a>
     </div>
-  {% endif %}
-</div>
-
+  </div>
+  <div hx-trigger="load, mapListChanged from:body" hx-get="{% url 'campaigns:maps:list' campaign_pk=campaign.id %}" hx-target="this" class="row row-cols-1 row-cols-lg-2 row-cols-xl-4">
+  </div>
 </div>
 {% endblock content %}
