@@ -11,7 +11,7 @@
       <h2>{{ campaign.name }}</h2>
       <p>{{ campaign.description }}</p>
       <div class="mb-3">
-        <a class="btn btn-primary" href="{% url 'campaigns:update' campaign.id %}" role="button">Update Campaign</a>
+        <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:update' campaign.id %}" hx-target="#dialog">Update Campaign</button>
         <button type="button" class="btn btn-danger" hx-get="{% url 'campaigns:delete' campaign.id %}" hx-target="#dialog">Delete Campaign</button>
       </div>
     </div>

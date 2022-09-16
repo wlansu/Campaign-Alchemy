@@ -7,7 +7,7 @@
 <div class="container">
   <div class="row mb-3">
     <div class="text-center">
-      <a class="btn btn-primary" href="{% url 'campaigns:create' %}" role="button">Create New Campaign</a>
+      <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:create' %}" role="button" hx-target="#dialog">Create New Campaign</button>
     </div>
   </div>
   <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-4">
@@ -32,3 +32,9 @@
   </div>
 </div>
 {% endblock %}
+
+{% block modal %}
+<div id="modal" class="modal fade">
+  <div id="dialog" class="modal-dialog"></div>
+</div>
+{% endblock modal %}
