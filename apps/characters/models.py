@@ -27,6 +27,7 @@ class Character(TimeStampedModel):
     player = models.ForeignKey(
         "users.User", on_delete=models.SET_NULL, related_name="characters", null=True
     )
+    is_npc = models.BooleanField(default=False)
     location = models.ForeignKey(
         "characters.Character",
         on_delete=models.SET_NULL,
@@ -40,12 +41,12 @@ class Character(TimeStampedModel):
     def __repr__(self) -> str:
         return f"<Character: {self.name}>"
 
-    def is_npc(self) -> bool:
-        """Return whether the character is an NPC or not.
-
-        A character is an NPC if no player is assigned.
-        """
-        return hasattr(self, "player")
+    def save(self, *args, **kwargs) -> None:
+        """Overloaded to set the player to None if is_npc is True."""
+        super().save(*args, **kwargs)
+        if self.is_npc and kwargs.get("update_fields", None) == ["player"]:
+            self.player = None
+            self.save(update_fields=["player"])
 
     class Meta:
         verbose_name = "Character"

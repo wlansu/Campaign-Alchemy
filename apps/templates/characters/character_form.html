@@ -1,0 +1,19 @@
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+  <form class="modal-content" method="post" enctype="multipart/form-data" action="{% if character %}{% url 'characters:update' character.id %}{% else %}{% url 'characters:create' %}{% endif %}">
+    {% csrf_token %}
+    <div class="modal-header">
+      <h5 class="modal-title">{% if character %}Update {{ character.name }}{% else %}Create{% endif %}</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      {{ form|crispy }}
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      <button type="submit" class="btn btn-primary">Yes</button>
+    </div>
+  </form>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ character.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="row mb-3 border-bottom">
+    <div class="text-center">
+      <h2>{{ character.name }}</h2>
+      <p>{{ character.description }}</p>
+      <div class="mb-3">
+        <button type="button" class="btn btn-primary" hx-get="{% url 'characters:update' character.id %}" hx-target="#dialog">Edit</button>
+        <button type="button" class="btn btn-danger" hx-get="{% url 'characters:delete' character.id %}" hx-target="#dialog">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

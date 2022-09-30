@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Characters{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row mb-3">
+    <div class="text-center">
+      <button type="button" class="btn btn-primary" hx-get="{% url 'characters:create' %}" role="button" hx-target="#dialog">Create New Character</button>
+      <input
+        type="search"
+        name="search"
+        autocomplete="off"
+        placeholder="Search"
+        hx-trigger="keyup changed delay:500ms, search"
+        hx-target="#hx-target"
+        hx-get="{% url 'characters:hx-list' %}"
+        hx-swap="innerHTML"
+      />
+    </div>
+  </div>
+  <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-4" id="hx-target">
+    {% include "characters/partial_list.html" %}
+  </div>
+</div>
+{% endblock %}
