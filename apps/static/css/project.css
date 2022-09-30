@@ -24,6 +24,34 @@
   height: 1000px;
 }
 
-.bg-dark-gray {
-  background-color: darkgray;
+.dark-color-scheme {
+  background-color: #45606D;
+}
+
+.bg-main {
+  background-color: #99B5CB;
+}
+
+.btn-primary {
+  background-color: #505A68;
+  border-color: #4B6270;
+  color: #A2BCA9;
+}
+
+.btn-primary:hover {
+  background-color: #505F88;
+  border-color: #4B6270;
+  color: #A2BCA9;
+}
+
+.btn-danger {
+  background-color: #A70100;
+  border-color: darkred;
+  color: #A2BCA9;
+}
+
+.btn-danger:hover {
+  background-color: #BC0100;
+  border-color: darkred;
+  color: #A2BCA9;
 }

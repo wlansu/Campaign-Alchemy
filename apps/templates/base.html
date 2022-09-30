@@ -41,10 +41,10 @@
 
   </head>
 
-  <body class="bg-light" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <body class="bg-main" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
     <div class="mb-3">
-      <nav class="navbar navbar-expand-md navbar-light bg-dark-gray">
+      <nav class="navbar navbar-expand-md navbar-light dark-color-scheme">
         <div class="container-fluid">
           <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -95,9 +95,7 @@
         {% endfor %}
       {% endif %}
 
-      {% block content %}
-        <p>Use this document as a way to quick start any new project.</p>
-      {% endblock content %}
+      {% block content %}{% endblock content %}
 
     </div> <!-- /container -->
 

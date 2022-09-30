@@ -14,7 +14,7 @@
     {% for campaign in campaigns %}
     <div class="col">
     <a class="text-decoration-none text-reset" href="{% url 'campaigns:detail' campaign_pk=campaign.id %}">
-      <div class="card radius-15 bg">
+      <div class="card radius-15 bg dark-color-scheme">
         <div class="card-body text-center">
           <div class="p-4 border radius-15">
             {% if campaign.image %}

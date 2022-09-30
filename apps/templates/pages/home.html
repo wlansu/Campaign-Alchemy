@@ -1,1 +1,32 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div>
+  <p class="text-center"><b>A website to create a campaign map with placeable markers to chart the journey of your characters.</b></p>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+      <a class="text-decoration-none text-reset" href="{% url 'campaigns:list' %}">
+        <div class="card h-100" style="width: 36rem;">
+          <img class="card-img-top" style="width: 36rem; height: 28rem;" src="{% static 'images/worldofdarkness.jpeg' %}" alt="Dark cityscape">
+          <div class="card-body text-center dark-color-scheme">
+            <h5 class="card-title">Campaigns</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-sm">
+      <a class="text-decoration-none text-reset" href="{% url 'campaigns:list' %}">
+        <div class="card h-100" style="width: 36rem;">
+          <img class="card-img-top" style="width: 36rem; height: 28rem;" src="{% static 'images/vampires2.jpeg' %}" alt="Group of vampires, hunting.">
+          <div class="card-body text-center dark-color-scheme">
+            <h5 class="card-title">Characters</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

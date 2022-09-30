@@ -2,7 +2,7 @@
 {% for map in maps %}
 <div class="col">
   <a class="text-decoration-none text-reset" href="{% url 'campaigns:maps:detail' campaign_pk=map.campaign_id map_pk=map.id %}">
-  <div class="card radius-15 bg">
+  <div class="card radius-15 bg dark-color-scheme">
     <div class="card-body text-center">
       <div class="p-4 border radius-15">
         {% if map.image %}
