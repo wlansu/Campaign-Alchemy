@@ -59,13 +59,18 @@ class CharacterCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
         """
-        Override form_valid method to set user as creator and is_active to True.
+        The user that creates a character is its owner.
+        A newly created character is always considered active.
+        If a character is not an NPC then the player is the creator.
         """
         form.instance.creator = self.request.user
         form.instance.is_active = True
         if form.data.get("is_npc") != "on":
             form.instance.player = self.request.user
         return super().form_valid(form)
+
+    def form_invalid(self, form: BaseForm) -> HttpResponse:
+        """If the form is invalid we need to send the form data back to the modal."""
 
     def get_success_url(self) -> str:
         """
@@ -87,9 +92,7 @@ class CharacterUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     pk_url_kwarg = "character_pk"
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
-        """
-        Override form_valid method set user as player if is_npc is false and vice versa.
-        """
+        """Set character as NPC or Player."""
         if form.data.get("is_npc") != "on":
             form.instance.player = self.request.user
         else:

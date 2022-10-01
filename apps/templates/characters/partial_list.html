@@ -3,13 +3,13 @@
 {% for character in characters %}
 <div class="col">
 <a class="text-decoration-none text-reset" href="{% url 'characters:detail' character.pk %}">
-  <div class="card radius-15 bg dark-color-scheme">
+  <div class="card h-100 radius-15 bg dark-color-scheme">
     <div class="card-body text-center">
       <div class="p-4 border radius-15">
         {% if character.image %}
-          <img src="{{ character.image.url }}" width="110" height="110" class="rounded-circle shadow" alt="Image of {{ character.name }}">
+          <img src="{{ character.image.url }}" width="140" height="140" class="rounded-circle shadow" alt="Image of {{ character.name }}">
         {% else %}
-          <img src="{% static 'images/default_image.png' %}" width="110" height="110" class="rounded-circle shadow" alt="Default character image">
+          <img src="{% static 'images/default_image.png' %}" width="140" height="140" class="rounded-circle shadow" alt="Default character image">
         {% endif %}
         <h5 class="mb-5 mt-5">{{ character.name }}</h5>
       </div>
