@@ -1,9 +1,14 @@
 {% load static %}
-<div class="text-center">
-  <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:maps:create' campaign_pk=campaign.id %}" hx-target="#dialog">Create New Map</button>
+
+<div class="row text-center">
+  <div class="col mb-2">
+    <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:maps:create' campaign_pk=campaign.id %}" hx-target="#dialog">Create New Map</button>
+  </div>
 </div>
+
+<div class="row mt-1">
 {% for map in maps %}
-<div class="col">
+<div class="col-3">
   <a class="text-decoration-none text-reset" href="{% url 'campaigns:maps:detail' campaign_pk=map.campaign_id map_pk=map.id %}">
   <div class="card radius-15 bg dark-color-scheme">
     <div class="card-body text-center">
@@ -20,3 +25,4 @@
   </a>
 </div>
 {% endfor %}
+</div>

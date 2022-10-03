@@ -6,6 +6,12 @@
   <p class="text-center"><b>A website to create a campaign map with placeable markers to chart the journey of your characters.</b></p>
 </div>
 <div class="container">
+  {% if ACCOUNT_ALLOW_REGISTRATION and not request.user.is_authenticated %}
+  <div class="row">
+    {# URL provided by django-allauth/account/urls.py #}
+    <a href="{% url 'account_signup' %}">Sign Up</a>
+  </div>
+  {% else %}
   <div class="row">
     <div class="col-sm">
       <a class="text-decoration-none text-reset" href="{% url 'campaigns:list' %}">
@@ -28,5 +34,6 @@
       </a>
     </div>
   </div>
+  {% endif %}
 </div>
 {% endblock %}

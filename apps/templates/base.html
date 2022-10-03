@@ -45,49 +45,49 @@
 
   <body class="bg-main" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
-    <div class="mb-3">
-      <nav class="navbar navbar-expand-md navbar-light dark-color-scheme">
-        <div class="container-fluid">
-          <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <a class="navbar-brand" href="{% url 'home' %}">Campaign Creator</a>
-
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-              {% if request.user.is_authenticated %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'campaigns:list' %}">Campaigns</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'characters:list' %}">Characters</a>
-                </li>
-                <li class="nav-item">
-                  {# URL provided by django-allauth/account/urls.py #}
-                  <a class="nav-link" href="{% url 'users:detail' request.user.username  %}">{% translate "My Profile" %}</a>
-                </li>
-                <li class="nav-item">
-                  {# URL provided by django-allauth/account/urls.py #}
-                  <a class="nav-link" href="{% url 'account_logout' %}">{% translate "Sign Out" %}</a>
-                </li>
-              {% else %}
-                {% if ACCOUNT_ALLOW_REGISTRATION %}
-              <li class="nav-item">
-                {# URL provided by django-allauth/account/urls.py #}
-                <a id="sign-up-link" class="nav-link" href="{% url 'account_signup' %}">{% translate "Sign Up" %}</a>
-              </li>
-              {% endif %}
-                <li class="nav-item">
-                  {# URL provided by django-allauth/account/urls.py #}
-                  <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}">{% translate "Sign In" %}</a>
-                </li>
-              {% endif %}
-            </ul>
-          </div>
+    <nav class="navbar navbar-expand-lg navbar-light dark-color-scheme mb-3">
+      <div class="container-fluid">
+        {% url 'home' as url %}
+        <a class="navbar-brand {% if request.path == url %}active{% endif %}" href="{{ url }}">Campaign Alchemy</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            {% if request.user.is_authenticated %}
+            <li class="nav-item">
+              {% url 'campaigns:list' as url %}
+              <a class="nav-link {% if request.path == url %}active{% endif %}" aria-current="page" href="{{ url }}">Campaigns</a>
+            </li>
+            <li class="nav-item">
+              {% url 'characters:list' as url%}
+              <a class="nav-link {% if request.path == url %}active{% endif %}" href="{{ url }}">Characters</a>
+            </li>
+            <li class="nav-item dropdown">
+              {% url 'users:detail' request.user.username as url %}
+              <a class="nav-link dropdown-toggle {% if request.path == url %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Profile
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{{ url }}">My Profile</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'account_logout' %}">Sign Out</a></li>
+              </ul>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              {% url 'account_login' as url %}
+              <a class="nav-link {% if request.path == url %}active{% endif %}" href="{{ url }}">Sign In</a>
+            </li>
+            {% endif %}
+          </ul>
+{#          <form class="d-flex" role="search">#}
+{#            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">#}
+{#            <button class="btn btn-outline-success" type="submit">Search</button>#}
+{#          </form>#}
         </div>
-      </nav>
-
-    </div>
+      </div>
+    </nav>
 
     <div class="container">
 
