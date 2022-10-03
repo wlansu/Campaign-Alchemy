@@ -13,17 +13,13 @@
 }
 
 :root {
-  --lightgray: #efefef;
-  --blue: steelblue;
-  --white: #fff;
-  --black: rgba(0, 0, 0, 0.8);
   --ca-lightgray: #99B5CB;
   --ca-darkgray: #45606D;
   --ca-mediumgray: #505A68;
   --ca-bluegray: #505F88;
   --ca-whitegreen: #A2BCA9;
-  --ca-bloodred: #A70100;
-  --ca-lightbloodred: #BC0100;
+  --ca-bloodred: #8a0303;
+  --ca-lightbloodred: #ac0404;
   --bounceEasing: cubic-bezier(0.51, 0.92, 0.24, 1.15);
 }
 
@@ -68,6 +64,15 @@
   white-space: nowrap;
   background-color: transparent;
   border: 0;
+}
+
+a {
+  color: var(--ca-bloodred);
+  text-decoration: underline;
+}
+
+a:hover {
+  color: var(--ca-lightbloodred);
 }
 
 .dropdown-item:hover {
@@ -160,4 +165,14 @@ body {
 
 .full-height {
   height: 100vh;
+}
+
+.ca-pointer {
+  cursor: pointer;
+}
+
+.card-footer {
+    padding: 0.5rem 1rem;
+    background-color: var(--ca-darkgray);
+    border-top: 1px solid var(--ca-darkgray);
 }

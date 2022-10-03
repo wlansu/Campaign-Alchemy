@@ -16,9 +16,10 @@ htmx.on("htmx:beforeSwap", (e) => {
 })
 
 htmx.on("hidden.bs.modal", () => {
+  // When modal is hidden => reset the form
   document.getElementById("dialog").innerHTML = ""
 })
 
-htmx.on("characterListChanged", (e) => {
+htmx.on("characterChanged", (e) => {
   modal.hide()
 })

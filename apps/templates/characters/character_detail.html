@@ -5,23 +5,8 @@
 
 {% block content %}
 <div class="container">
-  <div class="row mb-3">
-    <div class="col-4">
-      <div class="card border-dark dark-color-scheme">
-        <img src="{{ character.image.url }}" alt="Image of {{ character.name }}" class="card-img">
-        {% if character.is_npc %}
-        <div class="card-body text-center whitegreen">
-          <h3 class="card-text">NPC</h3>
-        </div>
-        {% endif %}
-      </div>
-    </div>
-    <div class="col-2">
-      <div class="text-center">
-        <h2>{{ character.name }}</h2>
-        <p>{{ character.description }}</p>
-      </div>
-    </div>
+  <div class="row mb-3" hx-get="{% url 'characters:detail' character_pk=character.pk %}" hx-trigger="characterChanged from:body" target="this">
+    {% include 'characters/character_detail_partial.html' %}
   </div>
   <div class="border-top"></div>
   <div class="text-center mt-3">

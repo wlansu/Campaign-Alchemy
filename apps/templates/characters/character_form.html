@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-  <form class="modal-content" method="post" enctype="multipart/form-data" action="{% if character %}{% url 'characters:update' character.id %}{% else %}{% url 'characters:create' %}{% endif %}">
+  <form class="modal-content" enctype="multipart/form-data" hx-post="{% if character %}{% url 'characters:update' character.id %}{% else %}{% url 'characters:create' %}{% endif %}">
     {% csrf_token %}
     <div class="modal-header">
       <h5 class="modal-title">{% if character %}Update {{ character.name }}{% else %}Create{% endif %}</h5>
@@ -13,7 +13,7 @@
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-      <button type="submit" class="btn btn-primary">Yes</button>
+      <button type="submit" class="btn btn-primary">Submit</button>
     </div>
   </form>
 {% endblock %}

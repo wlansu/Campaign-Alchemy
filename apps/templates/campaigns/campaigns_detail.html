@@ -18,15 +18,36 @@
     </div>
   </div>
 
-  <div class="row text-center">
-    <div class="col-sm">
-      <button class="light" hx-trigger="click, mapListChanged from:body" hx-get="{% url 'campaigns:maps:list' campaign_pk=campaign.id %}" hx-target="#hx-target">Maps</button>
+  <nav class="navbar navbar-expand-lg navbar-light dark-color-scheme mb-3">
+    <div class="container-fluid">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a id="maps" class="nav-link ca-pointer {% if maps %}active{% endif %}" hx-trigger="click, mapListChanged from:body" hx-get="{% url 'campaigns:maps:list' campaign_pk=campaign.id %}" hx-target="#hx-target">Maps</a>
+        </li>
+        <li class="nav-item">
+          <a id="characters" class="nav-link ca-pointer {% if characters %}active{% endif %}" hx-trigger="click, characterChanged from:body" hx-get="{% url 'campaigns:characters:hx-list' campaign_pk=campaign.id %}" hx-target="#hx-target">Characters</a>
+        </li>
+      </ul>
     </div>
-    <div class="col-sm">
-      <button class="light" hx-trigger="click, characterListChanged from:body" hx-get="{% url 'campaigns:characters:hx-list' campaign_pk=campaign.id %}" hx-target="#hx-target">Characters</button>
-    </div>
-  </div>
+  </nav>
 
   <div class="row mt-3" id="hx-target"></div>
 </div>
 {% endblock content %}
+
+{% block inline_javascript %}
+<script>
+const maps = document.getElementById("maps")
+const characters = document.getElementById("characters")
+
+maps.addEventListener("click", (e) => {
+  characters.classList.remove("active")
+  maps.classList.add("active")
+})
+
+characters.addEventListener("click", (e) => {
+  maps.classList.remove("active")
+  characters.classList.add("active")
+})
+</script>
+{% endblock %}

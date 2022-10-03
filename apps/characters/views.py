@@ -67,7 +67,7 @@ def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpRespons
     if request.user == character.player:
         character.campaign = None
         character.save()
-    return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
+    return HttpResponse(status=204, headers={"HX-Trigger": "characterChanged"})
 
 
 class CharacterDetailView(LoginRequiredMixin, DetailView):
@@ -80,8 +80,13 @@ class CharacterDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "character"
     pk_url_kwarg = "character_pk"
 
+    def get_template_names(self) -> list[str]:
+        if self.request.htmx:
+            return ["characters/character_detail_partial.html"]
+        return [self.template_name]
 
-class CharacterCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+
+class CharacterCreateView(LoginRequiredMixin, CreateView):
     """Create a new Character."""
 
     model = Character
@@ -99,9 +104,6 @@ class CharacterCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
             form.instance.player = self.request.user
         return super().form_valid(form)
 
-    def form_invalid(self, form: BaseForm) -> HttpResponse:
-        """If the form is invalid we need to send the form data back to the modal."""
-
     def get_success_url(self) -> str:
         """
         Override get_success_url method to redirect to Characters Detail.
@@ -109,7 +111,7 @@ class CharacterCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         return reverse("characters:detail", kwargs={"character_pk": self.object.pk})
 
 
-class CharacterUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class CharacterUpdateView(LoginRequiredMixin, UpdateView):
     """
     View for Characters Update.
     """
@@ -118,7 +120,6 @@ class CharacterUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     fields = ["name", "description", "image", "is_npc", "is_active"]
     template_name = "characters/character_form.html"
     context_object_name = "character"
-    success_message = "Character successfully updated"
     pk_url_kwarg = "character_pk"
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
@@ -127,13 +128,9 @@ class CharacterUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
             form.instance.player = self.request.user
         else:
             form.instance.player = None
-        return super().form_valid(form)
+        self.object = form.save()
 
-    def get_success_url(self) -> str:
-        """
-        Override get_success_url method to redirect to Characters Detail.
-        """
-        return reverse("characters:detail", kwargs={"character_pk": self.object.pk})
+        return HttpResponse(status=204, headers={"HX-Trigger": "characterChanged"})
 
 
 class CharacterDeleteView(SuccessMessageMixin, DeleteView):
