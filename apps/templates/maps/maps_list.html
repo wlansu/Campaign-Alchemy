@@ -1,4 +1,7 @@
 {% load static %}
+<div class="text-center">
+  <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:maps:create' campaign_pk=campaign.id %}" hx-target="#dialog">Create New Map</button>
+</div>
 {% for map in maps %}
 <div class="col">
   <a class="text-decoration-none text-reset" href="{% url 'campaigns:maps:detail' campaign_pk=map.campaign_id map_pk=map.id %}">

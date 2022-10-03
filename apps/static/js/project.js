@@ -18,3 +18,7 @@ htmx.on("htmx:beforeSwap", (e) => {
 htmx.on("hidden.bs.modal", () => {
   document.getElementById("dialog").innerHTML = ""
 })
+
+htmx.on("characterListChanged", (e) => {
+  modal.hide()
+})

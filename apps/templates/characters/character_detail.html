@@ -5,16 +5,28 @@
 
 {% block content %}
 <div class="container">
-
-  <div class="row mb-3 border-bottom">
-    <div class="text-center">
-      <h2>{{ character.name }}</h2>
-      <p>{{ character.description }}</p>
-      <div class="mb-3">
-        <button type="button" class="btn btn-primary" hx-get="{% url 'characters:update' character.id %}" hx-target="#dialog">Edit</button>
-        <button type="button" class="btn btn-danger" hx-get="{% url 'characters:delete' character.id %}" hx-target="#dialog">Delete</button>
+  <div class="row mb-3">
+    <div class="col-4">
+      <div class="card border-dark dark-color-scheme">
+        <img src="{{ character.image.url }}" alt="Image of {{ character.name }}" class="card-img">
+        {% if character.is_npc %}
+        <div class="card-body text-center whitegreen">
+          <h3 class="card-text">NPC</h3>
+        </div>
+        {% endif %}
       </div>
     </div>
+    <div class="col-2">
+      <div class="text-center">
+        <h2>{{ character.name }}</h2>
+        <p>{{ character.description }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="border-top"></div>
+  <div class="text-center mt-3">
+    <button type="button" class="btn btn-primary" hx-get="{% url 'characters:update' character.id %}" hx-target="#dialog">Edit</button>
+    <button type="button" class="btn btn-danger" hx-get="{% url 'characters:delete' character.id %}" hx-target="#dialog">Delete</button>
   </div>
 </div>
 {% endblock content %}

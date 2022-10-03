@@ -29,7 +29,7 @@ class Character(TimeStampedModel):
     )
     is_npc = models.BooleanField(default=False)
     location = models.ForeignKey(
-        "characters.Character",
+        "locations.Location",
         on_delete=models.SET_NULL,
         related_name="characters",
         null=True,

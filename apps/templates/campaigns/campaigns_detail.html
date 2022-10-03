@@ -8,8 +8,9 @@
 
   <div class="row mb-3 border-bottom">
     <div class="text-center">
-      <h2>{{ campaign.name }} Maps</h2>
+      <h2>{{ campaign.name }}</h2>
       <p>{{ campaign.description }}</p>
+      <p>{{ campaign.invite_code }}</p>
       <div class="mb-3">
         <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:update' campaign.id %}" hx-target="#dialog">Edit</button>
         <button type="button" class="btn btn-danger" hx-get="{% url 'campaigns:delete' campaign.id %}" hx-target="#dialog">Delete</button>
@@ -17,12 +18,25 @@
     </div>
   </div>
 
-  <div class="row mb-3">
-    <div class="text-center">
-      <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:maps:create' campaign_pk=campaign.id %}" hx-target="#dialog">Create New Map</button>
+  <div class="row">
+    <div class="col-sm">
+      <div class="card h-100" style="width: 36rem;" hx-trigger="click, mapListChanged from:body" hx-get="{% url 'campaigns:maps:list' campaign_pk=campaign.id %}" hx-target="#hx-target">
+        <img class="card-img-top" style="width: 36rem; height: 28rem;" src="{% static 'images/worldofdarkness.jpeg' %}" alt="Dark cityscape">
+        <div class="card-body text-center dark-color-scheme">
+          <h5 class="card-title">Maps</h5>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm">
+      <div class="card h-100" style="width: 36rem;" hx-trigger="click, characterListChanged from:body" hx-get="{% url 'campaigns:characters:hx-list' campaign_pk=campaign.id %}" hx-target="#hx-target">
+        <img class="card-img-top" style="width: 36rem; height: 28rem;" src="{% static 'images/vampires2.jpeg' %}" alt="Group of vampires, hunting.">
+        <div class="card-body text-center dark-color-scheme">
+          <h5 class="card-title">Characters</h5>
+        </div>
+      </div>
     </div>
   </div>
-  <div hx-trigger="load from:body" hx-get="{% url 'campaigns:maps:list' campaign_pk=campaign.id %}" hx-target="this" class="row row-cols-1 row-cols-lg-2 row-cols-xl-4">
-  </div>
+
+  <div class="row mb-3" id="hx-target"></div>
 </div>
 {% endblock content %}

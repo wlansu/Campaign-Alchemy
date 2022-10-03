@@ -2,10 +2,10 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-  <form class="modal-content" enctype="multipart/form-data" method="post" action="{% if campaign %}{% url 'campaigns:update' campaign.id %}{% else %}{% url 'campaigns:create' %}{% endif %}">
+  <form class="modal-content" hx-post="{% url 'characters:add' %}">
     {% csrf_token %}
     <div class="modal-header">
-      <h5 class="modal-title">{% if campaign %}Update {{ campaign.name }}{% else %}Create{% endif %}</h5>
+      <h5 class="modal-title">Add character to campaign</h5>
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body">

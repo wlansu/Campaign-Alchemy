@@ -16,4 +16,8 @@ urlpatterns = [
     path("<int:campaign_pk>/", view=CampaignDetailView.as_view(), name="detail"),
     path("<int:campaign_pk>/delete/", view=CampaignDeleteView.as_view(), name="delete"),
     path("<int:campaign_pk>/maps/", include("apps.maps.urls", namespace="maps")),
+    path(
+        "<int:campaign_pk>/characters/",
+        include("apps.characters.urls", namespace="characters"),
+    ),
 ]

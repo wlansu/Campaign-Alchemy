@@ -3,10 +3,11 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q, QuerySet
 from django.forms import BaseForm
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
 
+from apps.characters.forms import AddToCampaignForm
 from apps.characters.models import Character
 
 
@@ -25,10 +26,12 @@ def characters_page(request: HttpRequest) -> HttpResponse:
     )
 
 
-def characters_hx(request: HttpRequest) -> HttpResponse:
+def characters_hx(request: HttpRequest, campaign_pk: int = None) -> HttpResponse:
     """HX-Request: return a partial template."""
     query = request.GET.get("search", None)
     characters = _get_characters(request)
+    if campaign_pk:
+        characters = characters.filter(campaign=campaign_pk)
     if query:
         characters = characters.filter(name__icontains=query)
     return render(
@@ -36,6 +39,35 @@ def characters_hx(request: HttpRequest) -> HttpResponse:
         template_name="characters/partial_list.html",
         context={"characters": characters},
     )
+
+
+def add_to_campaign(request: HttpRequest, character_pk: int = None) -> HttpResponse:
+    """Add a Character to a Campaign."""
+    if request.method == "POST":
+        form = AddToCampaignForm(request.POST, request=request)
+        if form.is_valid():
+            form.save()
+            return HttpResponse(
+                status=204, headers={"HX-Trigger": "characterListChanged"}
+            )
+    else:
+        form = AddToCampaignForm()
+        if character_pk:
+            form.initial["character_pk"] = character_pk
+
+    return render(
+        request=request,
+        template_name="characters/add_to_campaign_form.html",
+        context={"form": form},
+    )
+
+
+def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpResponse:
+    character = get_object_or_404(Character, id=character_pk)
+    if request.user == character.player:
+        character.campaign = None
+        character.save()
+    return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
 
 
 class CharacterDetailView(LoginRequiredMixin, DetailView):
@@ -60,11 +92,9 @@ class CharacterCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     def form_valid(self, form: BaseForm) -> HttpResponse:
         """
         The user that creates a character is its owner.
-        A newly created character is always considered active.
         If a character is not an NPC then the player is the creator.
         """
         form.instance.creator = self.request.user
-        form.instance.is_active = True
         if form.data.get("is_npc") != "on":
             form.instance.player = self.request.user
         return super().form_valid(form)

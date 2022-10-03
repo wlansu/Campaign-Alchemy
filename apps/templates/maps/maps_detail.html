@@ -4,30 +4,24 @@
 {% block title %}Map: {{ map.name }}{% endblock %}
 
 {% block content %}
-<div class="container">
-
-  <div class="row">
-    <div class="col-sm-12">
-
-      <h2 class="text-center">{{ map.name }}</h2>
-      {% if map.description %}
-        <p>{{ map.description }}</p>
-      {% endif %}
-      <div id="map">
-        <div id="modal" class="modal fade">
-          <div id="dialog" class="modal-dialog"></div>
-        </div>
-        <div class="overlay" hx-trigger="load from:body" hx-get="{% url 'campaigns:maps:locations:list' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="this"></div>
-      </div>
+<div class="row full-height">
+  <div class="col-sm-12 text-center">
+    <h2>{{ map.name }}</h2>
+    <h5>Use <i>shift</i> + <i>click</i> to add markers to the map.</h5>
+    {% if map.description %}
+      <p>{{ map.description }}</p>
+    {% endif %}
+    <div id="map">
+      <div class="overlay" hx-trigger="load from:body" hx-get="{% url 'campaigns:maps:locations:list' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="this"></div>
     </div>
   </div>
+</div>
 
-  <!-- Action buttons -->
-  <div class="row mt-3">
-    <div class="col-sm-12 ">
-      <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:maps:update' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="#dialog">Edit</button>
-      <button type="button" class="btn btn-danger" hx-get="{% url 'campaigns:maps:delete' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="#dialog">Delete</button>
-    </div>
+<!-- Action buttons -->
+<div class="row mt-3">
+  <div class="col-sm-12 ">
+    <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:maps:update' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="#dialog">Edit</button>
+    <button type="button" class="btn btn-danger" hx-get="{% url 'campaigns:maps:delete' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="#dialog">Delete</button>
   </div>
 </div>
 {% endblock content %}
@@ -38,8 +32,8 @@ const map = L.map("map", {
   scrollWheelZoom: false,
   attributionControl: false,
   crs: L.CRS.Simple,
-  minZoom: -5,
-  maxZoom: 5
+  minZoom: -10,
+  maxZoom: 5,
 })
 
 function onMapClick(e) {
@@ -63,7 +57,7 @@ function onMapClick(e) {
 map.on('click', onMapClick);
 
 const image_url = window.location.protocol + "//" + "{{ request.get_host }}" + "{{ map.image.url }}"
-const bounds = [[0,0], ["{{ map.resolution_height }}","{{ map.resolution_width }}"]];
+const bounds = [ [0, 0], ["{{ map.resolution_height }}","{{ map.resolution_width }}"]];
 console.log(bounds)
 L.imageOverlay(image_url, bounds).addTo(map)
 map.fitBounds(bounds)

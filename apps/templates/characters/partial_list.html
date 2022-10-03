@@ -1,20 +1,54 @@
 {% load static %}
 
+<div class="row border-bottom">
+  <div class="col mb-2">
+    <button type="button" class="btn btn-primary" hx-get="{% url 'characters:create' %}" hx-target="#dialog">Create new</button>
+  </div>
+</div>
+
+<div class="row mt-1">
 {% for character in characters %}
-<div class="col">
-<a class="text-decoration-none text-reset" href="{% url 'characters:detail' character.pk %}">
-  <div class="card h-100 radius-15 bg dark-color-scheme">
-    <div class="card-body text-center">
-      <div class="p-4 border radius-15">
-        {% if character.image %}
-          <img src="{{ character.image.url }}" width="140" height="140" class="rounded-circle shadow" alt="Image of {{ character.name }}">
+  <div class="col-3">
+    <div class="card h-100 radius-15 bg dark-color-scheme">
+      <a class="text-decoration-none text-reset" href="{% url 'characters:detail' character.pk %}">
+        <div class="card-body text-center">
+          <div class="p-4 border radius-15">
+            {% if character.image %}
+              <img src="{{ character.image.url }}" width="140" height="140" class="rounded-circle shadow" alt="Image of {{ character.name }}">
+            {% else %}
+              <img src="{% static 'images/default_image.png' %}" width="140" height="140" class="rounded-circle shadow" alt="Default character image">
+            {% endif %}
+            <h5 class="mb-5 mt-5">{{ character.name }}</h5>
+          </div>
+        </div>
+      </a>
+      <div class="card-footer">
+        {% if character.campaign %}
+          <h5 class="float-end">Playing in: {{ character.campaign }}</h5>
+          <img
+            alt="Add character to campaign"
+            class="float-end"
+            src="{% static 'images/icons/unlock-fill.svg' %}"
+            height="25"
+            width="25"
+            hx-trigger="click"
+            hx-get="{% url 'characters:remove' character.pk %}"
+            hx-target="#dialog"
+          >
         {% else %}
-          <img src="{% static 'images/default_image.png' %}" width="140" height="140" class="rounded-circle shadow" alt="Default character image">
+          <img
+            alt="Add character to campaign"
+            class="float-end"
+            src="{% static 'images/icons/lock-fill.svg' %}"
+            height="25"
+            width="25"
+            hx-trigger="click"
+            hx-get="{% url 'characters:add' character.pk %}"
+            hx-target="#dialog"
+          >
         {% endif %}
-        <h5 class="mb-5 mt-5">{{ character.name }}</h5>
       </div>
     </div>
   </div>
-</a>
-</div>
 {% endfor %}
+</div>

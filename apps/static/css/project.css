@@ -17,8 +17,8 @@
   --blue: steelblue;
   --white: #fff;
   --black: rgba(0, 0, 0, 0.8);
-  --cc-darkgray: #99B5CB;
-  --cc-lightgray: #45606D;
+  --cc-lightgray: #99B5CB;
+  --cc-darkgray: #45606D;
   --cc-mediumgray: #505A68;
   --cc-bluegray: #505F88;
   --cc-whitegreen: #A2BCA9;
@@ -31,16 +31,20 @@
   color: var(--cc-whitegreen);
 }
 
-#map {
-  height: 1000px;
+.whitegreen {
+  color: var(--cc-whitegreen);
+}
+
+.border-dark {
+  border-color: var(--cc-darkgray);
 }
 
 .dark-color-scheme {
-  background-color: var(--cc-lightgray);
+  background-color: var(--cc-darkgray);
 }
 
 .bg-main {
-  background-color: var(--cc-darkgray);
+  background-color: var(--cc-lightgray);
 }
 
 .btn-primary {
@@ -67,6 +71,18 @@
   color: var(--cc-whitegreen);
 }
 
+.btn-secondary {
+  background-color: var(--cc-darkgray);
+  border-color: #4B6270;
+  color: var(--cc-whitegreen)
+}
+
+.btn-secondary:hover {
+  background-color: var(--cc-bluegray);
+  border-color: #4B6270;
+  color: var(--cc-whitegreen)
+}
+
 .search-input {
   display: inline-block;
   font-weight: 400;
@@ -87,6 +103,18 @@
 }
 
 .search-input:focus {
-  border: 1px solid var(--cc-darkgray);
+  border: 1px solid var(--cc-lightgray);
   outline-color: var(--cc-bloodred);
+}
+
+body {
+  height: 100vh;
+}
+
+#map {
+  height: 95vh;
+}
+
+.full-height {
+  height: 100vh;
 }
