@@ -67,7 +67,7 @@ def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpRespons
     if request.user == character.player:
         character.campaign = None
         character.save()
-    return HttpResponse(status=204, headers={"HX-Trigger": "objectChanged"})
+    return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
 
 
 class CharacterDetailView(LoginRequiredMixin, DetailView):
@@ -92,7 +92,6 @@ class CharacterCreateView(LoginRequiredMixin, CreateView):
     model = Character
     fields = ["name", "description", "image", "is_npc"]
     template_name = "characters/character_form.html"
-    success_message = "Character successfully created"
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
         """
@@ -102,13 +101,9 @@ class CharacterCreateView(LoginRequiredMixin, CreateView):
         form.instance.creator = self.request.user
         if form.data.get("is_npc") != "on":
             form.instance.player = self.request.user
-        return super().form_valid(form)
+        self.object = form.save()
 
-    def get_success_url(self) -> str:
-        """
-        Override get_success_url method to redirect to Characters Detail.
-        """
-        return reverse("characters:detail", kwargs={"character_pk": self.object.pk})
+        return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
 
 
 class CharacterUpdateView(LoginRequiredMixin, UpdateView):
@@ -130,7 +125,7 @@ class CharacterUpdateView(LoginRequiredMixin, UpdateView):
             form.instance.player = None
         self.object = form.save()
 
-        return HttpResponse(status=204, headers={"HX-Trigger": "objectChanged"})
+        return HttpResponse(status=204, headers={"HX-Trigger": "characterChanged"})
 
 
 class CharacterDeleteView(SuccessMessageMixin, DeleteView):

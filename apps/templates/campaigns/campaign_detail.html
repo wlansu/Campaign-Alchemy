@@ -6,16 +6,8 @@
 {% block content %}
 <div class="container">
 
-  <div class="row mb-3 border-bottom">
-    <div class="text-center">
-      <h2>{{ campaign.name }}</h2>
-      <p>{{ campaign.description }}</p>
-      <p>{{ campaign.invite_code }}</p>
-      <div class="mb-3">
-        <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:update' campaign.id %}" hx-target="#dialog">Edit</button>
-        <button type="button" class="btn btn-danger" hx-get="{% url 'campaigns:delete' campaign.id %}" hx-target="#dialog">Delete</button>
-      </div>
-    </div>
+  <div class="row mb-3 border-bottom" hx-get="{% url 'campaigns:detail' campaign_pk=campaign.pk %}" hx-trigger="campaignChanged from:body" hx-target="this">
+    {% include 'campaigns/campaign_partial_detail.html' %}
   </div>
 
   <nav class="navbar navbar-expand-lg navbar-light dark-color-scheme mb-3">
@@ -25,7 +17,7 @@
           <a id="maps" class="nav-link ca-pointer {% if maps %}active{% endif %}" hx-trigger="click, mapListChanged from:body" hx-get="{% url 'campaigns:maps:list' campaign_pk=campaign.id %}" hx-target="#hx-target">Maps</a>
         </li>
         <li class="nav-item">
-          <a id="characters" class="nav-link ca-pointer {% if characters %}active{% endif %}" hx-trigger="click, objectChanged from:body" hx-get="{% url 'campaigns:characters:hx-list' campaign_pk=campaign.id %}" hx-target="#hx-target">Characters</a>
+          <a id="characters" class="nav-link ca-pointer {% if characters %}active{% endif %}" hx-trigger="click, characterListChanged from:body" hx-get="{% url 'campaigns:characters:hx-list' campaign_pk=campaign.id %}" hx-target="#hx-target">Characters</a>
         </li>
       </ul>
     </div>

@@ -21,7 +21,7 @@ class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
     model = Location
     fields = ["name", "description", "image", "latitude", "longitude"]
-    template_name = "locations/locations_form.html"
+    template_name = "locations/location_form.html"
     success_message = _("Location successfully created")
 
     def get_success_url(self) -> str:
@@ -73,7 +73,7 @@ def add_location(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpRes
         form.fields["latitude"].widget = HiddenInput()
         return render(
             request,
-            "locations/locations_form.html",
+            "locations/location_form.html",
             {"form": form, "campaign_pk": campaign_pk, "map_pk": map_pk},
         )
 
@@ -83,7 +83,7 @@ def add_location(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpRes
 def location_list(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpResponse:
     return render(
         request,
-        "locations/locations_list.html",
+        "locations/location_list.html",
         {
             "locations": Location.objects.filter(map=map_pk),
         },
@@ -97,7 +97,7 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 
     model = Location
     form_class = LocationForm
-    template_name = "locations/locations_form.html"
+    template_name = "locations/location_form.html"
     context_object_name = "location"
     success_message = _("Location successfully updated")
     pk_url_kwarg = "location_pk"

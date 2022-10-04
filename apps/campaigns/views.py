@@ -24,7 +24,7 @@ class CampaignListView(LoginRequiredMixin, ListView):
     """
 
     model = Campaign
-    template_name = "campaigns/campaigns_list.html"
+    template_name = "campaigns/campaign_list.html"
     context_object_name = "campaigns"
 
     def get_queryset(self) -> QuerySet:
@@ -35,6 +35,11 @@ class CampaignListView(LoginRequiredMixin, ListView):
             Q(dm=self.request.user) | Q(characters__player=self.request.user)
         ).distinct()
 
+    def get_template_names(self) -> list[str]:
+        if self.request.htmx:
+            return ["campaigns/campaign_partial_list.html"]
+        return [self.template_name]
+
 
 class CampaignDetailView(LoginRequiredMixin, DetailView):
     """
@@ -42,7 +47,7 @@ class CampaignDetailView(LoginRequiredMixin, DetailView):
     """
 
     model = Campaign
-    template_name = "campaigns/campaigns_detail.html"
+    template_name = "campaigns/campaign_detail.html"
     context_object_name = "campaign"
     pk_url_kwarg = "campaign_pk"
 
@@ -56,49 +61,41 @@ class CampaignDetailView(LoginRequiredMixin, DetailView):
         else:
             self.handle_no_permission()
 
+    def get_template_names(self) -> list[str]:
+        if self.request.htmx:
+            return ["campaigns/campaign_partial_detail.html"]
+        return [self.template_name]
 
-class CampaignCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+
+class CampaignCreateView(LoginRequiredMixin, CreateView):
     """
     View for Campaigns Create.
     """
 
     model = Campaign
     fields = ["name", "description", "image"]
-    template_name = "campaigns/campaigns_form.html"
-    success_message = _("Campaign successfully created")
+    template_name = "campaigns/campaign_form.html"
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
-        """
-        Override form_valid method to set user as DM.
-        """
-        # TODO: check type of form, it's likely not correct.
         form.instance.dm = self.request.user
-        return super().form_valid(form)
-
-    def get_success_url(self) -> str:
-        """
-        Override get_success_url method to redirect to Campaigns Detail.
-        """
-        return reverse("campaigns:detail", kwargs={"campaign_pk": self.object.pk})
+        self.object = form.save()
+        return HttpResponse(status=204, headers={"HX-Trigger": "campaignListChanged"})
 
 
-class CampaignUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class CampaignUpdateView(LoginRequiredMixin, UpdateView):
     """
     View for Campaigns Update.
     """
 
     model = Campaign
     fields = ["name", "description", "image"]
-    template_name = "campaigns/campaigns_form.html"
+    template_name = "campaigns/campaign_form.html"
     context_object_name = "campaign"
-    success_message = _("Campaign successfully updated")
     pk_url_kwarg = "campaign_pk"
 
-    def get_success_url(self) -> str:
-        """
-        Override get_success_url method to redirect to Campaigns Detail.
-        """
-        return reverse("campaigns:detail", kwargs={"campaign_pk": self.object.pk})
+    def form_valid(self, form: BaseForm) -> HttpResponse:
+        self.object = form.save()
+        return HttpResponse(status=204, headers={"HX-Trigger": "campaignChanged"})
 
 
 class CampaignDeleteView(SuccessMessageMixin, DeleteView):

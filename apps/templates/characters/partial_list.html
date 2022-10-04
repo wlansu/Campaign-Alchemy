@@ -1,14 +1,19 @@
 {% load static %}
 
+{% url "characters:list" as url %}
+{% if request.path == url %}
+{# Only allow creation from the character list page. #}
+{# TODO: or figure out how to pass the campaign through to the view. #}
 <div class="row text-center">
   <div class="col mb-2">
     <button type="button" class="btn btn-primary" hx-get="{% url 'characters:create' %}" hx-target="#dialog">Create</button>
   </div>
 </div>
+{% endif %}
 
 <div class="row mt-1">
 {% for character in characters %}
-  <div class="col-4">
+  <div class="col-3">
     <div class="card h-100 radius-15 bg dark-color-scheme">
       <a class="text-decoration-none text-reset" href="{% url 'characters:detail' character.pk %}">
         <div class="card-body text-center">

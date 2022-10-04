@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="container">
-  <div class="row mb-3" hx-get="{% url 'characters:detail' character_pk=character.pk %}" hx-trigger="objectChanged from:body" target="this">
+  <div class="row mb-3" hx-get="{% url 'characters:detail' character_pk=character.pk %}" hx-trigger="characterChanged from:body" target="this">
     {% include 'characters/character_detail_partial.html' %}
   </div>
   <div class="border-top"></div>

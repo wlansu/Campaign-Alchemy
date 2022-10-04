@@ -1,0 +1,9 @@
+<div class="text-center">
+  <h2>{{ campaign.name }}</h2>
+  <p>{{ campaign.description }}</p>
+  <p>{{ campaign.invite_code }}</p>
+  <div class="mb-3">
+    <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:update' campaign.id %}" hx-target="#dialog">Edit</button>
+    <button type="button" class="btn btn-danger" hx-get="{% url 'campaigns:delete' campaign.id %}" hx-target="#dialog">Delete</button>
+  </div>
+</div>

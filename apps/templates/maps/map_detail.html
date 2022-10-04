@@ -37,11 +37,6 @@ const map = L.map("map", {
 })
 
 function onMapClick(e) {
-  if (!e.originalEvent.shiftKey) {
-    // In order not to interfere with normal click events, only open modal on shift + click events.
-    return
-  }
-
   const lng = e.latlng.lng
   const lat = e.latlng.lat
   const url = "{% url 'campaigns:maps:locations:create' campaign_pk=map.campaign.id map_pk=map.id %}"
@@ -58,7 +53,6 @@ map.on('click', onMapClick);
 
 const image_url = window.location.protocol + "//" + "{{ request.get_host }}" + "{{ map.image.url }}"
 const bounds = [ [0, 0], ["{{ map.resolution_height }}","{{ map.resolution_width }}"]];
-console.log(bounds)
 L.imageOverlay(image_url, bounds).addTo(map)
 map.fitBounds(bounds)
 </script>

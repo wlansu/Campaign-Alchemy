@@ -1,12 +1,11 @@
 from urllib.parse import urlparse
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import QuerySet
+from django.forms import BaseForm
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -40,7 +39,7 @@ class MapListView(CampaignIncluded, ListView):
     """
 
     model = Map
-    template_name = "maps/maps_list.html"
+    template_name = "maps/map_list.html"
     context_object_name = "maps"
 
     def get(self, request, *args, **kwargs) -> HttpResponse:
@@ -62,13 +61,13 @@ class MapListView(CampaignIncluded, ListView):
         )
 
 
-class MapDetailView(CampaignIncluded, DetailView):
+class MapDetailView(LoginRequiredMixin, DetailView):
     """
     View for Maps Detail.
     """
 
     model = Map
-    template_name = "maps/maps_detail.html"
+    template_name = "maps/map_detail.html"
     context_object_name = "map"
     pk_url_kwarg = "map_pk"
 
@@ -80,64 +79,53 @@ class MapDetailView(CampaignIncluded, DetailView):
         )
         return context
 
+    def get_template_names(self) -> list[str]:
+        if self.request.htmx:
+            return ["maps/map_partial_detail.html"]
+        return [self.template_name]
 
-class MapCreateView(CampaignIncluded, SuccessMessageMixin, CreateView):
+
+class MapCreateView(CampaignIncluded, CreateView):
     """
     View for Map Create.
     """
 
     model = Map
     fields = ["name", "description", "image"]
-    template_name = "maps/maps_form.html"
-    success_message = _("Map successfully created")
+    template_name = "maps/map_form.html"
 
-    def get_success_url(self) -> str:
-        """
-        Override get_success_url method to redirect to Campaigns Detail.
-        """
-        return reverse(
-            "campaigns:maps:detail",
-            kwargs={"campaign_pk": self.object.campaign_id, "map_pk": self.object.pk},
-        )
-
-    def form_valid(self, form) -> HttpResponse:
+    def form_valid(self, form: BaseForm) -> HttpResponse:
         """
         Override form_valid method to set the active campaign.
         """
         form.instance.campaign = Campaign.objects.get(id=self.kwargs["campaign_pk"])
-        return super().form_valid(form)
+        self.object = form.save()
+        return HttpResponse(status=204, headers={"HX-Trigger": "mapListChanged"})
 
 
-class MapUpdateView(CampaignIncluded, SuccessMessageMixin, UpdateView):
+class MapUpdateView(LoginRequiredMixin, UpdateView):
     """
     View for Campaigns Update.
     """
 
     model = Map
     fields = ["name", "description", "is_active", "image"]
-    template_name = "maps/maps_form.html"
+    template_name = "maps/map_form.html"
     context_object_name = "map"
-    success_message = _("Map successfully updated")
     pk_url_kwarg = "map_pk"
 
-    def get_success_url(self) -> str:
-        """
-        Override get_success_url method to redirect to Campaigns Detail.
-        """
-        return reverse(
-            "campaigns:maps:detail",
-            kwargs={"campaign_pk": self.object.campaign_id, "map_pk": self.object.pk},
-        )
+    def form_valid(self, form: BaseForm) -> HttpResponse:
+        self.object = form.save()
+        return HttpResponse(status=204, headers={"HX-Trigger": "mapChanged"})
 
 
-class MapDeleteView(CampaignIncluded, SuccessMessageMixin, DeleteView):
+class MapDeleteView(LoginRequiredMixin, DeleteView):
     """
     View for Map Delete.
     """
 
     model = Map
     template_name = "confirm_delete.html"
-    success_message = _("Map successfully deleted")
     pk_url_kwarg = "map_pk"
 
     def get_success_url(self) -> str:

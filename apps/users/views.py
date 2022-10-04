@@ -32,7 +32,7 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
         self.object = form.save()
-        return HttpResponse(status=204, headers={"HX-Trigger": "objectChanged"})
+        return HttpResponse(status=204, headers={"HX-Trigger": "userChanged"})
 
     def get_object(self) -> User:
         return self.request.user

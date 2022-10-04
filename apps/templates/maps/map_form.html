@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-  <form class="modal-content" method="post" enctype="multipart/form-data" action="{% if map %}{% url 'campaigns:maps:update' campaign_pk=campaign.id map_pk=map.id %}{% else %}{% url 'campaigns:maps:create' campaign_pk=campaign.id %}{% endif %}">
+  <form class="modal-content" enctype="multipart/form-data" hx-post="{% if map %}{% url 'campaigns:maps:update' campaign_pk=map.campaign_id map_pk=map.id %}{% else %}{% url 'campaigns:maps:create' campaign_pk=campaign.id %}{% endif %}">
     {% csrf_token %}
     <div class="modal-header">
       <h5 class="modal-title">{% if map %}Update {{ map.name }}{% else %}Create{% endif %}</h5>

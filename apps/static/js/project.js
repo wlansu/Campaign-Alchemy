@@ -20,6 +20,30 @@ htmx.on("hidden.bs.modal", () => {
   document.getElementById("dialog").innerHTML = ""
 })
 
-htmx.on("objectChanged", (e) => {
+htmx.on("mapListChanged", (e) => {
+  modal.hide()
+})
+
+htmx.on("characterListChanged", (e) => {
+  modal.hide()
+})
+
+htmx.on("campaignListChanged", (e) => {
+  modal.hide()
+})
+
+htmx.on("mapChanged", (e) => {
+  modal.hide()
+})
+
+htmx.on("characterChanged", (e) => {
+  modal.hide()
+})
+
+htmx.on("campaignChanged", (e) => {
+  modal.hide()
+})
+
+htmx.on("userChanged", (e) => {
   modal.hide()
 })
