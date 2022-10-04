@@ -67,7 +67,7 @@ def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpRespons
     if request.user == character.player:
         character.campaign = None
         character.save()
-    return HttpResponse(status=204, headers={"HX-Trigger": "characterChanged"})
+    return HttpResponse(status=204, headers={"HX-Trigger": "objectChanged"})
 
 
 class CharacterDetailView(LoginRequiredMixin, DetailView):
@@ -130,7 +130,7 @@ class CharacterUpdateView(LoginRequiredMixin, UpdateView):
             form.instance.player = None
         self.object = form.save()
 
-        return HttpResponse(status=204, headers={"HX-Trigger": "characterChanged"})
+        return HttpResponse(status=204, headers={"HX-Trigger": "objectChanged"})
 
 
 class CharacterDeleteView(SuccessMessageMixin, DeleteView):

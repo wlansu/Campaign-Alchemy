@@ -1,17 +1,21 @@
-{% extends "base.html" %}
+{% load crispy_forms_filters %}
 {% load crispy_forms_tags %}
 
-{% block title %}{{ user.username }}{% endblock %}
-
 {% block content %}
-  <h1>{{ user.username }}</h1>
-  <form class="form-horizontal" method="post" action="{% url 'users:update' %}">
+  <form class="modal-content" hx-post="{% url 'users:update' %}">
     {% csrf_token %}
-    {{ form|crispy }}
-    <div class="control-group">
-      <div class="controls">
-        <button type="submit" class="btn btn-primary">Update</button>
-      </div>
+    <div class="modal-header">
+      <h5 class="modal-title">{{ user.username }}</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      {{ form|crispy }}
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      <button type="submit" class="btn btn-primary">Submit</button>
     </div>
   </form>
 {% endblock %}
+
+{% block title %}{{ user.username }}{% endblock %}

@@ -20,6 +20,6 @@ htmx.on("hidden.bs.modal", () => {
   document.getElementById("dialog").innerHTML = ""
 })
 
-htmx.on("characterChanged", (e) => {
+htmx.on("objectChanged", (e) => {
   modal.hide()
 })

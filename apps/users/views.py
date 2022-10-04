@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.messages.views import SuccessMessageMixin
+from django.forms import BaseForm
+from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, RedirectView, UpdateView
@@ -14,21 +15,24 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     slug_field = "username"
     slug_url_kwarg = "username"
 
+    def get_template_names(self) -> list[str]:
+        if self.request.htmx:
+            return ["users/user_detail_partial.html"]
+        return ["users/user_detail.html"]
+
 
 user_detail_view = UserDetailView.as_view()
 
 
-class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class UserUpdateView(LoginRequiredMixin, UpdateView):
 
     model = User
     fields = ["name"]
     success_message = _("Information successfully updated")
 
-    def get_success_url(self) -> str:
-        assert (
-            self.request.user.is_authenticated
-        )  # for mypy to know that the user is authenticated
-        return self.request.user.get_absolute_url()
+    def form_valid(self, form: BaseForm) -> HttpResponse:
+        self.object = form.save()
+        return HttpResponse(status=204, headers={"HX-Trigger": "objectChanged"})
 
     def get_object(self) -> User:
         return self.request.user

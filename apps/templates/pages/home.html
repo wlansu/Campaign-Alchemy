@@ -6,16 +6,32 @@
   <p class="text-center"><b>A website to create a campaign map with placeable markers to chart the journey of your characters.</b></p>
 </div>
 <div class="container">
+  <div class="row">
   {% if ACCOUNT_ALLOW_REGISTRATION and not request.user.is_authenticated %}
-  <div class="row">
-    {# URL provided by django-allauth/account/urls.py #}
-    <a href="{% url 'account_signup' %}">Sign Up</a>
-  </div>
+    <div class="col-sm">
+      <a class="text-decoration-none text-reset" href="{% url 'account_signup' %}">
+        <div class="card h-100 border-0" style="width: 36rem;">
+          <img class="card-img-top" style="width: 36rem; height: 28rem;" src="{% static 'images/worldofdarkness.jpeg' %}" alt="Dark cityscape">
+          <div class="card-body text-center dark-color-scheme">
+            <h5 class="card-title">Sign Up</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-sm">
+      <a class="text-decoration-none text-reset" href="{% url 'account_login' %}">
+        <div class="card h-100 border-0" style="width: 36rem;">
+          <img class="card-img-top" style="width: 36rem; height: 28rem;" src="{% static 'images/vampires2.jpeg' %}" alt="Group of vampires, hunting.">
+          <div class="card-body text-center dark-color-scheme">
+            <h5 class="card-title">Sign In</h5>
+          </div>
+        </div>
+      </a>
+    </div>
   {% else %}
-  <div class="row">
     <div class="col-sm">
       <a class="text-decoration-none text-reset" href="{% url 'campaigns:list' %}">
-        <div class="card h-100" style="width: 36rem;">
+        <div class="card h-100 border-0" style="width: 36rem;">
           <img class="card-img-top" style="width: 36rem; height: 28rem;" src="{% static 'images/worldofdarkness.jpeg' %}" alt="Dark cityscape">
           <div class="card-body text-center dark-color-scheme">
             <h5 class="card-title">Campaigns</h5>
@@ -25,7 +41,7 @@
     </div>
     <div class="col-sm">
       <a class="text-decoration-none text-reset" href="{% url 'characters:list' %}">
-        <div class="card h-100" style="width: 36rem;">
+        <div class="card h-100 border-0" style="width: 36rem;">
           <img class="card-img-top" style="width: 36rem; height: 28rem;" src="{% static 'images/vampires2.jpeg' %}" alt="Group of vampires, hunting.">
           <div class="card-body text-center dark-color-scheme">
             <h5 class="card-title">Characters</h5>
@@ -33,7 +49,7 @@
         </div>
       </a>
     </div>
-  </div>
   {% endif %}
+  </div>
 </div>
 {% endblock %}
