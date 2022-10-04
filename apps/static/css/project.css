@@ -135,6 +135,11 @@ a:hover {
   color: var(--ca-whitegreen)
 }
 
+.badge-secondary {
+    color: var(--ca-whitegreen);
+    background-color: var(--ca-darkgray);
+}
+
 .search-input {
   display: inline-block;
   font-weight: 400;
