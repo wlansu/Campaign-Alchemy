@@ -6,6 +6,8 @@ from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 
+from apps.search import search_all
+
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     path(
@@ -16,6 +18,7 @@ urlpatterns = [
     # User management
     path("users/", include("apps.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
+    path("search/", search_all, name="full-search"),
     path("campaigns/", include("apps.campaigns.urls", namespace="campaigns")),
     path("characters/", include("apps.characters.urls", namespace="characters")),
     # Your stuff: custom urls includes go here

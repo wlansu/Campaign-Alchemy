@@ -1,3 +1,5 @@
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVectorField
 from django.db import models
 from model_utils.models import TimeStampedModel
 
@@ -14,7 +16,6 @@ class Character(TimeStampedModel):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to="characters/", null=True)
-    is_active = models.BooleanField(default=True)
     creator = models.ForeignKey(
         "users.User", on_delete=models.CASCADE, related_name="creator_characters"
     )
@@ -34,6 +35,7 @@ class Character(TimeStampedModel):
         related_name="characters",
         null=True,
     )
+    vector_column = SearchVectorField(null=True)
 
     def __str__(self) -> str:
         return self.name
@@ -48,6 +50,12 @@ class Character(TimeStampedModel):
             self.player = None
             self.save(update_fields=["player"])
 
+    def get_absolute_url(self) -> str:
+        from django.urls import reverse
+
+        return reverse("characters:detail", kwargs={"character_pk": self.pk})
+
     class Meta:
         verbose_name = "Character"
         verbose_name_plural = "Characters"
+        indexes = (GinIndex(fields=["vector_column"]),)

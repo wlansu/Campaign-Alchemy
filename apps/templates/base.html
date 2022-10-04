@@ -81,15 +81,25 @@
             </li>
             {% endif %}
           </ul>
-{#          <form class="d-flex" role="search">#}
-{#            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">#}
-{#            <button class="btn btn-outline-success" type="submit">Search</button>#}
-{#          </form>#}
+          <form class="d-flex" role="search">
+            <input
+              type="search"
+              name="search"
+              class="form-control me-2 search-input"
+              autocomplete="off"
+              placeholder="Search"
+              aria-label="Search"
+              hx-trigger="keyup changed delay:500ms, search"
+              hx-target="#dialog"
+              hx-get="{% url 'full-search' %}"
+              hx-swap="innerHTML"
+            />
+          </form>
         </div>
       </div>
     </nav>
 
-    <div class="container">
+    <div class="container" id="main-container">
 
       {% if messages %}
         {% for message in messages %}

@@ -28,12 +28,9 @@ def characters_page(request: HttpRequest) -> HttpResponse:
 
 def characters_hx(request: HttpRequest, campaign_pk: int = None) -> HttpResponse:
     """HX-Request: return a partial template."""
-    query = request.GET.get("search", None)
     characters = _get_characters(request)
     if campaign_pk:
         characters = characters.filter(campaign=campaign_pk)
-    if query:
-        characters = characters.filter(name__icontains=query)
     return render(
         request=request,
         template_name="characters/partial_list.html",
@@ -112,7 +109,7 @@ class CharacterUpdateView(LoginRequiredMixin, UpdateView):
     """
 
     model = Character
-    fields = ["name", "description", "image", "is_npc", "is_active"]
+    fields = ["name", "description", "image", "is_npc"]
     template_name = "characters/character_form.html"
     context_object_name = "character"
     pk_url_kwarg = "character_pk"

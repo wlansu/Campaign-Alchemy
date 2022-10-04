@@ -56,9 +56,7 @@ class MapListView(CampaignIncluded, ListView):
         """
         Get queryset for Maps List.
         """
-        return Map.objects.filter(is_active=True).filter(
-            campaign=self.kwargs["campaign_pk"]
-        )
+        return Map.objects.filter(campaign=self.kwargs["campaign_pk"])
 
 
 class MapDetailView(LoginRequiredMixin, DetailView):
@@ -109,7 +107,7 @@ class MapUpdateView(LoginRequiredMixin, UpdateView):
     """
 
     model = Map
-    fields = ["name", "description", "is_active", "image"]
+    fields = ["name", "description", "image"]
     template_name = "maps/map_form.html"
     context_object_name = "map"
     pk_url_kwarg = "map_pk"

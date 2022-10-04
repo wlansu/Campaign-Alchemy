@@ -1,3 +1,5 @@
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVectorField
 from django.db import models
 from model_utils.models import TimeStampedModel
 
@@ -10,12 +12,12 @@ class Map(TimeStampedModel):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to="maps/")
-    is_active = models.BooleanField(default=True)
     resolution_height = models.IntegerField(null=True)
     resolution_width = models.IntegerField(null=True)
     campaign = models.ForeignKey(
         "campaigns.Campaign", on_delete=models.CASCADE, related_name="maps"
     )
+    vector_column = SearchVectorField(null=True)
 
     def __str__(self) -> str:
         return self.name
@@ -36,3 +38,4 @@ class Map(TimeStampedModel):
     class Meta:
         verbose_name = "Map"
         verbose_name_plural = "Maps"
+        indexes = (GinIndex(fields=["vector_column"]),)

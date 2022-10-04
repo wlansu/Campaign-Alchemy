@@ -4,21 +4,6 @@
 {% block title %}Characters{% endblock %}
 
 {% block content %}
-<div class="row mb-3">
-  <div class="text-center">
-    <input
-      type="search"
-      name="search"
-      class="search-input"
-      autocomplete="off"
-      placeholder="Search"
-      hx-trigger="keyup changed delay:500ms, search"
-      hx-target="#hx-target"
-      hx-get="{% url 'characters:hx-list' %}"
-      hx-swap="innerHTML"
-    />
-  </div>
-</div>
 <div class="container" id="hx-target" hx-get="{% url 'characters:hx-list' %}" hx-trigger="characterListChanged from:body" hx-target="this">
   {% include "characters/partial_list.html" %}
 </div>

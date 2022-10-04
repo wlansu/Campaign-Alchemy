@@ -3,6 +3,6 @@
 POSTGRES_HOST=postgres
 POSTGRES_PORT=5432
 POSTGRES_DB=campaign_creator
-POSTGRES_USER=eVADrrqQyvGrJMaQkdaebBDzjynRNpoz
-POSTGRES_PASSWORD=5qZqFTQNBmymGDlwroAUV8FLj5O7cmRyD8d1XcRo5UxEUPgIkcVsLLMx2D4StlRs
-DATABASE_URL=postgres://eVADrrqQyvGrJMaQkdaebBDzjynRNpoz:5qZqFTQNBmymGDlwroAUV8FLj5O7cmRyD8d1XcRo5UxEUPgIkcVsLLMx2D4StlRs@postgres:5432/campaign_creator
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/campaign_creator

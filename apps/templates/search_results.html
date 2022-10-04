@@ -1,0 +1,27 @@
+{% load campaigns_filters %}
+
+{% block content %}
+  <div class="modal-content bg-main">
+    <div class="modal-header">
+      <h5 class="modal-title">Search Results</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      {% for result in results %}
+        <div class="row m-3">
+          <a href="{{ result.get_absolute_url }}">{{ result | to_class_name }} >> {{ result.name }}</a>
+          {% if result.description %}
+          <p>{{ result.description|truncatewords_html:25 }}</p>
+          {% endif %}
+        </div>
+      {% empty %}
+        <div class="row">
+          <h3 class="text-center bloodred">Your attempt to feed has failed ...</h3>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    </div>
+  </div>
+{% endblock %}

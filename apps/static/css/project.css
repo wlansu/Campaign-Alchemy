@@ -83,6 +83,10 @@ a:hover {
   color: var(--ca-whitegreen);
 }
 
+.bloodred {
+  color: var(--ca-bloodred);
+}
+
 .border-dark {
   border-color: var(--ca-darkgray);
 }

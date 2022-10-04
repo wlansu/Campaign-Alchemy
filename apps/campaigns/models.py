@@ -1,5 +1,7 @@
 import uuid
 
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVectorField
 from django.db import models
 from model_utils.models import TimeStampedModel
 
@@ -18,6 +20,7 @@ class Campaign(TimeStampedModel):
         related_name="dm_in_campaigns",
     )
     invite_code = models.UUIDField(unique=True, null=True)
+    vector_column = SearchVectorField(null=True)
 
     def __str__(self) -> str:
         return self.name
@@ -32,6 +35,7 @@ class Campaign(TimeStampedModel):
     class Meta:
         verbose_name = "Campaign"
         verbose_name_plural = "Campaigns"
+        indexes = (GinIndex(fields=["vector_column"]),)
 
     def save(self, *args, **kwargs) -> None:
         if not self.pk or not self.invite_code:
