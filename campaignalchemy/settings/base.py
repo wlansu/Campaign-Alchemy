@@ -56,9 +56,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # URLS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#root-urlconf
-ROOT_URLCONF = "campaigncreator.urls"
+ROOT_URLCONF = "campaignalchemy.urls"
 # https://docs.djangoproject.com/en/dev/ref/settings/#wsgi-application
-WSGI_APPLICATION = "campaigncreator.wsgi.application"
+WSGI_APPLICATION = "campaignalchemy.wsgi.application"
 
 # APPS
 # ------------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 from urllib.parse import urlparse
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import QuerySet
 from django.forms import BaseForm
 from django.http import HttpResponse
@@ -117,7 +118,7 @@ class MapUpdateView(LoginRequiredMixin, UpdateView):
         return HttpResponse(status=204, headers={"HX-Trigger": "mapChanged"})
 
 
-class MapDeleteView(LoginRequiredMixin, DeleteView):
+class MapDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     """
     View for Map Delete.
     """
@@ -125,6 +126,7 @@ class MapDeleteView(LoginRequiredMixin, DeleteView):
     model = Map
     template_name = "confirm_delete.html"
     pk_url_kwarg = "map_pk"
+    success_message = "Map successfully deleted"
 
     def get_success_url(self) -> str:
         """

@@ -2,7 +2,7 @@
 # ------------------------------------------------------------------------------
 POSTGRES_HOST=postgres
 POSTGRES_PORT=5432
-POSTGRES_DB=campaign_creator
+POSTGRES_DB=campaign_alchemy
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/campaign_creator
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/campaign_alchemy

@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q, QuerySet
@@ -5,6 +6,7 @@ from django.forms import BaseForm
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.views.decorators.http import require_http_methods
 from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
 
 from apps.characters.forms import AddToCampaignForm
@@ -16,6 +18,8 @@ def _get_characters(request: HttpRequest) -> QuerySet:
     return Character.objects.filter(Q(creator=request.user) | Q(player=request.user))
 
 
+@login_required
+@require_http_methods(["GET"])
 def characters_page(request: HttpRequest) -> HttpResponse:
     """Return the full characters list page."""
     characters = _get_characters(request)
@@ -26,6 +30,8 @@ def characters_page(request: HttpRequest) -> HttpResponse:
     )
 
 
+@login_required
+@require_http_methods(["GET"])
 def characters_hx(request: HttpRequest, campaign_pk: int = None) -> HttpResponse:
     """HX-Request: return a partial template."""
     characters = _get_characters(request)
@@ -38,6 +44,8 @@ def characters_hx(request: HttpRequest, campaign_pk: int = None) -> HttpResponse
     )
 
 
+@login_required
+@require_http_methods(["GET", "POST"])
 def add_to_campaign(request: HttpRequest, character_pk: int = None) -> HttpResponse:
     """Add a Character to a Campaign."""
     if request.method == "POST":
@@ -59,6 +67,8 @@ def add_to_campaign(request: HttpRequest, character_pk: int = None) -> HttpRespo
     )
 
 
+@login_required
+@require_http_methods(["GET"])
 def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpResponse:
     character = get_object_or_404(Character, id=character_pk)
     if request.user == character.player:
@@ -125,7 +135,7 @@ class CharacterUpdateView(LoginRequiredMixin, UpdateView):
         return HttpResponse(status=204, headers={"HX-Trigger": "characterChanged"})
 
 
-class CharacterDeleteView(SuccessMessageMixin, DeleteView):
+class CharacterDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     """
     View for Character Delete.
     """
