@@ -3,19 +3,22 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q, QuerySet
 from django.forms import BaseForm
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.http import Http404, HttpRequest, HttpResponse
+from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
 
 from apps.characters.forms import AddToCampaignForm
 from apps.characters.models import Character
+from apps.mixins import CharacterPermissionRequiredMixin
 
 
 def _get_characters(request: HttpRequest) -> QuerySet:
     """Return a QuerySet of characters filtered by creator and user."""
-    return Character.objects.filter(Q(creator=request.user) | Q(player=request.user))
+    return Character.objects.filter(
+        Q(creator=request.user) | Q(player=request.user)
+    ).distinct()
 
 
 @login_required
@@ -70,14 +73,17 @@ def add_to_campaign(request: HttpRequest, character_pk: int = None) -> HttpRespo
 @login_required
 @require_http_methods(["GET"])
 def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpResponse:
-    character = get_object_or_404(Character, id=character_pk)
+    characters = _get_characters(request)
+    character = characters.filter(id=character_pk).first()
+    if not character:
+        raise Http404
     if request.user == character.player:
         character.campaign = None
         character.save()
     return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
 
 
-class CharacterDetailView(LoginRequiredMixin, DetailView):
+class CharacterDetailView(CharacterPermissionRequiredMixin, DetailView):
     """
     View for Characters Detail.
     """
@@ -113,7 +119,7 @@ class CharacterCreateView(LoginRequiredMixin, CreateView):
         return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
 
 
-class CharacterUpdateView(LoginRequiredMixin, UpdateView):
+class CharacterUpdateView(CharacterPermissionRequiredMixin, UpdateView):
     """
     View for Characters Update.
     """
@@ -135,7 +141,9 @@ class CharacterUpdateView(LoginRequiredMixin, UpdateView):
         return HttpResponse(status=204, headers={"HX-Trigger": "characterChanged"})
 
 
-class CharacterDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class CharacterDeleteView(
+    CharacterPermissionRequiredMixin, SuccessMessageMixin, DeleteView
+):
     """
     View for Character Delete.
     """

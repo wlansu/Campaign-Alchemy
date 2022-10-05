@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q, QuerySet
 from django.forms import BaseForm
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
@@ -28,9 +28,6 @@ class CampaignListView(LoginRequiredMixin, ListView):
     context_object_name = "campaigns"
 
     def get_queryset(self) -> QuerySet:
-        """
-        Get queryset for Campaigns List.
-        """
         return Campaign.objects.filter(
             Q(dm=self.request.user) | Q(characters__player=self.request.user)
         ).distinct()
@@ -51,15 +48,15 @@ class CampaignDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "campaign"
     pk_url_kwarg = "campaign_pk"
 
-    def get_object(self, queryset: Optional[QuerySet[Campaign]] = None) -> Campaign:
-        campaign: Campaign = super().get_object()
-        player_characters = self.request.user.characters.all()
-        if self.request.user == campaign.dm or any(
-            character in player_characters for character in campaign.characters.all()
+    def get_object(self, queryset: Optional[QuerySet] = None) -> Campaign:
+        campaign = super().get_object(queryset)
+        if (
+            self.request.user == campaign.dm
+            or self.request.user.id
+            in campaign.characters.values_list("player", flat=True)
         ):
             return campaign
-        else:
-            self.handle_no_permission()
+        raise Http404
 
     def get_template_names(self) -> list[str]:
         if self.request.htmx:
@@ -82,7 +79,7 @@ class CampaignCreateView(LoginRequiredMixin, CreateView):
         return HttpResponse(status=204, headers={"HX-Trigger": "campaignListChanged"})
 
 
-class CampaignUpdateView(LoginRequiredMixin, UpdateView):
+class CampaignUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     """
     View for Campaigns Update.
     """
@@ -93,12 +90,22 @@ class CampaignUpdateView(LoginRequiredMixin, UpdateView):
     context_object_name = "campaign"
     pk_url_kwarg = "campaign_pk"
 
+    def get_object(self, queryset: Optional[QuerySet] = None) -> Campaign:
+        campaign = super().get_object(queryset)
+        if (
+            self.request.user == campaign.dm
+            or self.request.user.id
+            in campaign.characters.values_list("player", flat=True)
+        ):
+            return campaign
+        raise Http404
+
     def form_valid(self, form: BaseForm) -> HttpResponse:
         self.object = form.save()
         return HttpResponse(status=204, headers={"HX-Trigger": "campaignChanged"})
 
 
-class CampaignDeleteView(SuccessMessageMixin, DeleteView):
+class CampaignDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     """
     View for Campaign Delete.
     """
