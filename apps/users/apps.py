@@ -8,6 +8,6 @@ class UsersConfig(AppConfig):
 
     def ready(self):
         try:
-            import campaign_creator.users.signals  # noqa F401
+            import apps.users.signals  # noqa F401
         except ImportError:
             pass

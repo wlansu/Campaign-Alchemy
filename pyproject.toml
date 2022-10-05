@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "campaign_creator_v2"
+name = "Campaign Alchemy"
 version = "0.1.0"
-description = "Campaign Creator for RPG's."
+description = "Campaign Alchemy for RPG's."
 authors = ["Wouter Lansu <wfrlansu@gmail.com>"]
 
 [tool.poetry.dependencies]

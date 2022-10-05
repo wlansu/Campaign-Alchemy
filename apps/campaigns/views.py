@@ -92,11 +92,7 @@ class CampaignUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 
     def get_object(self, queryset: Optional[QuerySet] = None) -> Campaign:
         campaign = super().get_object(queryset)
-        if (
-            self.request.user == campaign.dm
-            or self.request.user.id
-            in campaign.characters.values_list("player", flat=True)
-        ):
+        if self.request.user == campaign.dm:
             return campaign
         raise Http404
 

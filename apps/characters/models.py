@@ -8,17 +8,11 @@ class Character(TimeStampedModel):
     """A character created by a User.
 
     Can be an NPC if it is not assigned to a player.
-
-    A Character always needs to have a creator, if a User deletes their account
-        their creator_characters will also be deleted.
     """
 
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to="characters/", null=True)
-    creator = models.ForeignKey(
-        "users.User", on_delete=models.CASCADE, related_name="creator_characters"
-    )
     campaign = models.ForeignKey(
         "campaigns.Campaign",
         on_delete=models.SET_NULL,

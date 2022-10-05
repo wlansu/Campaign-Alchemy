@@ -1,7 +1,9 @@
+from typing import Optional
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Q, QuerySet
+from django.db.models import QuerySet
 from django.forms import BaseForm
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import render
@@ -11,21 +13,13 @@ from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
 
 from apps.characters.forms import AddToCampaignForm
 from apps.characters.models import Character
-from apps.mixins import CharacterPermissionRequiredMixin
-
-
-def _get_characters(request: HttpRequest) -> QuerySet:
-    """Return a QuerySet of characters filtered by creator and user."""
-    return Character.objects.filter(
-        Q(creator=request.user) | Q(player=request.user)
-    ).distinct()
 
 
 @login_required
 @require_http_methods(["GET"])
 def characters_page(request: HttpRequest) -> HttpResponse:
     """Return the full characters list page."""
-    characters = _get_characters(request)
+    characters = Character.objects.filter(player=request.user)
     return render(
         request=request,
         template_name="characters/list.html",
@@ -37,9 +31,9 @@ def characters_page(request: HttpRequest) -> HttpResponse:
 @require_http_methods(["GET"])
 def characters_hx(request: HttpRequest, campaign_pk: int = None) -> HttpResponse:
     """HX-Request: return a partial template."""
-    characters = _get_characters(request)
+    characters = Character.objects.filter(player=request.user)
     if campaign_pk:
-        characters = characters.filter(campaign=campaign_pk)
+        characters = Character.objects.filter(campaign=campaign_pk)
     return render(
         request=request,
         template_name="characters/partial_list.html",
@@ -73,17 +67,15 @@ def add_to_campaign(request: HttpRequest, character_pk: int = None) -> HttpRespo
 @login_required
 @require_http_methods(["GET"])
 def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpResponse:
-    characters = _get_characters(request)
-    character = characters.filter(id=character_pk).first()
+    character = Character.objects.filter(player=request.user).get(id=character_pk)
     if not character:
         raise Http404
-    if request.user == character.player:
-        character.campaign = None
-        character.save()
+    character.campaign = None
+    character.save()
     return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
 
 
-class CharacterDetailView(CharacterPermissionRequiredMixin, DetailView):
+class CharacterDetailView(LoginRequiredMixin, DetailView):
     """
     View for Characters Detail.
     """
@@ -92,6 +84,12 @@ class CharacterDetailView(CharacterPermissionRequiredMixin, DetailView):
     template_name = "characters/character_detail.html"
     context_object_name = "character"
     pk_url_kwarg = "character_pk"
+
+    def get_object(self, queryset: Optional[QuerySet] = None) -> Character:
+        character = super().get_object(queryset)
+        if character.player == self.request.user:
+            return character
+        raise Http404
 
     def get_template_names(self) -> list[str]:
         if self.request.htmx:
@@ -108,10 +106,8 @@ class CharacterCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
         """
-        The user that creates a character is its owner.
         If a character is not an NPC then the player is the creator.
         """
-        form.instance.creator = self.request.user
         if form.data.get("is_npc") != "on":
             form.instance.player = self.request.user
         self.object = form.save()
@@ -119,7 +115,7 @@ class CharacterCreateView(LoginRequiredMixin, CreateView):
         return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
 
 
-class CharacterUpdateView(CharacterPermissionRequiredMixin, UpdateView):
+class CharacterUpdateView(LoginRequiredMixin, UpdateView):
     """
     View for Characters Update.
     """
@@ -129,6 +125,12 @@ class CharacterUpdateView(CharacterPermissionRequiredMixin, UpdateView):
     template_name = "characters/character_form.html"
     context_object_name = "character"
     pk_url_kwarg = "character_pk"
+
+    def get_object(self, queryset: Optional[QuerySet] = None) -> Character:
+        character = super().get_object(queryset)
+        if character.player == self.request.user:
+            return character
+        raise Http404
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
         """Set character as NPC or Player."""
@@ -141,9 +143,7 @@ class CharacterUpdateView(CharacterPermissionRequiredMixin, UpdateView):
         return HttpResponse(status=204, headers={"HX-Trigger": "characterChanged"})
 
 
-class CharacterDeleteView(
-    CharacterPermissionRequiredMixin, SuccessMessageMixin, DeleteView
-):
+class CharacterDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     """
     View for Character Delete.
     """
@@ -152,6 +152,12 @@ class CharacterDeleteView(
     template_name = "confirm_delete.html"
     success_message = "Character successfully deleted"
     pk_url_kwarg = "character_pk"
+
+    def get_object(self, queryset: Optional[QuerySet] = None) -> Character:
+        character = super().get_object(queryset)
+        if character.player == self.request.user:
+            return character
+        raise Http404
 
     def get_success_url(self) -> str:
         """
