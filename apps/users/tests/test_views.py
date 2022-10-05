@@ -1,6 +1,5 @@
 import pytest
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.middleware import MessageMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
@@ -20,19 +19,11 @@ class TestUserUpdateView:
     def dummy_get_response(self, request: HttpRequest):
         return None
 
-    def test_get_success_url(self, user: User, rf: RequestFactory):
-        view = UserUpdateView()
-        request = rf.get("/fake-url/")
-        request.user = user
-
-        view.request = request
-
-        assert view.get_success_url() == f"/users/{user.username}/"
-
     def test_get_object(self, user: User, rf: RequestFactory):
         view = UserUpdateView()
         request = rf.get("/fake-url/")
         request.user = user
+        request.htmx = False
 
         view.request = request
 
@@ -41,6 +32,7 @@ class TestUserUpdateView:
     def test_form_valid(self, user: User, rf: RequestFactory):
         view = UserUpdateView()
         request = rf.get("/fake-url/")
+        request.htmx = True
 
         # Add the session/message middleware to the request
         SessionMiddleware(self.dummy_get_response).process_request(request)
@@ -52,10 +44,8 @@ class TestUserUpdateView:
         # Initialize the form
         form = UserAdminChangeForm()
         form.cleaned_data = {}
-        view.form_valid(form)
-
-        messages_sent = [m.message for m in messages.get_messages(request)]
-        assert messages_sent == ["Information successfully updated"]
+        response = view.form_valid(form)
+        assert response.status_code == 204
 
 
 class TestUserRedirectView:
@@ -63,6 +53,7 @@ class TestUserRedirectView:
         view = UserRedirectView()
         request = rf.get("/fake-url")
         request.user = user
+        request.htmx = False
 
         view.request = request
 
@@ -73,6 +64,7 @@ class TestUserDetailView:
     def test_authenticated(self, user: User, rf: RequestFactory):
         request = rf.get("/fake-url/")
         request.user = UserFactory()
+        request.htmx = False
 
         response = user_detail_view(request, username=user.username)
 
@@ -81,6 +73,7 @@ class TestUserDetailView:
     def test_not_authenticated(self, user: User, rf: RequestFactory):
         request = rf.get("/fake-url/")
         request.user = AnonymousUser()
+        request.htmx = False
 
         response = user_detail_view(request, username=user.username)
         login_url = reverse(settings.LOGIN_URL)
