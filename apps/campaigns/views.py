@@ -5,7 +5,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, QuerySet
 from django.forms import BaseForm
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
@@ -59,7 +59,7 @@ class CampaignDetailView(LoginRequiredMixin, DetailView):
             in campaign.characters.values_list("player", flat=True)
         ):
             return campaign
-        raise Http404
+        raise PermissionDenied
 
     def get_template_names(self) -> list[str]:
         if self.request.htmx:
@@ -97,7 +97,7 @@ class CampaignUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         campaign = super().get_object(queryset)
         if self.request.user == campaign.dm:
             return campaign
-        raise PermissionDenied()
+        raise PermissionDenied
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
         self.object = form.save()
@@ -118,7 +118,7 @@ class CampaignDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         campaign = super().get_object(queryset)
         if self.request.user == campaign.dm:
             return campaign
-        raise PermissionDenied()
+        raise PermissionDenied
 
     def get_success_url(self) -> str:
         """

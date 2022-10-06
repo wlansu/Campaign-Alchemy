@@ -1,11 +1,10 @@
-from urllib.parse import urlparse
-
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.forms import BaseForm
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBase
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import (
     CreateView,
@@ -43,21 +42,14 @@ class MapListView(CampaignIncluded, ListView):
     template_name = "maps/map_list.html"
     context_object_name = "maps"
 
-    def get(self, request, *args, **kwargs) -> HttpResponse:
-        """Prevent this view from being called from any other url than the campaigns:detail view."""
-        campaign_pk = kwargs.get("campaign_pk")
-        canonical_url = reverse("campaigns:detail", kwargs={"campaign_pk": campaign_pk})
-        sections = urlparse(request.htmx.current_url)
-        if not sections.path == canonical_url:
-            return redirect(canonical_url)
-
-        return super().get(request, *args, **kwargs)
-
     def get_queryset(self) -> QuerySet:
         """
         Get queryset for Maps List.
         """
-        return Map.objects.filter(campaign=self.kwargs["campaign_pk"])
+        campaign_pk = self.kwargs["campaign_pk"]
+        if self.request.user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+            return Map.objects.filter(campaign=campaign_pk)
+        raise PermissionDenied()
 
 
 class MapDetailView(LoginRequiredMixin, DetailView):
@@ -69,6 +61,12 @@ class MapDetailView(LoginRequiredMixin, DetailView):
     template_name = "maps/map_detail.html"
     context_object_name = "map"
     pk_url_kwarg = "map_pk"
+
+    def get_object(self, queryset: QuerySet = None) -> Map:
+        map = super().get_object(queryset)
+        if self.request.user.has_read_access_to_campaign(campaign_pk=map.campaign_id):
+            return map
+        raise PermissionDenied()
 
     def get_context_data(self, **kwargs) -> dict:
         """Add location form to context."""
@@ -93,6 +91,16 @@ class MapCreateView(CampaignIncluded, CreateView):
     fields = ["name", "description", "image"]
     template_name = "maps/map_form.html"
 
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
+        """Only a DM can create a Map."""
+        campaign_pk = kwargs.get("campaign_pk", None)
+        if not campaign_pk:
+            raise Http404
+        campaign = get_object_or_404(Campaign, id=campaign_pk)
+        if request.user == campaign.dm:
+            return super().dispatch(request, *args, **kwargs)
+        raise PermissionDenied
+
     def form_valid(self, form: BaseForm) -> HttpResponse:
         """
         Override form_valid method to set the active campaign.
@@ -113,6 +121,13 @@ class MapUpdateView(LoginRequiredMixin, UpdateView):
     context_object_name = "map"
     pk_url_kwarg = "map_pk"
 
+    def get_object(self, queryset: QuerySet = None) -> Map:
+        """Only a DM can update the map."""
+        map = super().get_object(queryset)
+        if self.request.user == map.campaign.dm:
+            return map
+        raise PermissionDenied()
+
     def form_valid(self, form: BaseForm) -> HttpResponse:
         self.object = form.save()
         return HttpResponse(status=204, headers={"HX-Trigger": "mapChanged"})
@@ -127,6 +142,12 @@ class MapDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     template_name = "confirm_delete.html"
     pk_url_kwarg = "map_pk"
     success_message = "Map successfully deleted"
+
+    def get_object(self, queryset: QuerySet = None) -> Map:
+        map = super().get_object(queryset)
+        if self.request.user == map.campaign.dm:
+            return map
+        raise PermissionDenied()
 
     def get_success_url(self) -> str:
         """

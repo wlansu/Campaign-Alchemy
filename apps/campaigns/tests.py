@@ -3,7 +3,6 @@ from typing import Callable
 
 import pytest
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
 from django.test.client import Client, RequestFactory
 from django.urls import reverse
 
@@ -22,7 +21,7 @@ from apps.users.models import User
     [
         (pytest.lazy_fixture("dm"), does_not_raise()),
         (pytest.lazy_fixture("player1"), does_not_raise()),
-        (pytest.lazy_fixture("player2"), pytest.raises(Http404)),
+        (pytest.lazy_fixture("player2"), pytest.raises(PermissionDenied)),
     ],
 )
 def test_campaign_detail(

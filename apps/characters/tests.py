@@ -6,7 +6,6 @@ from typing import Callable
 import pytest
 from django.core.exceptions import PermissionDenied
 from django.core.files.images import ImageFile
-from django.http import Http404
 from django.test import override_settings
 from django.test.client import Client, RequestFactory
 from django.urls import reverse
@@ -27,7 +26,7 @@ from apps.users.models import User
     [
         (pytest.lazy_fixture("dm"), does_not_raise()),
         (pytest.lazy_fixture("player1"), does_not_raise()),
-        (pytest.lazy_fixture("player2"), pytest.raises(Http404)),
+        (pytest.lazy_fixture("player2"), pytest.raises(PermissionDenied)),
     ],
 )
 def test_character_detail(
@@ -184,3 +183,60 @@ def test_character_create(
     assert response.status_code == expected
     if response.status_code == 204:
         assert Character.objects.filter(name="Test").exists()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        (pytest.lazy_fixture("dm"), 403),
+        (pytest.lazy_fixture("player1"), 403),
+        (pytest.lazy_fixture("player2"), 204),
+    ],
+)
+def test_add_character_to_campaign(
+    test_input: User,
+    expected: int,
+    client: Client,
+    campaign1: Campaign,
+    character2: Character,
+) -> None:
+    """Only a Player can add their character to a Campaign by using the invite_code."""
+    client.force_login(test_input)
+    headers = {"HX-Request": "true"}
+    response = client.post(
+        reverse("characters:add"),
+        headers=headers,
+        data={"invite_code": campaign1.invite_code, "character_pk": character2.pk},
+    )
+    assert response.status_code == expected
+    if response.status_code == 204:
+        character2.refresh_from_db()
+        assert character2.campaign == campaign1
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        (pytest.lazy_fixture("dm"), 404),
+        (pytest.lazy_fixture("player1"), 404),
+        (pytest.lazy_fixture("player2"), 204),
+    ],
+)
+def test_remove_character_from_campaign(
+    test_input: User,
+    expected: int,
+    client: Client,
+    campaign1: Campaign,
+    character2: Character,
+) -> None:
+    """Only a Player can add their character to a Campaign by using the invite_code."""
+    client.force_login(test_input)
+    headers = {"HX-Request": "true"}
+    response = client.get(
+        reverse("characters:remove", kwargs={"character_pk": character2.pk}),
+        headers=headers,
+    )
+    assert response.status_code == expected
+    assert character2.campaign is None

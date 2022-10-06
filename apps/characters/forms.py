@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from django import forms
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 
 from apps.campaigns.models import Campaign
 from apps.characters.models import Character
@@ -28,7 +28,7 @@ class AddToCampaignForm(forms.Form):
             id=data, player=self.request.user
         ).exists()
         if not character_exists:
-            raise ValidationError("Character not found.")
+            raise PermissionDenied
         return data
 
     def save(self) -> None:

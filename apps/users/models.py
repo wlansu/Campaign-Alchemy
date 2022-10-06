@@ -21,14 +21,14 @@ class User(AbstractUser):
         """Get url for user's detail view."""
         return reverse("users:detail", kwargs={"username": self.username})
 
-    def has_read_access_to_campaign(self, campaign_id: int) -> bool:
+    def has_read_access_to_campaign(self, campaign_pk: int) -> bool:
         """Determine whether a User has read access to a Campaign.
 
         If any of the User's Characters is in a Campaign then the User has access.
         """
         from apps.campaigns.models import Campaign
 
-        campaign = Campaign.objects.get(id=campaign_id)
+        campaign = Campaign.objects.get(id=campaign_pk)
 
         if self.id == campaign.dm_id:
             return True

@@ -7,6 +7,7 @@ from PIL import Image
 
 from apps.campaigns.models import Campaign
 from apps.characters.models import Character
+from apps.maps.models import Map
 from apps.users.models import User
 from apps.users.tests.factories import UserFactory
 
@@ -46,6 +47,12 @@ def character1(player1) -> Character:
 
 
 @pytest.fixture
+def character2(player2) -> Character:
+    character = baker.make(Character, player=player2)
+    return character
+
+
+@pytest.fixture
 def campaign1(dm: User, character1: User) -> Campaign:
     campaign = baker.make(Campaign, dm=dm, characters=[character1])
     return campaign
@@ -58,3 +65,9 @@ def mock_image() -> ImageFile:
     image.save(image_file)
     image_file.seek(0)
     return ImageFile(image_file)
+
+
+@pytest.fixture
+def map(campaign1: Campaign) -> Map:
+    map = baker.make(Map, campaign=campaign1)
+    return map

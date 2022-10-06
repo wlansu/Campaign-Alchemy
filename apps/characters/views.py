@@ -6,8 +6,8 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.forms import BaseForm
-from django.http import Http404, HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
@@ -37,8 +37,8 @@ def characters_hx(request: HttpRequest, campaign_pk: int = None) -> HttpResponse
     """HX-Request: return a partial template."""
     characters = Character.objects.filter(player=request.user)
     if campaign_pk:
-        if not request.user.has_read_access_to_campaign(campaign_id=campaign_pk):
-            raise PermissionDenied()
+        if not request.user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+            raise PermissionDenied
         characters = Character.objects.filter(campaign=campaign_pk)
     return render(
         request=request,
@@ -73,9 +73,7 @@ def add_to_campaign(request: HttpRequest, character_pk: int = None) -> HttpRespo
 @login_required
 @require_http_methods(["GET"])
 def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpResponse:
-    character = Character.objects.filter(player=request.user).get(id=character_pk)
-    if not character:
-        raise Http404
+    character = get_object_or_404(Character, player=request.user, id=character_pk)
     character.campaign = None
     character.save()
     return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
@@ -96,11 +94,11 @@ class CharacterDetailView(LoginRequiredMixin, DetailView):
         if (
             character.player == self.request.user
             or self.request.user.has_read_access_to_campaign(
-                campaign_id=character.campaign_id
+                campaign_pk=character.campaign_id
             )
         ):
             return character
-        raise Http404
+        raise PermissionDenied
 
     def get_template_names(self) -> list[str]:
         if self.request.htmx:
