@@ -48,7 +48,9 @@ class CampaignDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "campaign"
     pk_url_kwarg = "campaign_pk"
 
-    def get_object(self, queryset: Optional[QuerySet] = None) -> Campaign:
+    def get_object(
+        self, queryset: Optional[QuerySet] = None
+    ) -> Campaign | HttpResponse:
         campaign = super().get_object(queryset)
         if (
             self.request.user == campaign.dm

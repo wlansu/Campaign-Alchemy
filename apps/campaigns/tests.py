@@ -1,3 +1,6 @@
+from contextlib import nullcontext as does_not_raise
+from typing import Callable
+
 import pytest
 from django.http import Http404
 from django.test import Client
@@ -43,37 +46,21 @@ def campaign1(dm: User, character1: User) -> Campaign:
     return campaign
 
 
-# @pytest.mark.django_db
-# @pytest.mark.parametrize(
-#     "test_input,expected", [(dm, 200), (player1, 200), (player2, 404)]
-# )
-# def test_campaign_list(
-#     test_input: User, expected: int, client: Client, campaign1: Campaign
-# ) -> None:
-#     response = client.get(
-#         reverse("campaigns:detail", kwargs={"campaign_pk": campaign1.pk})
-#     )
-#     assert response.status_code == expected
-
-
 @pytest.mark.django_db
-def test_campaign_detail(rf: RequestFactory) -> None:
-    dm = baker.make(User, is_active=True)
-    player1 = baker.make(User, is_active=True)
-    player2 = baker.make(User, is_active=True)
-    character = baker.make(Character, player=player1)
-    campaign = baker.make(Campaign, characters=[character], dm=dm)
-    request = rf.get("campaigns:detail", kwargs={"campaign_pk": campaign.pk})
-    request.htmx = False
-
-    request.user = dm
-    response1 = CampaignDetailView.as_view()(request, campaign_pk=campaign.pk)
-    assert response1.status_code == 200
-
-    request.user = player1
-    response2 = CampaignDetailView.as_view()(request, campaign_pk=campaign.pk)
-    assert response2.status_code == 200
-
-    request.user = player2
-    with pytest.raises(Http404):
-        CampaignDetailView.as_view()(request, campaign_pk=campaign.pk)
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        (pytest.lazy_fixture("dm"), does_not_raise()),
+        (pytest.lazy_fixture("player1"), does_not_raise()),
+        (pytest.lazy_fixture("player2"), pytest.raises(Http404)),
+    ],
+)
+def test_campaign_list(
+    test_input: User, expected: Callable, campaign1: Campaign, rf: RequestFactory
+) -> None:
+    with expected:
+        request = rf.get("campaigns:detail", kwargs={"campaign_pk": campaign1.pk})
+        request.htmx = False
+        request.user = test_input
+        response = CampaignDetailView.as_view()(request, campaign_pk=campaign1.pk)
+        assert response.status_code == 200
