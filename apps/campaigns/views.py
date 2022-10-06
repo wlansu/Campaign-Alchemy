@@ -2,6 +2,7 @@ from typing import Optional
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q, QuerySet
 from django.forms import BaseForm
 from django.http import Http404, HttpResponse
@@ -96,7 +97,7 @@ class CampaignUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         campaign = super().get_object(queryset)
         if self.request.user == campaign.dm:
             return campaign
-        raise Http404
+        raise PermissionDenied()
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
         self.object = form.save()
@@ -112,6 +113,12 @@ class CampaignDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     template_name = "confirm_delete.html"
     success_message = _("Campaign successfully deleted")
     pk_url_kwarg = "campaign_pk"
+
+    def get_object(self, queryset: Optional[QuerySet] = None) -> Campaign:
+        campaign = super().get_object(queryset)
+        if self.request.user == campaign.dm:
+            return campaign
+        raise PermissionDenied()
 
     def get_success_url(self) -> str:
         """
