@@ -87,7 +87,12 @@ class CharacterDetailView(LoginRequiredMixin, DetailView):
 
     def get_object(self, queryset: Optional[QuerySet] = None) -> Character:
         character = super().get_object(queryset)
-        if character.player == self.request.user:
+        if (
+            character.player == self.request.user
+            or self.request.user.has_read_access_to_campaign(
+                campaign_id=character.campaign_id
+            )
+        ):
             return character
         raise Http404
 

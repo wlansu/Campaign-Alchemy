@@ -4,12 +4,19 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 from django.views import defaults as default_views
+from django.views.defaults import page_not_found
 from django.views.generic import TemplateView
 
 from apps.search import search_all
 
+
+def custom_page_not_found(request):
+    return page_not_found(request, None)
+
+
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
+    path("404/", custom_page_not_found),
     path(
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
     ),

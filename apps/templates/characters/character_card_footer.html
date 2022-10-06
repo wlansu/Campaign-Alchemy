@@ -1,13 +1,13 @@
 {% load static %}
 
 <div class="card-footer">
-  <div class="row text-center">
+  <div class="row">
   {% if character.campaign %}
     <div class="col-9">
     {# Don't show the campaign link on the campaign detail page, we're already there. #}
     {% url 'campaigns:characters:hx-list' campaign_pk=character.campaign_id as url %}
     {% if not request.path == url %}
-      <a href="{% url 'campaigns:detail' campaign_pk=character.campaign_id %}"><h5>{{ character.campaign }}</h5></a>
+      <a href="{% url 'campaigns:detail' campaign_pk=character.campaign_id %}"><h5 class="text-center">{{ character.campaign }}</h5></a>
     {% endif %}
     </div>
     <div class="col-1">
