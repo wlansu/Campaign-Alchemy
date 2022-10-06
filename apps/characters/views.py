@@ -3,6 +3,7 @@ from typing import Optional
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.forms import BaseForm
 from django.http import Http404, HttpRequest, HttpResponse
@@ -18,7 +19,10 @@ from apps.characters.models import Character
 @login_required
 @require_http_methods(["GET"])
 def characters_page(request: HttpRequest) -> HttpResponse:
-    """Return the full characters list page."""
+    """Return the full characters list page.
+
+    This should only return the player's own characters.
+    """
     characters = Character.objects.filter(player=request.user)
     return render(
         request=request,
@@ -33,6 +37,8 @@ def characters_hx(request: HttpRequest, campaign_pk: int = None) -> HttpResponse
     """HX-Request: return a partial template."""
     characters = Character.objects.filter(player=request.user)
     if campaign_pk:
+        if not request.user.has_read_access_to_campaign(campaign_id=campaign_pk):
+            raise PermissionDenied()
         characters = Character.objects.filter(campaign=campaign_pk)
     return render(
         request=request,
@@ -135,7 +141,7 @@ class CharacterUpdateView(LoginRequiredMixin, UpdateView):
         character = super().get_object(queryset)
         if character.player == self.request.user:
             return character
-        raise Http404
+        raise PermissionDenied
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
         """Set character as NPC or Player."""
@@ -162,7 +168,7 @@ class CharacterDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         character = super().get_object(queryset)
         if character.player == self.request.user:
             return character
-        raise Http404
+        raise PermissionDenied
 
     def get_success_url(self) -> str:
         """

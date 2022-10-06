@@ -1,5 +1,9 @@
+import tempfile
+
 import pytest
+from django.core.files.images import ImageFile
 from model_bakery import baker
+from PIL import Image
 
 from apps.campaigns.models import Campaign
 from apps.characters.models import Character
@@ -45,3 +49,12 @@ def character1(player1) -> Character:
 def campaign1(dm: User, character1: User) -> Campaign:
     campaign = baker.make(Campaign, dm=dm, characters=[character1])
     return campaign
+
+
+@pytest.fixture
+def mock_image() -> ImageFile:
+    image = Image.new("RGBA", size=(50, 50), color=(256, 0, 0))
+    image_file = tempfile.NamedTemporaryFile(suffix=".png")
+    image.save(image_file)
+    image_file.seek(0)
+    return ImageFile(image_file)

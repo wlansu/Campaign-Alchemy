@@ -29,6 +29,10 @@ class User(AbstractUser):
         from apps.campaigns.models import Campaign
 
         campaign = Campaign.objects.get(id=campaign_id)
+
+        if self.id == campaign.dm_id:
+            return True
+
         player_characters = self.characters.values_list("player_id")
         campaign_characters = campaign.characters.values_list("player_id")
         return any(
