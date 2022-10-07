@@ -35,11 +35,15 @@ def characters_page(request: HttpRequest) -> HttpResponse:
 @require_http_methods(["GET"])
 def characters_hx(request: HttpRequest, campaign_pk: int = None) -> HttpResponse:
     """HX-Request: return a partial template."""
-    characters = Character.objects.filter(player=request.user)
     if campaign_pk:
         if not request.user.has_read_access_to_campaign(campaign_pk=campaign_pk):
             raise PermissionDenied
-        characters = Character.objects.filter(campaign=campaign_pk)
+        characters = Character.objects.select_related("campaign").filter(
+            campaign=campaign_pk
+        )
+    else:
+        characters = Character.objects.filter(player=request.user)
+
     return render(
         request=request,
         template_name="characters/partial_list.html",

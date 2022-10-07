@@ -92,12 +92,13 @@ class MapCreateView(CampaignIncluded, CreateView):
     template_name = "maps/map_form.html"
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        """Only a DM can create a Map."""
+        """Any player with a character in the campaign can add a Map."""
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
         campaign_pk = kwargs.get("campaign_pk", None)
         if not campaign_pk:
             raise Http404
-        campaign = get_object_or_404(Campaign, id=campaign_pk)
-        if request.user == campaign.dm:
+        if request.user.has_read_access_to_campaign(campaign_pk=campaign_pk):
             return super().dispatch(request, *args, **kwargs)
         raise PermissionDenied
 

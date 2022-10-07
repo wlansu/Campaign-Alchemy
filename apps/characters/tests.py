@@ -240,3 +240,26 @@ def test_remove_character_from_campaign(
     )
     assert response.status_code == status_code
     assert character2.campaign is None
+
+
+@pytest.mark.django_db
+def test_user_has_access_cache_invalidation(
+    character2: Character, campaign1: Campaign, client: Client
+) -> None:
+    """Check that the user_has_read_access_to_campaign cache is invalidated correctly."""
+    client.force_login(character2.player)
+    headers = {"HX-Request": "true"}
+    denied = client.get(
+        reverse("campaigns:detail", kwargs={"campaign_pk": campaign1.pk})
+    )
+    assert denied.status_code == 403
+    join = client.post(
+        reverse("characters:add"),
+        headers=headers,
+        data={"character_pk": character2.pk, "invite_code": campaign1.invite_code},
+    )
+    assert join.status_code == 204
+    accepted = client.get(
+        reverse("campaigns:detail", kwargs={"campaign_pk": campaign1.pk})
+    )
+    assert accepted.status_code == 200

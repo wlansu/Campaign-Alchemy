@@ -124,11 +124,11 @@ def test_map_delete(
 @override_settings(MEDIA_ROOT=Path(tempfile.gettempdir()))
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "user,status_code",
+    "user,,status_code",
     [
         (pytest.lazy_fixture("dm"), 204),
-        (pytest.lazy_fixture("player1"), 403),
-        (pytest.lazy_fixture("player2"), 403),
+        (pytest.lazy_fixture("player1"), 204),
+        (pytest.lazy_fixture("player2"), 302),
     ],
 )
 def test_map_create(
@@ -138,7 +138,7 @@ def test_map_create(
     mock_image: ImageFile,
     campaign1: Campaign,
 ) -> None:
-    """All DM's users can create a Map."""
+    """All users with access to the campaign can create a Map."""
     if not user.username == "player2":
         client.force_login(user)
 

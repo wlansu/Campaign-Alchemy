@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.cache import cache
 from django.db.models import BooleanField, CharField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -26,15 +27,20 @@ class User(AbstractUser):
 
         If any of the User's Characters is in a Campaign then the User has access.
         """
-        from apps.campaigns.models import Campaign
+        has_read_access = cache.get("user_has_read_access_to_campaign")
+        if not has_read_access:
+            from apps.campaigns.models import Campaign
 
-        campaign = Campaign.objects.get(id=campaign_pk)
+            campaign = Campaign.objects.get(id=campaign_pk)
 
-        if self.id == campaign.dm_id:
-            return True
+            if self.id == campaign.dm_id:
+                return True
 
-        player_characters = self.characters.values_list("player_id")
-        campaign_characters = campaign.characters.values_list("player_id")
-        return any(
-            character_id in campaign_characters for character_id in player_characters
-        )
+            player_characters = self.characters.values_list("player_id")
+            campaign_characters = campaign.characters.values_list("player_id")
+            has_read_access = any(
+                character_id in campaign_characters
+                for character_id in player_characters
+            )
+            cache.set("user_has_read_access_to_campaign", has_read_access, 600)
+        return has_read_access

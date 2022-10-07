@@ -86,6 +86,8 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         """Anyone with access to the Campaign can update a Location.."""
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
         campaign_pk = kwargs.get("campaign_pk", None)
         if not request.user.has_read_access_to_campaign(campaign_pk=campaign_pk):
             raise PermissionDenied
