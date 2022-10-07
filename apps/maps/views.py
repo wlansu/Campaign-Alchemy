@@ -126,7 +126,7 @@ class MapUpdateView(LoginRequiredMixin, UpdateView):
         map = super().get_object(queryset)
         if self.request.user == map.campaign.dm:
             return map
-        raise PermissionDenied()
+        raise PermissionDenied
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
         self.object = form.save()

@@ -7,6 +7,7 @@ from PIL import Image
 
 from apps.campaigns.models import Campaign
 from apps.characters.models import Character
+from apps.locations.models import Location
 from apps.maps.models import Map
 from apps.users.models import User
 from apps.users.tests.factories import UserFactory
@@ -71,3 +72,9 @@ def mock_image() -> ImageFile:
 def map(campaign1: Campaign) -> Map:
     map = baker.make(Map, campaign=campaign1)
     return map
+
+
+@pytest.fixture
+def location(map: Map) -> Location:
+    location = baker.make(Location, map=map)
+    return location

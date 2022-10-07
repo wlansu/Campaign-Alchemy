@@ -1,58 +1,26 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import PermissionDenied
+from django.db.models import QuerySet
 from django.forms import HiddenInput
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
-from django.views.generic import CreateView, DeleteView, UpdateView
+from django.views.generic import DeleteView, UpdateView
 
 from apps.locations.forms import LocationForm
 from apps.locations.models import Location
 from apps.maps.models import Map
 
 
-class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
-    """
-    View for Location Create.
-    """
-
-    model = Location
-    fields = ["name", "description", "image", "latitude", "longitude"]
-    template_name = "locations/location_form.html"
-    success_message = _("Location successfully created")
-
-    def get_success_url(self) -> str:
-        """
-        Override get_success_url method to redirect to Maps Detail.
-        """
-        return reverse(
-            "campaigns:maps:detail",
-            kwargs={
-                "campaign_pk": self.object.map.campaign_pk,
-                "map_pk": self.object.map.pk,
-            },
-        )
-
-    def form_valid(self, form) -> HttpResponse:
-        """
-        Override form_valid method to set the active map.
-        """
-        form.instance.map = Map.objects.get(id=self.kwargs["map_pk"])
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs) -> dict:
-        context = super().get_context_data(**kwargs)
-        context["campaign_pk"] = self.object.map.campaign_id
-        context["map_pk"] = self.object.map.id
-        return context
-
-
 @login_required
 @require_http_methods(["GET", "POST"])
 def add_location(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpResponse:
+    if not request.user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+        raise PermissionDenied
     if request.method == "POST":
         form = LocationForm(request.POST, files=request.FILES)
         form.instance.map = Map.objects.get(id=map_pk)
@@ -81,6 +49,8 @@ def add_location(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpRes
 @login_required
 @require_http_methods(["GET"])
 def location_list(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpResponse:
+    if not request.user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+        raise PermissionDenied
     return render(
         request,
         "locations/location_list.html",
@@ -113,6 +83,13 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
                 "map_pk": self.object.map.pk,
             },
         )
+
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
+        """Anyone with access to the Campaign can update a Location.."""
+        campaign_pk = kwargs.get("campaign_pk", None)
+        if not request.user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
@@ -148,6 +125,13 @@ class LocationDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
                 "map_pk": self.object.map.pk,
             },
         )
+
+    def get_object(self, queryset: QuerySet = None) -> Map:
+        """Only a DM can delete a location."""
+        location = super().get_object(queryset)
+        if self.request.user == location.map.campaign.dm:
+            return location
+        raise PermissionDenied
 
     def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)

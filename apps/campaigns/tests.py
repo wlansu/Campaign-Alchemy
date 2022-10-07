@@ -17,7 +17,7 @@ from apps.users.models import User
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "test_input,expected",
+    "user,expected_result",
     [
         (pytest.lazy_fixture("dm"), does_not_raise()),
         (pytest.lazy_fixture("player1"), does_not_raise()),
@@ -25,19 +25,19 @@ from apps.users.models import User
     ],
 )
 def test_campaign_detail(
-    test_input: User, expected: Callable, campaign1: Campaign, rf: RequestFactory
+    user: User, expected_result: Callable, campaign1: Campaign, rf: RequestFactory
 ) -> None:
     """A player without a character in the Campaign should get a 404 Exception when trying to access the detail view."""
-    with expected:
+    with expected_result:
         request = rf.get("campaigns:detail", kwargs={"campaign_pk": campaign1.pk})
         request.htmx = False
-        request.user = test_input
+        request.user = user
         CampaignDetailView.as_view()(request, campaign_pk=campaign1.pk)
 
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "test_input,expected",
+    "user,expected_result_count",
     [
         (pytest.lazy_fixture("dm"), 1),
         (pytest.lazy_fixture("player1"), 1),
@@ -45,8 +45,8 @@ def test_campaign_detail(
     ],
 )
 def test_campaign_list(
-    test_input: User,
-    expected: int,
+    user: User,
+    expected_result_count: int,
     campaign1: Campaign,
     client: Client,
 ) -> None:
@@ -56,15 +56,15 @@ def test_campaign_list(
     Player2 does not have a character in the Campaign and should not.
     """
     headers = {"HX-Request": "true"}
-    client.force_login(test_input)
+    client.force_login(user)
     response = client.get(reverse("campaigns:list"), **headers)
     assert response.status_code == 200
-    assert len(response.context_data["campaigns"]) == expected
+    assert len(response.context_data["campaigns"]) == expected_result_count
 
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "test_input,expected",
+    "user,expected_result",
     [
         (pytest.lazy_fixture("dm"), does_not_raise()),
         (pytest.lazy_fixture("player1"), pytest.raises(PermissionDenied)),
@@ -72,16 +72,16 @@ def test_campaign_list(
     ],
 )
 def test_campaign_update(
-    test_input: User, expected: Callable, campaign1: Campaign, rf: RequestFactory
+    user: User, expected_result: Callable, campaign1: Campaign, rf: RequestFactory
 ) -> None:
     """Only the DM should be able to update the Campaign."""
-    with expected:
+    with expected_result:
         data = {"description": "Update test"}
         request = rf.post(
             reverse("campaigns:update", kwargs={"campaign_pk": campaign1.pk}), data=data
         )
         request.htmx = True
-        request.user = test_input
+        request.user = user
         request.data = data
         response = CampaignUpdateView.as_view()(
             request, data=request.data, campaign_pk=campaign1.pk
@@ -91,7 +91,7 @@ def test_campaign_update(
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "test_input,expected",
+    "user,expected_result",
     [
         (pytest.lazy_fixture("dm"), does_not_raise()),
         (pytest.lazy_fixture("player1"), pytest.raises(PermissionDenied)),
@@ -99,14 +99,14 @@ def test_campaign_update(
     ],
 )
 def test_campaign_delete(
-    test_input: User, expected: Callable, campaign1: Campaign, rf: RequestFactory
+    user: User, expected_result: Callable, campaign1: Campaign, rf: RequestFactory
 ) -> None:
     """Only the DM should be able to delete the Campaign."""
-    with expected:
+    with expected_result:
         request = rf.delete(
             reverse("campaigns:delete", kwargs={"campaign_pk": campaign1.pk})
         )
-        request.user = test_input
+        request.user = user
         response = CampaignDeleteView.as_view()(request, campaign_pk=campaign1.pk)
         assert response.status_code == 302
         assert Campaign.objects.count() == 0
@@ -114,22 +114,22 @@ def test_campaign_delete(
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "test_input,expected",
+    "user,status_code",
     [
         (pytest.lazy_fixture("dm"), 204),
         (pytest.lazy_fixture("player1"), 204),
         (pytest.lazy_fixture("player2"), 302),
     ],
 )
-def test_campaign_create(test_input: User, expected: int, client: Client) -> None:
+def test_campaign_create(user: User, status_code: int, client: Client) -> None:
     """All logged-in users can create a campaign."""
-    if not test_input.username == "player2":
-        client.force_login(test_input)
+    if not user.username == "player2":
+        client.force_login(user)
 
     headers = {"HX-Request": "true"}
     response = client.post(
         reverse("campaigns:create"), headers=headers, data={"name": "Test"}
     )
-    assert response.status_code == expected
+    assert response.status_code == status_code
     if response.status_code == 204:
         assert Campaign.objects.filter(name="Test").exists()
