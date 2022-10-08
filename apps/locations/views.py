@@ -14,12 +14,14 @@ from django.views.generic import DeleteView, UpdateView
 from apps.locations.forms import LocationForm
 from apps.locations.models import Location
 from apps.maps.models import Map
+from apps.users.models import User
 
 
 @login_required
 @require_http_methods(["GET", "POST"])
 def add_location(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpResponse:
-    if not request.user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+    user: User = request.user
+    if not user.has_read_access_to_campaign(campaign_pk=campaign_pk):
         raise PermissionDenied
     if request.method == "POST":
         form = LocationForm(request.POST, files=request.FILES)
@@ -37,8 +39,6 @@ def add_location(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpRes
             )
     else:
         form = LocationForm()
-        form.fields["longitude"].widget = HiddenInput()
-        form.fields["latitude"].widget = HiddenInput()
         return render(
             request,
             "locations/location_form.html",
@@ -49,7 +49,8 @@ def add_location(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpRes
 @login_required
 @require_http_methods(["GET"])
 def location_list(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpResponse:
-    if not request.user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+    user: User = request.user
+    if not user.has_read_access_to_campaign(campaign_pk=campaign_pk):
         raise PermissionDenied
     return render(
         request,
@@ -86,10 +87,11 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         """Anyone with access to the Campaign can update a Location.."""
-        if not request.user.is_authenticated:
+        user: User = request.user
+        if not user.is_authenticated:
             return self.handle_no_permission()
         campaign_pk = kwargs.get("campaign_pk", None)
-        if not request.user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+        if not user.has_read_access_to_campaign(campaign_pk=campaign_pk):
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
 

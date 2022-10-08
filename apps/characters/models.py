@@ -49,7 +49,7 @@ class Character(TimeStampedModel):
             not_in_campaign = True
         super().save(*args, **kwargs)
         if not_in_campaign and self.campaign_id:
-            cache.delete("user_has_read_access_to_campaign")
+            cache.delete(f"{self.player_id}.user_has_read_access_to_campaign")
         if self.is_npc and kwargs.get("update_fields", None) == ["player"]:
             self.player = None
             self.save(update_fields=["player"])

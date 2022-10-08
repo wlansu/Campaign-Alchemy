@@ -27,7 +27,7 @@ class User(AbstractUser):
 
         If any of the User's Characters is in a Campaign then the User has access.
         """
-        has_read_access = cache.get("user_has_read_access_to_campaign")
+        has_read_access = cache.get(f"{self.id}.user_has_read_access_to_campaign")
         if not has_read_access:
             from apps.campaigns.models import Campaign
 
@@ -42,5 +42,7 @@ class User(AbstractUser):
                 character_id in campaign_characters
                 for character_id in player_characters
             )
-            cache.set("user_has_read_access_to_campaign", has_read_access, 600)
+            cache.set(
+                f"{self.id}.user_has_read_access_to_campaign", has_read_access, 600
+            )
         return has_read_access
