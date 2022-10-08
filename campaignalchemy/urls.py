@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.http import HttpRequest, HttpResponse
 from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.defaults import page_not_found
@@ -10,13 +11,18 @@ from django.views.generic import TemplateView
 from apps.search import search_all
 
 
-def custom_page_not_found(request):
+def custom_page_not_found(request: HttpRequest) -> HttpResponse:
     return page_not_found(request, None)
+
+
+def trigger_error(request: HttpRequest) -> None:
+    division_by_zero = 1 / 0  # noqa
 
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     path("404/", custom_page_not_found),
+    path("sentry-debug/", trigger_error),
     path(
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
     ),

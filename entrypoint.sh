@@ -13,10 +13,7 @@ set -e
 python manage.py migrate --noinput --verbosity 0
 
 echo "Collecting static files"
-#python manage.py collectstatic --noinput --verbosity 0
-
-echo "Populating database"
-#python manage.py resetdb
+python manage.py collectstatic --noinput --verbosity 0
 
 if [ $# = 0 ]
 then
