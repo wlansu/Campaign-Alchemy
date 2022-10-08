@@ -26,6 +26,7 @@ python-slugify = "^6.1.2"
 django-htmx = "^1.12.2"
 django-cleanup = "^6.0.0"
 sentry-sdk = "^1.9.10"
+django-redis = "^5.2.0"
 
 [tool.poetry.group.dev.dependencies]
 factory-boy = "^3.2.1"
