@@ -21,7 +21,7 @@
             {% if character.image %}
               <img src="{{ character.image.url }}" width="140" height="140" class="rounded-circle shadow" alt="Image of {{ character.name }}">
             {% else %}
-              <img src="{% static 'images/default_image.png' %}" width="140" height="140" class="rounded-circle shadow" alt="Default character image">
+              <img src="{% static 'images/default_campaign_image.jpg' %}" width="140" height="140" class="rounded-circle shadow" alt="Default character image">
             {% endif %}
             <h5 class="mt-2 whitegreen">{{ character.name }}</h5>
           </div>
