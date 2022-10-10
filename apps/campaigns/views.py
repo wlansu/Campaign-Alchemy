@@ -76,6 +76,11 @@ class CampaignCreateView(LoginRequiredMixin, CreateView):
     fields = ["name", "description", "image"]
     template_name = "campaigns/campaign_form.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_create:
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form: BaseForm) -> HttpResponse:
         form.instance.dm = self.request.user
         self.object = form.save()

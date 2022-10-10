@@ -17,6 +17,7 @@ class User(AbstractUser):
     first_name = None  # type: ignore
     last_name = None  # type: ignore
     can_be_dm = BooleanField(default=True)
+    can_create = BooleanField(default=False)
 
     def get_absolute_url(self) -> str:
         """Get url for user's detail view."""

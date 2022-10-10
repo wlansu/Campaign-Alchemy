@@ -117,6 +117,11 @@ class CharacterCreateView(LoginRequiredMixin, CreateView):
     fields = ["name", "description", "image", "is_npc"]
     template_name = "characters/character_form.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_create:
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form: BaseForm) -> HttpResponse:
         """
         If a character is not an NPC then the player is the creator.
