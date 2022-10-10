@@ -25,13 +25,13 @@ def user() -> User:
 
 @pytest.fixture
 def dm() -> User:
-    user = baker.make(User, is_active=True, username="dm")
+    user = baker.make(User, is_active=True, username="dm", can_create=True)
     return user
 
 
 @pytest.fixture
 def player1() -> User:
-    user = baker.make(User, is_active=True, username="player1")
+    user = baker.make(User, is_active=True, username="player1", can_create=True)
     return user
 
 

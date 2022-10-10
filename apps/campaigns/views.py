@@ -1,13 +1,10 @@
 from typing import Optional
 
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, QuerySet
 from django.forms import BaseForm
 from django.http import HttpResponse
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -17,9 +14,10 @@ from django.views.generic import (
 )
 
 from apps.campaigns.models import Campaign
+from apps.mixins import CanCreateMixin
 
 
-class CampaignListView(LoginRequiredMixin, ListView):
+class CampaignListView(CanCreateMixin, ListView):
     """
     View for Campaigns List.
     """
@@ -39,7 +37,7 @@ class CampaignListView(LoginRequiredMixin, ListView):
         return [self.template_name]
 
 
-class CampaignDetailView(LoginRequiredMixin, DetailView):
+class CampaignDetailView(CanCreateMixin, DetailView):
     """
     View for Campaigns Detail.
     """
@@ -67,7 +65,7 @@ class CampaignDetailView(LoginRequiredMixin, DetailView):
         return [self.template_name]
 
 
-class CampaignCreateView(LoginRequiredMixin, CreateView):
+class CampaignCreateView(CanCreateMixin, CreateView):
     """
     View for Campaigns Create.
     """
@@ -76,18 +74,13 @@ class CampaignCreateView(LoginRequiredMixin, CreateView):
     fields = ["name", "description", "image"]
     template_name = "campaigns/campaign_form.html"
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.can_create:
-            return self.handle_no_permission()
-        return super().dispatch(request, *args, **kwargs)
-
     def form_valid(self, form: BaseForm) -> HttpResponse:
         form.instance.dm = self.request.user
         self.object = form.save()
         return HttpResponse(status=204, headers={"HX-Trigger": "campaignListChanged"})
 
 
-class CampaignUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class CampaignUpdateView(CanCreateMixin, UpdateView):
     """
     View for Campaigns Update.
     """
@@ -109,14 +102,13 @@ class CampaignUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         return HttpResponse(status=204, headers={"HX-Trigger": "campaignChanged"})
 
 
-class CampaignDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class CampaignDeleteView(CanCreateMixin, DeleteView):
     """
     View for Campaign Delete.
     """
 
     model = Campaign
     template_name = "confirm_delete.html"
-    success_message = _("Campaign successfully deleted")
     pk_url_kwarg = "campaign_pk"
 
     def get_object(self, queryset: Optional[QuerySet] = None) -> Campaign:

@@ -1,23 +1,20 @@
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.forms import HiddenInput
 from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DeleteView, UpdateView
 
 from apps.locations.forms import LocationForm
 from apps.locations.models import Location
 from apps.maps.models import Map
+from apps.mixins import CanCreateMixin, create_required
 from apps.users.models import User
 
 
-@login_required
+@create_required
 @require_http_methods(["GET", "POST"])
 def add_location(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpResponse:
     user: User = request.user
@@ -46,7 +43,7 @@ def add_location(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpRes
         )
 
 
-@login_required
+@create_required
 @require_http_methods(["GET"])
 def location_list(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpResponse:
     user: User = request.user
@@ -61,7 +58,7 @@ def location_list(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpRe
     )
 
 
-class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class LocationUpdateView(CanCreateMixin, UpdateView):
     """
     View for Campaigns Update.
     """
@@ -70,7 +67,6 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     form_class = LocationForm
     template_name = "locations/location_form.html"
     context_object_name = "location"
-    success_message = _("Location successfully updated")
     pk_url_kwarg = "location_pk"
 
     def get_success_url(self) -> str:
@@ -108,14 +104,13 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         return form
 
 
-class LocationDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class LocationDeleteView(CanCreateMixin, DeleteView):
     """
     View for Location Delete.
     """
 
     model = Location
     template_name = "confirm_delete.html"
-    success_message = _("Location successfully deleted")
     pk_url_kwarg = "location_pk"
 
     def get_success_url(self) -> str:

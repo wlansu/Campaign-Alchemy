@@ -1,5 +1,3 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.forms import BaseForm
@@ -17,9 +15,10 @@ from django.views.generic import (
 from apps.campaigns.models import Campaign
 from apps.locations.forms import LocationForm
 from apps.maps.models import Map
+from apps.mixins import CanCreateMixin
 
 
-class CampaignIncluded(LoginRequiredMixin):
+class CampaignIncluded(CanCreateMixin):
     """Mixin that adds the campaign to the context."""
 
     def setup(self, request, *args, **kwargs) -> None:
@@ -52,7 +51,7 @@ class MapListView(CampaignIncluded, ListView):
         raise PermissionDenied()
 
 
-class MapDetailView(LoginRequiredMixin, DetailView):
+class MapDetailView(CanCreateMixin, DetailView):
     """
     View for Maps Detail.
     """
@@ -111,7 +110,7 @@ class MapCreateView(CampaignIncluded, CreateView):
         return HttpResponse(status=204, headers={"HX-Trigger": "mapListChanged"})
 
 
-class MapUpdateView(LoginRequiredMixin, UpdateView):
+class MapUpdateView(CanCreateMixin, UpdateView):
     """
     View for Campaigns Update.
     """
@@ -134,7 +133,7 @@ class MapUpdateView(LoginRequiredMixin, UpdateView):
         return HttpResponse(status=204, headers={"HX-Trigger": "mapChanged"})
 
 
-class MapDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class MapDeleteView(CanCreateMixin, DeleteView):
     """
     View for Map Delete.
     """
@@ -142,7 +141,6 @@ class MapDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = Map
     template_name = "confirm_delete.html"
     pk_url_kwarg = "map_pk"
-    success_message = "Map successfully deleted"
 
     def get_object(self, queryset: QuerySet = None) -> Map:
         map = super().get_object(queryset)

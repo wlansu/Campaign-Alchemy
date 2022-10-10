@@ -1,8 +1,5 @@
 from typing import Optional
 
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.forms import BaseForm
@@ -14,9 +11,10 @@ from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
 
 from apps.characters.forms import AddToCampaignForm
 from apps.characters.models import Character
+from apps.mixins import CanCreateMixin, create_required
 
 
-@login_required
+@create_required
 @require_http_methods(["GET"])
 def characters_page(request: HttpRequest) -> HttpResponse:
     """Return the full characters list page.
@@ -31,7 +29,7 @@ def characters_page(request: HttpRequest) -> HttpResponse:
     )
 
 
-@login_required
+@create_required
 @require_http_methods(["GET"])
 def characters_hx(request: HttpRequest, campaign_pk: int = None) -> HttpResponse:
     """HX-Request: return a partial template."""
@@ -51,7 +49,7 @@ def characters_hx(request: HttpRequest, campaign_pk: int = None) -> HttpResponse
     )
 
 
-@login_required
+@create_required
 @require_http_methods(["GET", "POST"])
 def add_to_campaign(request: HttpRequest, character_pk: int = None) -> HttpResponse:
     """Add a Character to a Campaign."""
@@ -74,7 +72,7 @@ def add_to_campaign(request: HttpRequest, character_pk: int = None) -> HttpRespo
     )
 
 
-@login_required
+@create_required
 @require_http_methods(["GET"])
 def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpResponse:
     character = get_object_or_404(Character, player=request.user, id=character_pk)
@@ -83,7 +81,7 @@ def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpRespons
     return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
 
 
-class CharacterDetailView(LoginRequiredMixin, DetailView):
+class CharacterDetailView(CanCreateMixin, DetailView):
     """
     View for Characters Detail.
     """
@@ -110,17 +108,12 @@ class CharacterDetailView(LoginRequiredMixin, DetailView):
         return [self.template_name]
 
 
-class CharacterCreateView(LoginRequiredMixin, CreateView):
+class CharacterCreateView(CanCreateMixin, CreateView):
     """Create a new Character."""
 
     model = Character
     fields = ["name", "description", "image", "is_npc"]
     template_name = "characters/character_form.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.can_create:
-            return self.handle_no_permission()
-        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
         """
@@ -133,7 +126,7 @@ class CharacterCreateView(LoginRequiredMixin, CreateView):
         return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
 
 
-class CharacterUpdateView(LoginRequiredMixin, UpdateView):
+class CharacterUpdateView(CanCreateMixin, UpdateView):
     """
     View for Characters Update.
     """
@@ -161,14 +154,13 @@ class CharacterUpdateView(LoginRequiredMixin, UpdateView):
         return HttpResponse(status=204, headers={"HX-Trigger": "characterChanged"})
 
 
-class CharacterDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class CharacterDeleteView(CanCreateMixin, DeleteView):
     """
     View for Character Delete.
     """
 
     model = Character
     template_name = "confirm_delete.html"
-    success_message = "Character successfully deleted"
     pk_url_kwarg = "character_pk"
 
     def get_object(self, queryset: Optional[QuerySet] = None) -> Character:
