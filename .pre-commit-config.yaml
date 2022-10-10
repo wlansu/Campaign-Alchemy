@@ -22,3 +22,11 @@ repos:
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
+  - repo: local
+    hooks:
+      - id: check-django-migrations
+        name: Check django migrations
+        entry: python3 manage.py makemigrations --dry-run --check
+        language: system
+        types: [ python ] # hook only runs if a python file is staged
+        pass_filenames: false
