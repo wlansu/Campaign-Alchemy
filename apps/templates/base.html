@@ -1,4 +1,4 @@
-{% load static i18n compress django_htmx %}<!DOCTYPE html>
+{% load static i18n compress django_htmx socialaccount %}<!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}
 <html lang="{{ LANGUAGE_CODE }}">
   <head>
@@ -76,8 +76,9 @@
             </li>
             {% else %}
             <li class="nav-item">
-              {% url 'account_login' as url %}
-              <a class="nav-link {% if request.path == url %}active{% endif %}" href="{{ url }}">Sign In</a>
+              <a href="{% provider_login_url "google" %}">Twitter</a>
+{#              {% url 'account_login' as url %}#}
+{#              <a class="nav-link {% if request.path == url %}active{% endif %}" href="{{ url }}">Sign In</a>#}
             </li>
             {% endif %}
           </ul>

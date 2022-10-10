@@ -70,6 +70,7 @@ THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "django_cleanup.apps.CleanupConfig",
     "django_htmx",
 ]
