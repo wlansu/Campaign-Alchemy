@@ -15,11 +15,7 @@ python manage.py migrate --noinput --verbosity 0
 echo "Collecting static files"
 python manage.py collectstatic --noinput --verbosity 0
 
-if [ $# = 0 ]
-then
-  echo "Assuming execution from shell. Starting Django server"
-  python manage.py runserver 0.0.0.0:8000
-else
-  echo "Assuming execution from IDE. Running provided commands"
-  exec "$@"
-fi
+echo "Compressing files"
+python manage.py compress
+
+gunicorn campaignalchemy.asgi:application --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
