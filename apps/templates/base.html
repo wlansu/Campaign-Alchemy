@@ -54,6 +54,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          {% if request.user %}
             {% if request.user.is_authenticated %}
             <li class="nav-item">
               {% url 'campaigns:list' as url %}
@@ -77,10 +78,9 @@
             {% else %}
             <li class="nav-item">
               <a href="{% provider_login_url "google" %}">Sign in with Google</a>
-{#              {% url 'account_login' as url %}#}
-{#              <a class="nav-link {% if request.path == url %}active{% endif %}" href="{{ url }}">Sign In</a>#}
             </li>
             {% endif %}
+          {% endif %}
           </ul>
           <form class="d-flex" role="search">
             <input
