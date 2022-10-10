@@ -16,7 +16,7 @@ echo "Collecting static files"
 python manage.py collectstatic --noinput --verbosity 0
 
 echo "Compressing files"
-python manage.py compress --noinput --verbosity 0
+python manage.py compress
 
 if [ $# = 0 ]
 then
