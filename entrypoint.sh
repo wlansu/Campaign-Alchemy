@@ -15,6 +15,9 @@ python manage.py migrate --noinput --verbosity 0
 echo "Collecting static files"
 python manage.py collectstatic --noinput --verbosity 0
 
+echo "Compressing files"
+python manage.py compress --noinput --verbosity 0
+
 if [ $# = 0 ]
 then
   echo "Assuming execution from shell. Starting Django server"
