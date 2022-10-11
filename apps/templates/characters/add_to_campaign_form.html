@@ -2,10 +2,10 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-  <form class="modal-content" hx-post="{% url 'characters:add' %}">
+  <form class="modal-content" hx-post="{% url 'characters:add' character_pk=character.id %}">
     {% csrf_token %}
     <div class="modal-header">
-      <h5 class="modal-title">Add character to campaign</h5>
+      <h5 class="modal-title">Add {{ character }} to a campaign</h5>
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body">
