@@ -26,8 +26,7 @@ class Map(TimeStampedModel):
         return f"<Map: {self.name}>"
 
     def save(self, *args, **kwargs) -> None:
-        """Set the resolutions on image save.."""
-        # TODO: account for changing of map.
+        """Set the resolutions on image save."""
         super().save(*args, **kwargs)
         if self.image and not all([self.resolution_height, self.resolution_width]):
             width, height = self.image._get_image_dimensions()
@@ -38,4 +37,4 @@ class Map(TimeStampedModel):
     class Meta:
         verbose_name = "Map"
         verbose_name_plural = "Maps"
-        indexes = (GinIndex(fields=["vector_column"]),)
+        indexes = (GinIndex(fields=["vector_column"]), models.Index(fields=["name"]))

@@ -12,10 +12,12 @@ class AddToCampaignForm(forms.Form):
     character_pk = forms.IntegerField(widget=forms.HiddenInput(), required=True)
 
     def __init__(self, *args, **kwargs):
+        """Set the request so the user can be accessed."""
         self.request = kwargs.pop("request", None)
         super().__init__(*args, **kwargs)
 
     def clean_invite_code(self) -> UUID:
+        """Check whether the invite code is for an existing Campaign."""
         data = self.cleaned_data["invite_code"]
         campaign_exists = Campaign.objects.filter(invite_code=data).exists()
         if not campaign_exists:
@@ -23,6 +25,7 @@ class AddToCampaignForm(forms.Form):
         return data
 
     def clean_character_pk(self) -> int:
+        """Check that the Character exists."""
         data = self.cleaned_data["character_pk"]
         character_exists = Character.objects.filter(
             id=data, player=self.request.user
@@ -32,6 +35,7 @@ class AddToCampaignForm(forms.Form):
         return data
 
     def save(self) -> None:
+        """Add the Character to the Campaign."""
         campaign = Campaign.objects.get(invite_code=self.cleaned_data["invite_code"])
         character = Character.objects.get(id=self.cleaned_data["character_pk"])
         campaign.characters.add(character)

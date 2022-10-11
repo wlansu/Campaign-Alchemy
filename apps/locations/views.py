@@ -1,7 +1,6 @@
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
-from django.forms import HiddenInput
-from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBase
+from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from django.urls import reverse
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
@@ -24,25 +23,15 @@ class LocationDispatchMixin:
         return super().dispatch(request, *args, **kwargs)
 
 
-class LocationCreateView(CanCreateMixin, LocationDispatchMixin, CreateView):
-
-    form_class = LocationForm
-    template_name = "locations/location_form.html"
-
-    def form_valid(self, form: LocationForm) -> HttpResponse:
-        form.instance.map = Map.objects.get(id=self.kwargs["map_pk"])
-        return super().form_valid(form)
-
+class CampaignAndMapIncluded:
     def get_context_data(self, **kwargs) -> dict:
+        """Pass the campaign and map pk's to the template context."""
         context = super().get_context_data(**kwargs)
         context["campaign_pk"] = self.kwargs["campaign_pk"]
         context["map_pk"] = self.kwargs["map_pk"]
         return context
 
     def get_success_url(self) -> str:
-        """
-        Override get_success_url method to redirect to Map Detail.
-        """
         return reverse(
             "campaigns:maps:detail",
             kwargs={
@@ -52,6 +41,19 @@ class LocationCreateView(CanCreateMixin, LocationDispatchMixin, CreateView):
         )
 
 
+class LocationCreateView(
+    CanCreateMixin, LocationDispatchMixin, CampaignAndMapIncluded, CreateView
+):
+
+    form_class = LocationForm
+    template_name = "locations/location_form.html"
+
+    def form_valid(self, form: LocationForm) -> HttpResponse:
+        """Set the Locations Map by retrieving the map pk from the url."""
+        form.instance.map = Map.objects.get(id=self.kwargs["map_pk"])
+        return super().form_valid(form)
+
+
 class LocationListView(CanCreateMixin, ListView):
 
     model = Location
@@ -59,6 +61,9 @@ class LocationListView(CanCreateMixin, ListView):
     context_object_name = "locations"
 
     def get_queryset(self) -> QuerySet:
+        """Acceptance criteria:
+        - Anyone with access to the Campaign can see Locations.
+        """
         campaign_pk = self.kwargs["campaign_pk"]
         map_pk = self.kwargs["map_pk"]
         user: User = self.request.user
@@ -71,13 +76,12 @@ class LocationListView(CanCreateMixin, ListView):
                 .filter(map=map_pk)
             )
 
-        raise Http404
+        return Location.objects.none()
 
 
-class LocationUpdateView(CanCreateMixin, LocationDispatchMixin, UpdateView):
-    """
-    View for Campaigns Update.
-    """
+class LocationUpdateView(
+    CanCreateMixin, LocationDispatchMixin, CampaignAndMapIncluded, UpdateView
+):
 
     model = Location
     form_class = LocationForm
@@ -85,61 +89,18 @@ class LocationUpdateView(CanCreateMixin, LocationDispatchMixin, UpdateView):
     context_object_name = "location"
     pk_url_kwarg = "location_pk"
 
-    def get_success_url(self) -> str:
-        """
-        Override get_success_url method to redirect to Map Detail.
-        """
-        return reverse(
-            "campaigns:maps:detail",
-            kwargs={
-                "campaign_pk": self.object.map.campaign_pk,
-                "map_pk": self.object.map.pk,
-            },
-        )
 
-    def get_context_data(self, **kwargs) -> dict:
-        context = super().get_context_data(**kwargs)
-        context["campaign_pk"] = self.object.map.campaign_id
-        context["map_pk"] = self.object.map.id
-        return context
-
-    def get_form(self, form_class=None) -> LocationForm:
-        form = super().get_form(form_class)
-        form.fields["longitude"].widget = HiddenInput()
-        form.fields["latitude"].widget = HiddenInput()
-        return form
-
-
-class LocationDeleteView(CanCreateMixin, DeleteView):
-    """
-    View for Location Delete.
-    """
+class LocationDeleteView(CanCreateMixin, CampaignAndMapIncluded, DeleteView):
 
     model = Location
     template_name = "confirm_delete.html"
     pk_url_kwarg = "location_pk"
 
-    def get_success_url(self) -> str:
-        """
-        Override get_success_url method to redirect to Map Detail.
-        """
-        return reverse(
-            "campaigns:maps:detail",
-            kwargs={
-                "campaign_pk": self.object.map.campaign_id,
-                "map_pk": self.object.map.pk,
-            },
-        )
-
     def get_object(self, queryset: QuerySet = None) -> Map:
-        """Only a DM can delete a location."""
+        """Acceptance criteria:
+        - Only a DM can delete a location
+        """
         location = super().get_object(queryset)
         if self.request.user == location.map.campaign.dm:
             return location
         raise PermissionDenied
-
-    def get_context_data(self, **kwargs) -> dict:
-        context = super().get_context_data(**kwargs)
-        context["campaign_pk"] = self.object.map.campaign_id
-        context["map_pk"] = self.object.map.id
-        return context

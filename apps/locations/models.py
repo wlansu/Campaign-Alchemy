@@ -3,9 +3,6 @@ from model_utils.models import TimeStampedModel
 
 
 class Location(TimeStampedModel):
-    """
-    Model for Location.
-    """
 
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
@@ -29,3 +26,4 @@ class Location(TimeStampedModel):
     class Meta:
         verbose_name = "Location"
         verbose_name_plural = "Locations"
+        indexes = (models.Index(fields=["name"]),)

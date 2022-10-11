@@ -7,9 +7,6 @@ from model_utils.models import TimeStampedModel
 
 
 class Campaign(TimeStampedModel):
-    """
-    Model for Campaigns.
-    """
 
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
@@ -19,7 +16,9 @@ class Campaign(TimeStampedModel):
         on_delete=models.CASCADE,
         related_name="dm_in_campaigns",
     )
-    invite_code = models.UUIDField(unique=True, null=True)
+    invite_code = models.UUIDField(
+        unique=True, null=True
+    )  # Used to add player's to a Campaign.
     vector_column = SearchVectorField(null=True)
 
     def __str__(self) -> str:
@@ -35,9 +34,10 @@ class Campaign(TimeStampedModel):
     class Meta:
         verbose_name = "Campaign"
         verbose_name_plural = "Campaigns"
-        indexes = (GinIndex(fields=["vector_column"]),)
+        indexes = (GinIndex(fields=["vector_column"]), models.Index(fields=["name"]))
 
     def save(self, *args, **kwargs) -> None:
+        """Set the invite code if it doesn't exist yet."""
         if not self.pk or not self.invite_code:
             self.invite_code = self._generate_invite_code()
         super().save(*args, **kwargs)

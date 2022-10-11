@@ -119,10 +119,11 @@ def test_campaign_delete(
         (pytest.lazy_fixture("dm"), 204),
         (pytest.lazy_fixture("player1"), 204),
         (pytest.lazy_fixture("player2"), 302),
+        (pytest.lazy_fixture("no_create_player"), 403),
     ],
 )
 def test_campaign_create(user: User, status_code: int, client: Client) -> None:
-    """All logged-in users can create a campaign."""
+    """All logged-in users with the `can_create` boolean can create a campaign."""
     if not user.username == "player2":
         client.force_login(user)
 

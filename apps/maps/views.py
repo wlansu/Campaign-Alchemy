@@ -34,17 +34,14 @@ class CampaignIncluded(CanCreateMixin):
 
 
 class MapListView(CampaignIncluded, ListView):
-    """
-    View for Maps List.
-    """
 
     model = Map
     template_name = "maps/map_list.html"
     context_object_name = "maps"
 
     def get_queryset(self) -> QuerySet:
-        """
-        Get queryset for Maps List.
+        """Acceptance criteria:
+        - Anyone with access to the Campaign can view the maps.
         """
         campaign_pk = self.kwargs["campaign_pk"]
         user: User = self.request.user
@@ -54,9 +51,6 @@ class MapListView(CampaignIncluded, ListView):
 
 
 class MapDetailView(CanCreateMixin, DetailView):
-    """
-    View for Maps Detail.
-    """
 
     model = Map
     template_name = "maps/map_detail.html"
@@ -64,6 +58,9 @@ class MapDetailView(CanCreateMixin, DetailView):
     pk_url_kwarg = "map_pk"
 
     def get_object(self, queryset: QuerySet = None) -> Map:
+        """Acceptance criteria:
+        - Anyone with access to the Campaign can see the map.
+        """
         map = super().get_object(queryset)
         user: User = self.request.user
         if user.has_read_access_to_campaign(campaign_pk=map.campaign_id):
@@ -71,7 +68,7 @@ class MapDetailView(CanCreateMixin, DetailView):
         raise PermissionDenied
 
     def get_context_data(self, **kwargs) -> dict:
-        """Add location form to context."""
+        """Pass the LocationForm to the template context."""
         context = super().get_context_data(**kwargs)
         context["location_form"] = LocationForm(
             initial={"map": Map.objects.get(id=self.kwargs["map_pk"])}
@@ -85,16 +82,15 @@ class MapDetailView(CanCreateMixin, DetailView):
 
 
 class MapCreateView(CampaignIncluded, CreateView):
-    """
-    View for Map Create.
-    """
 
     model = Map
     fields = ["name", "description", "image"]
     template_name = "maps/map_form.html"
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        """Any player with a character in the campaign can add a Map."""
+        """Acceptance criteria:
+        - Any player with a character in the campaign can add a Map
+        """
         user: User = request.user
         if not user.is_authenticated:
             return self.handle_no_permission()
@@ -104,8 +100,9 @@ class MapCreateView(CampaignIncluded, CreateView):
         raise PermissionDenied
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
-        """
-        Override form_valid method to set the active campaign.
+        """Set the active campaign by retrieving the campaign pk from the url.
+
+        Return a No-Content and HTMX trigger to hide the modal and refresh the map list.
         """
         form.instance.campaign = Campaign.objects.get(id=self.kwargs["campaign_pk"])
         self.object = form.save()
@@ -113,9 +110,6 @@ class MapCreateView(CampaignIncluded, CreateView):
 
 
 class MapUpdateView(CanCreateMixin, UpdateView):
-    """
-    View for Campaigns Update.
-    """
 
     model = Map
     fields = ["name", "description", "image"]
@@ -124,36 +118,36 @@ class MapUpdateView(CanCreateMixin, UpdateView):
     pk_url_kwarg = "map_pk"
 
     def get_object(self, queryset: QuerySet = None) -> Map:
-        """Only a DM can update the map."""
+        """Acceptance criteria:
+        - Only a DM can update the map
+        """
         map = super().get_object(queryset)
         if self.request.user == map.campaign.dm:
             return map
         raise PermissionDenied
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
+        """Return a No-Content and HTMX trigger to hide the modal and refresh the map page."""
         self.object = form.save()
         return HttpResponse(status=204, headers={"HX-Trigger": "mapChanged"})
 
 
 class MapDeleteView(CanCreateMixin, DeleteView):
-    """
-    View for Map Delete.
-    """
 
     model = Map
     template_name = "confirm_delete.html"
     pk_url_kwarg = "map_pk"
 
     def get_object(self, queryset: QuerySet = None) -> Map:
+        """Acceptance criteria:
+        - Only the DM can delete a Map
+        """
         map = super().get_object(queryset)
         if self.request.user == map.campaign.dm:
             return map
         raise PermissionDenied()
 
     def get_success_url(self) -> str:
-        """
-        Override get_success_url method to redirect to Campaigns List.
-        """
         return reverse(
             "campaigns:detail", kwargs={"campaign_pk": self.object.campaign_id}
         )
