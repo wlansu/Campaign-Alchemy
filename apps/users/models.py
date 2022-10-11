@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.cache import cache
+from django.db import models
 from django.db.models import BooleanField, CharField
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -48,3 +49,8 @@ class User(AbstractUser):
                 f"{self.id}.user_has_read_access_to_campaign", has_read_access, 600
             )
         return has_read_access
+
+    class Meta:
+        verbose_name = "User"
+        verbose_name_plural = "Users"
+        indexes = (models.Index(fields=["name", "can_create"]),)

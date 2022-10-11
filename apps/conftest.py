@@ -37,7 +37,16 @@ def player1() -> User:
 
 @pytest.fixture
 def player2() -> User:
-    user = baker.make(User, is_active=True, username="player2")
+    user = baker.make(User, is_active=True, username="player2", can_create=True)
+    return user
+
+
+@pytest.fixture
+def no_create_player() -> User:
+    """Player that does not have the `can_create` boolean set."""
+    user = baker.make(
+        User, is_active=True, username="no_create_player", can_create=False
+    )
     return user
 
 

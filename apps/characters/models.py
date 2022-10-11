@@ -6,10 +6,6 @@ from model_utils.models import TimeStampedModel
 
 
 class Character(TimeStampedModel):
-    """A character created by a User.
-
-    Can be an NPC if it is not assigned to a player.
-    """
 
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
@@ -23,7 +19,9 @@ class Character(TimeStampedModel):
     player = models.ForeignKey(
         "users.User", on_delete=models.SET_NULL, related_name="characters", null=True
     )
-    is_npc = models.BooleanField(default=False)
+    is_npc = models.BooleanField(
+        default=False
+    )  # If no Player was assigned the Character is an NPC
     location = models.ForeignKey(
         "locations.Location",
         on_delete=models.SET_NULL,
@@ -53,6 +51,9 @@ class Character(TimeStampedModel):
         if self.is_npc and kwargs.get("update_fields", None) == ["player"]:
             self.player = None
             self.save(update_fields=["player"])
+        if not self.player and not self.is_npc:
+            self.is_npc = True
+            self.save(update_fields=["is_npc"])
 
     def get_absolute_url(self) -> str:
         from django.urls import reverse
@@ -62,4 +63,4 @@ class Character(TimeStampedModel):
     class Meta:
         verbose_name = "Character"
         verbose_name_plural = "Characters"
-        indexes = (GinIndex(fields=["vector_column"]),)
+        indexes = (GinIndex(fields=["vector_column"]), models.Index(fields=["name"]))

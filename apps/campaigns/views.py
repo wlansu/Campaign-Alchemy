@@ -14,19 +14,21 @@ from django.views.generic import (
 )
 
 from apps.campaigns.models import Campaign
-from apps.mixins import CanCreateMixin
+from apps.mixins import CanCreateCampaignMixin, CanCreateMixin
 
 
 class CampaignListView(CanCreateMixin, ListView):
-    """
-    View for Campaigns List.
-    """
+    """List of Campaigns the User has access to."""
 
     model = Campaign
     template_name = "campaigns/campaign_list.html"
     context_object_name = "campaigns"
 
     def get_queryset(self) -> QuerySet:
+        """Access criteria:
+        - The User is the DM for the Campaign
+        - The User has a Character in the Campaign
+        """
         return Campaign.objects.filter(
             Q(dm=self.request.user) | Q(characters__player=self.request.user)
         ).distinct()
@@ -38,9 +40,6 @@ class CampaignListView(CanCreateMixin, ListView):
 
 
 class CampaignDetailView(CanCreateMixin, DetailView):
-    """
-    View for Campaigns Detail.
-    """
 
     model = Campaign
     template_name = "campaigns/campaign_detail.html"
@@ -50,6 +49,10 @@ class CampaignDetailView(CanCreateMixin, DetailView):
     def get_object(
         self, queryset: Optional[QuerySet] = None
     ) -> Campaign | HttpResponse:
+        """Access criteria:
+        - The User is the DM for the Campaign
+        - The User has a Character in the Campaign
+        """
         campaign = super().get_object(queryset)
         if (
             self.request.user == campaign.dm
@@ -65,9 +68,11 @@ class CampaignDetailView(CanCreateMixin, DetailView):
         return [self.template_name]
 
 
-class CampaignCreateView(CanCreateMixin, CreateView):
-    """
-    View for Campaigns Create.
+class CampaignCreateView(CanCreateCampaignMixin, CreateView):
+    """Create a new Campaign.
+
+    Any User with the `can_create` boolean can create a new Campaign
+        and becomes its DM by doing so.
     """
 
     model = Campaign
@@ -75,15 +80,16 @@ class CampaignCreateView(CanCreateMixin, CreateView):
     template_name = "campaigns/campaign_form.html"
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
+        """Set the creator as DM.
+
+        Return a No-Content and set the HTMX trigger so the modal will be closed and the campaign list refreshed.
+        """
         form.instance.dm = self.request.user
         self.object = form.save()
         return HttpResponse(status=204, headers={"HX-Trigger": "campaignListChanged"})
 
 
 class CampaignUpdateView(CanCreateMixin, UpdateView):
-    """
-    View for Campaigns Update.
-    """
 
     model = Campaign
     fields = ["name", "description", "image"]
@@ -92,33 +98,36 @@ class CampaignUpdateView(CanCreateMixin, UpdateView):
     pk_url_kwarg = "campaign_pk"
 
     def get_object(self, queryset: Optional[QuerySet] = None) -> Campaign:
+        """Access criteria:
+        - Only a Campaign's DM can perform updates
+        """
         campaign = super().get_object(queryset)
         if self.request.user == campaign.dm:
             return campaign
         raise PermissionDenied
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
+        """Return a No-Content and set the HTMX trigger so the modal will be closed
+        and the campaign detail page refreshed.
+        """
         self.object = form.save()
         return HttpResponse(status=204, headers={"HX-Trigger": "campaignChanged"})
 
 
 class CampaignDeleteView(CanCreateMixin, DeleteView):
-    """
-    View for Campaign Delete.
-    """
 
     model = Campaign
     template_name = "confirm_delete.html"
     pk_url_kwarg = "campaign_pk"
 
     def get_object(self, queryset: Optional[QuerySet] = None) -> Campaign:
+        """Acceptance criteria:
+        - Only the DM can delete a Campaign
+        """
         campaign = super().get_object(queryset)
         if self.request.user == campaign.dm:
             return campaign
         raise PermissionDenied
 
     def get_success_url(self) -> str:
-        """
-        Override get_success_url method to redirect to Campaigns List.
-        """
         return reverse("campaigns:list")

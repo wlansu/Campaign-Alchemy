@@ -29,9 +29,14 @@ class CharacterListView(CanCreateMixin, ListView):
     context_object_name = "characters"
 
     def get_queryset(self) -> QuerySet:
-        """If requested with a campaign_pk the QuerySet should be filtered by that campaign.
+        """This View is called both from within the campaign context and from the separate character page itself.
+        If called from within the campaign context only the characters in that Campaign should be returned.
+        If called from the character page only the Players own characters should be returned.
 
-        This View is called both from within the campaign context and from the character section itself.
+        Acceptance criteria:
+            - Anyone with access to the Campaign
+            OR
+            - The User is the Player of the Characters
         """
         campaign_pk = self.kwargs.get("campaign_pk", None)
         user: User = self.request.user
@@ -53,7 +58,14 @@ class CharacterListView(CanCreateMixin, ListView):
 @login_required
 @require_http_methods(["GET", "POST"])
 def add_to_campaign(request: HttpRequest, character_pk: int) -> HttpResponse:
-    """Add a Character to a Campaign."""
+    """Add a Character to a Campaign.
+
+    It seems a bit double to have the character_pk in the query parameters as well as in the form but it allows
+        for all the logic to remain in the AddToCampaignForm while also being able to set the character in the
+        initial form so the User doesn't have to fill it in.
+
+    Return a No-Content and set the HTMX trigger so the modal is closed and the character list refreshed.
+    """
     character = get_object_or_404(Character, player=request.user, id=character_pk)
     if request.method == "POST":
         form = AddToCampaignForm(request.POST, request=request)
@@ -76,6 +88,12 @@ def add_to_campaign(request: HttpRequest, character_pk: int) -> HttpResponse:
 @login_required
 @require_http_methods(["GET"])
 def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpResponse:
+    """Remove a Character from a Campaign.
+
+    Acceptance criteria:
+        - The Player of the Character
+        - The DM of the Characters Campaign
+    """
     character = get_object_or_404(Character, id=character_pk)
     if request.user == character.player or request.user == character.campaign.dm:
         character.campaign = None
@@ -85,9 +103,6 @@ def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpRespons
 
 
 class CharacterDetailView(CanCreateMixin, DetailView):
-    """
-    View for Characters Detail.
-    """
 
     model = Character
     template_name = "characters/character_detail.html"
@@ -95,6 +110,11 @@ class CharacterDetailView(CanCreateMixin, DetailView):
     pk_url_kwarg = "character_pk"
 
     def get_object(self, queryset: Optional[QuerySet] = None) -> Character:
+        """Acceptance criteria:
+            - Anyone with access to the Campaign
+
+        Checks whether the User is the Characters Player since that is a less heavy query and will often be the case.
+        """
         character = super().get_object(queryset)
         user: User = self.request.user
         if character.player == user or user.has_read_access_to_campaign(
@@ -110,15 +130,15 @@ class CharacterDetailView(CanCreateMixin, DetailView):
 
 
 class CharacterCreateView(CanCreateMixin, CreateView):
-    """Create a new Character."""
 
     model = Character
     fields = ["name", "description", "image", "is_npc"]
     template_name = "characters/character_form.html"
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
-        """
-        If a character is not an NPC then the player is the creator.
+        """If a character is not an NPC then it follows that there should be a player
+
+        Return a No-Content and set the HTMX trigger so the modal is closed and the character list is refreshed.
         """
         if form.data.get("is_npc") != "on":
             form.instance.player = self.request.user
@@ -128,9 +148,6 @@ class CharacterCreateView(CanCreateMixin, CreateView):
 
 
 class CharacterUpdateView(CanCreateMixin, UpdateView):
-    """
-    View for Characters Update.
-    """
 
     model = Character
     fields = ["name", "description", "image", "is_npc"]
@@ -139,13 +156,19 @@ class CharacterUpdateView(CanCreateMixin, UpdateView):
     pk_url_kwarg = "character_pk"
 
     def get_object(self, queryset: Optional[QuerySet] = None) -> Character:
+        """Acceptance criteria:
+        - Only a Player can update their Character
+        """
         character = super().get_object(queryset)
         if character.player == self.request.user:
             return character
         raise PermissionDenied
 
     def form_valid(self, form: BaseForm) -> HttpResponse:
-        """Set character as NPC or Player."""
+        """Set character as NPC or Player.
+
+        Return a No-Content and set the HTMX trigger so the modal is closed and the character page is refreshed.
+        """
         if form.data.get("is_npc") != "on":
             form.instance.player = self.request.user
         else:
@@ -156,22 +179,19 @@ class CharacterUpdateView(CanCreateMixin, UpdateView):
 
 
 class CharacterDeleteView(CanCreateMixin, DeleteView):
-    """
-    View for Character Delete.
-    """
 
     model = Character
     template_name = "confirm_delete.html"
     pk_url_kwarg = "character_pk"
 
     def get_object(self, queryset: Optional[QuerySet] = None) -> Character:
+        """Acceptance criteria:
+        - Only a Player can delete their own Character.
+        """
         character = super().get_object(queryset)
         if character.player == self.request.user:
             return character
         raise PermissionDenied
 
     def get_success_url(self) -> str:
-        """
-        Override get_success_url method to redirect to Characters List.
-        """
         return reverse("characters:list")

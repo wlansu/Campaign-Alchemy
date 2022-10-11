@@ -6,7 +6,10 @@ from apps.locations.models import Location
 
 
 class LocationForm(ModelForm):
-    """Form to create/update a Location."""
+    """Form to create/update a Location.
+
+    The longitude and latitude are set through javascript by registering the location the User clicked.
+    """
 
     longitude = FloatField(widget=HiddenInput())
     latitude = FloatField(widget=HiddenInput())
