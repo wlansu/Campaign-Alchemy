@@ -56,7 +56,6 @@ def test_character_detail(
 def test_character_list(
     user: User,
     expected_result_count: int,
-    endpoint: str,
     character1: Character,
     client: Client,
 ) -> None:
@@ -66,7 +65,7 @@ def test_character_list(
         displayed since the request is for the normal character list and not the campaign's character list.
     """
     client.force_login(user)
-    response = client.get(reverse(endpoint))
+    response = client.get(reverse("characters:list"))
     assert response.status_code == 200
     assert len(response.context["characters"]) == expected_result_count
 
