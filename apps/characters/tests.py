@@ -45,7 +45,6 @@ def test_character_detail(
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize("endpoint", ["characters:list", "characters:hx-list"])
 @pytest.mark.parametrize(
     "user,expected_result_count",
     [
@@ -57,17 +56,16 @@ def test_character_detail(
 def test_character_list(
     user: User,
     expected_result_count: int,
-    endpoint: str,
     character1: Character,
     client: Client,
 ) -> None:
     """If there is 1 Character in the object_list the user has access.
 
-    If no campaign_pk is passed in as a parameter for the hx-list view then only the user's characters should be
+    If no campaign_pk is passed in as a parameter for the list view then only the user's characters should be
         displayed since the request is for the normal character list and not the campaign's character list.
     """
     client.force_login(user)
-    response = client.get(reverse(endpoint))
+    response = client.get(reverse("characters:list"))
     assert response.status_code == 200
     assert len(response.context["characters"]) == expected_result_count
 
@@ -81,7 +79,7 @@ def test_character_list(
         (pytest.lazy_fixture("player2"), 0, 403),
     ],
 )
-def test_character_hx_list(
+def test_character_campaign_list(
     user: User,
     expected_result_count: int,
     status_code: int,
@@ -93,10 +91,10 @@ def test_character_hx_list(
 
     Any user that has access to the campaign should see the campaign's characters.
     """
-    headers = {"HX-Request": "true"}
+    headers = {"Request": "true"}
     client.force_login(user)
     response = client.get(
-        reverse("campaigns:characters:hx-list", kwargs={"campaign_pk": campaign1.pk}),
+        reverse("campaigns:characters:list", kwargs={"campaign_pk": campaign1.pk}),
         **headers
     )
     assert response.status_code == status_code
@@ -173,7 +171,7 @@ def test_character_create(
     if not user.username == "player2":
         client.force_login(user)
 
-    headers = {"HX-Request": "true"}
+    headers = {"Request": "true"}
     response = client.post(
         reverse("characters:create"),
         headers=headers,
@@ -203,7 +201,7 @@ def test_add_character_to_campaign(
 ) -> None:
     """Only a Player can add their character to a Campaign by using the invite_code."""
     client.force_login(user)
-    headers = {"HX-Request": "true"}
+    headers = {"Request": "true"}
     response = client.post(
         reverse("characters:add"),
         headers=headers,
@@ -233,7 +231,7 @@ def test_remove_character_from_campaign(
 ) -> None:
     """Only a Player can add their character to a Campaign by using the invite_code."""
     client.force_login(user)
-    headers = {"HX-Request": "true"}
+    headers = {"Request": "true"}
     response = client.get(
         reverse("characters:remove", kwargs={"character_pk": character2.pk}),
         headers=headers,
@@ -248,7 +246,7 @@ def test_user_has_access_cache_invalidation(
 ) -> None:
     """Check that the user_has_read_access_to_campaign cache is invalidated correctly."""
     client.force_login(character2.player)
-    headers = {"HX-Request": "true"}
+    headers = {"Request": "true"}
     denied = client.get(
         reverse("campaigns:detail", kwargs={"campaign_pk": campaign1.pk})
     )

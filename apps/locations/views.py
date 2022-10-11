@@ -1,61 +1,75 @@
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.forms import HiddenInput
-from django.http import HttpRequest, HttpResponse, HttpResponseBase
-from django.shortcuts import redirect, render
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBase
 from django.urls import reverse
-from django.views.decorators.http import require_http_methods
-from django.views.generic import DeleteView, UpdateView
+from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
 from apps.locations.forms import LocationForm
 from apps.locations.models import Location
 from apps.maps.models import Map
-from apps.mixins import CanCreateMixin, create_required
+from apps.mixins import CanCreateMixin
 from apps.users.models import User
 
 
-@create_required
-@require_http_methods(["GET", "POST"])
-def add_location(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpResponse:
-    user: User = request.user
-    if not user.has_read_access_to_campaign(campaign_pk=campaign_pk):
-        raise PermissionDenied
-    if request.method == "POST":
-        form = LocationForm(request.POST, files=request.FILES)
-        form.instance.map = Map.objects.get(id=map_pk)
-        if form.is_valid():
-            form.save()
-            return redirect(
-                reverse(
-                    "campaigns:maps:detail",
-                    kwargs={
-                        "campaign_pk": campaign_pk,
-                        "map_pk": map_pk,
-                    },
-                )
-            )
-    else:
-        form = LocationForm()
-        return render(
-            request,
-            "locations/location_form.html",
-            {"form": form, "campaign_pk": campaign_pk, "map_pk": map_pk},
+class LocationCreateView(CanCreateMixin, CreateView):
+
+    form_class = LocationForm
+    template_name = "locations/location_form.html"
+
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
+        """Anyone with access to the Campaign can update a Location.."""
+        user: User = request.user
+        if not user.is_authenticated:
+            return self.handle_no_permission()
+        campaign_pk = kwargs.get("campaign_pk", None)
+        if not user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form: LocationForm) -> HttpResponse:
+        form.instance.map = Map.objects.get(id=self.kwargs["map_pk"])
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs) -> dict:
+        context = super().get_context_data(**kwargs)
+        context["campaign_pk"] = self.kwargs["campaign_pk"]
+        context["map_pk"] = self.kwargs["map_pk"]
+        return context
+
+    def get_success_url(self) -> str:
+        """
+        Override get_success_url method to redirect to Map Detail.
+        """
+        return reverse(
+            "campaigns:maps:detail",
+            kwargs={
+                "campaign_pk": self.kwargs["campaign_pk"],
+                "map_pk": self.kwargs["map_pk"],
+            },
         )
 
 
-@create_required
-@require_http_methods(["GET"])
-def location_list(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpResponse:
-    user: User = request.user
-    if not user.has_read_access_to_campaign(campaign_pk=campaign_pk):
-        raise PermissionDenied
-    return render(
-        request,
-        "locations/location_list.html",
-        {
-            "locations": Location.objects.filter(map=map_pk),
-        },
-    )
+class LocationListView(CanCreateMixin, ListView):
+
+    model = Location
+    template_name = "locations/location_list.html"
+    context_object_name = "locations"
+
+    def get_queryset(self) -> QuerySet:
+        campaign_pk = self.kwargs.get("campaign_pk", None)
+        map_pk = self.kwargs.get("map_pk", None)
+        user: User = self.request.user
+        if campaign_pk and map_pk:
+            if not user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+                raise PermissionDenied
+            return (
+                Location.objects.select_related("map", "map__campaign")
+                .filter(map__campaign=campaign_pk)
+                .filter(map=map_pk)
+            )
+
+        raise Http404
 
 
 class LocationUpdateView(CanCreateMixin, UpdateView):

@@ -23,6 +23,7 @@ class UserAdmin(auth_admin.UserAdmin):
                     "is_active",
                     "is_staff",
                     "is_superuser",
+                    "can_create",
                     "groups",
                     "user_permissions",
                 ),
