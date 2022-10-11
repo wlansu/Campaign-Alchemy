@@ -12,20 +12,22 @@ from apps.mixins import CanCreateMixin
 from apps.users.models import User
 
 
-class LocationCreateView(CanCreateMixin, CreateView):
-
-    form_class = LocationForm
-    template_name = "locations/location_form.html"
-
+class LocationDispatchMixin:
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         """Anyone with access to the Campaign can update a Location.."""
         user: User = request.user
         if not user.is_authenticated:
             return self.handle_no_permission()
-        campaign_pk = kwargs.get("campaign_pk", None)
+        campaign_pk = kwargs["campaign_pk"]
         if not user.has_read_access_to_campaign(campaign_pk=campaign_pk):
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
+
+
+class LocationCreateView(CanCreateMixin, LocationDispatchMixin, CreateView):
+
+    form_class = LocationForm
+    template_name = "locations/location_form.html"
 
     def form_valid(self, form: LocationForm) -> HttpResponse:
         form.instance.map = Map.objects.get(id=self.kwargs["map_pk"])
@@ -57,8 +59,8 @@ class LocationListView(CanCreateMixin, ListView):
     context_object_name = "locations"
 
     def get_queryset(self) -> QuerySet:
-        campaign_pk = self.kwargs.get("campaign_pk", None)
-        map_pk = self.kwargs.get("map_pk", None)
+        campaign_pk = self.kwargs["campaign_pk"]
+        map_pk = self.kwargs["map_pk"]
         user: User = self.request.user
         if campaign_pk and map_pk:
             if not user.has_read_access_to_campaign(campaign_pk=campaign_pk):
@@ -72,7 +74,7 @@ class LocationListView(CanCreateMixin, ListView):
         raise Http404
 
 
-class LocationUpdateView(CanCreateMixin, UpdateView):
+class LocationUpdateView(CanCreateMixin, LocationDispatchMixin, UpdateView):
     """
     View for Campaigns Update.
     """
@@ -94,16 +96,6 @@ class LocationUpdateView(CanCreateMixin, UpdateView):
                 "map_pk": self.object.map.pk,
             },
         )
-
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        """Anyone with access to the Campaign can update a Location.."""
-        user: User = request.user
-        if not user.is_authenticated:
-            return self.handle_no_permission()
-        campaign_pk = kwargs.get("campaign_pk", None)
-        if not user.has_read_access_to_campaign(campaign_pk=campaign_pk):
-            raise PermissionDenied
-        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)

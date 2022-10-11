@@ -1,5 +1,6 @@
 from typing import Optional
 
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.forms import BaseForm
@@ -17,7 +18,7 @@ from django.views.generic import (
 
 from apps.characters.forms import AddToCampaignForm
 from apps.characters.models import Character
-from apps.mixins import CanCreateMixin, create_required
+from apps.mixins import CanCreateMixin
 from apps.users.models import User
 
 
@@ -28,7 +29,10 @@ class CharacterListView(CanCreateMixin, ListView):
     context_object_name = "characters"
 
     def get_queryset(self) -> QuerySet:
-        """If requested with a campaign_pk the QuerySet should be filtered by that campaign."""
+        """If requested with a campaign_pk the QuerySet should be filtered by that campaign.
+
+        This View is called both from within the campaign context and from the character section itself.
+        """
         campaign_pk = self.kwargs.get("campaign_pk", None)
         user: User = self.request.user
         if campaign_pk:
@@ -46,10 +50,11 @@ class CharacterListView(CanCreateMixin, ListView):
         return [self.template_name]
 
 
-@create_required
+@login_required
 @require_http_methods(["GET", "POST"])
-def add_to_campaign(request: HttpRequest, character_pk: int = None) -> HttpResponse:
+def add_to_campaign(request: HttpRequest, character_pk: int) -> HttpResponse:
     """Add a Character to a Campaign."""
+    character = get_object_or_404(Character, player=request.user, id=character_pk)
     if request.method == "POST":
         form = AddToCampaignForm(request.POST, request=request)
         if form.is_valid():
@@ -59,20 +64,19 @@ def add_to_campaign(request: HttpRequest, character_pk: int = None) -> HttpRespo
             )
     else:
         form = AddToCampaignForm()
-        if character_pk:
-            form.initial["character_pk"] = character_pk
+        form.initial["character_pk"] = character.id
 
     return render(
         request=request,
         template_name="characters/add_to_campaign_form.html",
-        context={"form": form},
+        context={"form": form, "character": character},
     )
 
 
-@create_required
+@login_required
 @require_http_methods(["GET"])
 def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpResponse:
-    character = get_object_or_404(Character, player=request.user, id=character_pk)
+    character = get_object_or_404(Character, id=character_pk)
     character.campaign = None
     character.save()
     return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
@@ -90,11 +94,9 @@ class CharacterDetailView(CanCreateMixin, DetailView):
 
     def get_object(self, queryset: Optional[QuerySet] = None) -> Character:
         character = super().get_object(queryset)
-        if (
-            character.player == self.request.user
-            or self.request.user.has_read_access_to_campaign(
-                campaign_pk=character.campaign_id
-            )
+        user: User = self.request.user
+        if character.player == user or user.has_read_access_to_campaign(
+            campaign_pk=character.campaign_id
         ):
             return character
         raise PermissionDenied

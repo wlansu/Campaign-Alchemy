@@ -187,8 +187,8 @@ def test_character_create(
 @pytest.mark.parametrize(
     "user,status_code",
     [
-        (pytest.lazy_fixture("dm"), 403),
-        (pytest.lazy_fixture("player1"), 403),
+        (pytest.lazy_fixture("dm"), 404),
+        (pytest.lazy_fixture("player1"), 404),
         (pytest.lazy_fixture("player2"), 204),
     ],
 )
@@ -203,7 +203,7 @@ def test_add_character_to_campaign(
     client.force_login(user)
     headers = {"Request": "true"}
     response = client.post(
-        reverse("characters:add"),
+        reverse("characters:add", kwargs={"character_pk": character2.pk}),
         headers=headers,
         data={"invite_code": campaign1.invite_code, "character_pk": character2.pk},
     )

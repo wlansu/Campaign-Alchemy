@@ -1,7 +1,7 @@
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.forms import BaseForm
-from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBase
+from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import (
@@ -16,6 +16,7 @@ from apps.campaigns.models import Campaign
 from apps.locations.forms import LocationForm
 from apps.maps.models import Map
 from apps.mixins import CanCreateMixin
+from apps.users.models import User
 
 
 class CampaignIncluded(CanCreateMixin):
@@ -46,9 +47,10 @@ class MapListView(CampaignIncluded, ListView):
         Get queryset for Maps List.
         """
         campaign_pk = self.kwargs["campaign_pk"]
-        if self.request.user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+        user: User = self.request.user
+        if user.has_read_access_to_campaign(campaign_pk=campaign_pk):
             return Map.objects.filter(campaign=campaign_pk)
-        raise PermissionDenied()
+        raise PermissionDenied
 
 
 class MapDetailView(CanCreateMixin, DetailView):
@@ -63,9 +65,10 @@ class MapDetailView(CanCreateMixin, DetailView):
 
     def get_object(self, queryset: QuerySet = None) -> Map:
         map = super().get_object(queryset)
-        if self.request.user.has_read_access_to_campaign(campaign_pk=map.campaign_id):
+        user: User = self.request.user
+        if user.has_read_access_to_campaign(campaign_pk=map.campaign_id):
             return map
-        raise PermissionDenied()
+        raise PermissionDenied
 
     def get_context_data(self, **kwargs) -> dict:
         """Add location form to context."""
@@ -92,12 +95,11 @@ class MapCreateView(CampaignIncluded, CreateView):
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         """Any player with a character in the campaign can add a Map."""
-        if not request.user.is_authenticated:
+        user: User = request.user
+        if not user.is_authenticated:
             return self.handle_no_permission()
-        campaign_pk = kwargs.get("campaign_pk", None)
-        if not campaign_pk:
-            raise Http404
-        if request.user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+        campaign_pk = kwargs["campaign_pk"]
+        if user.has_read_access_to_campaign(campaign_pk=campaign_pk):
             return super().dispatch(request, *args, **kwargs)
         raise PermissionDenied
 

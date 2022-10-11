@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.cache import cache
 from django.db.models import BooleanField, CharField
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -32,7 +33,7 @@ class User(AbstractUser):
         if not has_read_access:
             from apps.campaigns.models import Campaign
 
-            campaign = Campaign.objects.get(id=campaign_pk)
+            campaign = get_object_or_404(Campaign, id=campaign_pk)
 
             if self.id == campaign.dm_id:
                 return True
