@@ -217,9 +217,9 @@ def test_add_character_to_campaign(
 @pytest.mark.parametrize(
     "user,status_code",
     [
-        (pytest.lazy_fixture("dm"), 404),
-        (pytest.lazy_fixture("player1"), 404),
-        (pytest.lazy_fixture("player2"), 204),
+        (pytest.lazy_fixture("dm"), 204),
+        (pytest.lazy_fixture("player1"), 204),
+        (pytest.lazy_fixture("player2"), 403),
     ],
 )
 def test_remove_character_from_campaign(
@@ -227,17 +227,21 @@ def test_remove_character_from_campaign(
     status_code: int,
     client: Client,
     campaign1: Campaign,
-    character2: Character,
+    character1: Character,
 ) -> None:
-    """Only a Player can add their character to a Campaign by using the invite_code."""
+    """Only a Player, or their DM, can remove their character to a Campaign by using the invite_code."""
     client.force_login(user)
     headers = {"Request": "true"}
     response = client.get(
-        reverse("characters:remove", kwargs={"character_pk": character2.pk}),
+        reverse("characters:remove", kwargs={"character_pk": character1.pk}),
         headers=headers,
     )
     assert response.status_code == status_code
-    assert character2.campaign is None
+    character1.refresh_from_db()
+    if response.status_code == 204:
+        assert character1.campaign is None
+    else:
+        assert character1.campaign
 
 
 @pytest.mark.django_db
@@ -252,7 +256,7 @@ def test_user_has_access_cache_invalidation(
     )
     assert denied.status_code == 403
     join = client.post(
-        reverse("characters:add"),
+        reverse("characters:add", kwargs={"character_pk": character2.pk}),
         headers=headers,
         data={"character_pk": character2.pk, "invite_code": campaign1.invite_code},
     )

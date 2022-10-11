@@ -77,9 +77,11 @@ def add_to_campaign(request: HttpRequest, character_pk: int) -> HttpResponse:
 @require_http_methods(["GET"])
 def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpResponse:
     character = get_object_or_404(Character, id=character_pk)
-    character.campaign = None
-    character.save()
-    return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
+    if request.user == character.player or request.user == character.campaign.dm:
+        character.campaign = None
+        character.save()
+        return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
+    raise PermissionDenied
 
 
 class CharacterDetailView(CanCreateMixin, DetailView):
