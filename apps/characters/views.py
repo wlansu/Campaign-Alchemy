@@ -7,46 +7,43 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
-from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
 
 from apps.characters.forms import AddToCampaignForm
 from apps.characters.models import Character
 from apps.mixins import CanCreateMixin, create_required
+from apps.users.models import User
 
 
-@create_required
-@require_http_methods(["GET"])
-def characters_page(request: HttpRequest) -> HttpResponse:
-    """Return the full characters list page.
+class CharacterListView(CanCreateMixin, ListView):
 
-    This should only return the player's own characters.
-    """
-    characters = Character.objects.filter(player=request.user)
-    return render(
-        request=request,
-        template_name="characters/list.html",
-        context={"characters": characters},
-    )
+    model = Character
+    template_name = "characters/character_list.html"
+    context_object_name = "characters"
 
+    def get_queryset(self) -> QuerySet:
+        """If requested with a campaign_pk the QuerySet should be filtered by that campaign."""
+        campaign_pk = self.kwargs.get("campaign_pk", None)
+        user: User = self.request.user
+        if campaign_pk:
+            if not user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+                raise PermissionDenied
+            return Character.objects.select_related("campaign").filter(
+                campaign=campaign_pk
+            )
+        else:
+            return Character.objects.select_related("player").filter(player=user)
 
-@create_required
-@require_http_methods(["GET"])
-def characters_hx(request: HttpRequest, campaign_pk: int = None) -> HttpResponse:
-    """HX-Request: return a partial template."""
-    if campaign_pk:
-        if not request.user.has_read_access_to_campaign(campaign_pk=campaign_pk):
-            raise PermissionDenied
-        characters = Character.objects.select_related("campaign").filter(
-            campaign=campaign_pk
-        )
-    else:
-        characters = Character.objects.filter(player=request.user)
-
-    return render(
-        request=request,
-        template_name="characters/partial_list.html",
-        context={"characters": characters},
-    )
+    def get_template_names(self) -> list[str]:
+        if self.request.htmx:
+            return ["characters/_partial_character_list.html"]
+        return [self.template_name]
 
 
 @create_required
@@ -104,7 +101,7 @@ class CharacterDetailView(CanCreateMixin, DetailView):
 
     def get_template_names(self) -> list[str]:
         if self.request.htmx:
-            return ["characters/character_detail_partial.html"]
+            return ["characters/_partial_character_detail.html"]
         return [self.template_name]
 
 

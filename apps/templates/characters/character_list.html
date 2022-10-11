@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Characters{% endblock %}
+
+{% block content %}
+<div class="container" id="hx-target" hx-get="{% url 'characters:list' %}" hx-trigger="characterListChanged from:body" hx-target="this">
+  {% include "characters/_partial_character_list.html" %}
+</div>
+{% endblock %}

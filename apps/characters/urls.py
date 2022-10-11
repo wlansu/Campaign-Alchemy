@@ -4,17 +4,15 @@ from apps.characters.views import (
     CharacterCreateView,
     CharacterDeleteView,
     CharacterDetailView,
+    CharacterListView,
     CharacterUpdateView,
     add_to_campaign,
-    characters_hx,
-    characters_page,
     remove_from_campaign,
 )
 
 app_name = "characters"
 urlpatterns = [
-    path("", view=characters_page, name="list"),
-    path("hx-list/", view=characters_hx, name="hx-list"),
+    path("", view=CharacterListView.as_view(), name="list"),
     path("create/", view=CharacterCreateView.as_view(), name="create"),
     path(
         "detail/<int:character_pk>/", view=CharacterDetailView.as_view(), name="detail"

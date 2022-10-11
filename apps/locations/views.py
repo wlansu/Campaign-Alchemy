@@ -1,11 +1,11 @@
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.forms import HiddenInput
-from django.http import HttpRequest, HttpResponse, HttpResponseBase
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBase
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
-from django.views.generic import DeleteView, UpdateView
+from django.views.generic import DeleteView, ListView, UpdateView
 
 from apps.locations.forms import LocationForm
 from apps.locations.models import Location
@@ -43,19 +43,26 @@ def add_location(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpRes
         )
 
 
-@create_required
-@require_http_methods(["GET"])
-def location_list(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpResponse:
-    user: User = request.user
-    if not user.has_read_access_to_campaign(campaign_pk=campaign_pk):
-        raise PermissionDenied
-    return render(
-        request,
-        "locations/location_list.html",
-        {
-            "locations": Location.objects.filter(map=map_pk),
-        },
-    )
+class LocationListView(CanCreateMixin, ListView):
+
+    model = Location
+    template_name = "locations/location_list.html"
+    context_object_name = "locations"
+
+    def get_queryset(self) -> QuerySet:
+        campaign_pk = self.kwargs.get("campaign_pk", None)
+        map_pk = self.kwargs.get("map_pk", None)
+        user: User = self.request.user
+        if campaign_pk and map_pk:
+            if not user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+                raise PermissionDenied
+            return (
+                Location.objects.select_related("map", "map__campaign")
+                .filter(map__campaign=campaign_pk)
+                .filter(map=map_pk)
+            )
+
+        raise Http404
 
 
 class LocationUpdateView(CanCreateMixin, UpdateView):

@@ -17,7 +17,7 @@
           <a id="maps" class="nav-link ca-pointer {% if maps %}active{% endif %}" hx-trigger="click, mapListChanged from:body" hx-get="{% url 'campaigns:maps:list' campaign_pk=campaign.id %}" hx-target="#hx-target">Maps</a>
         </li>
         <li class="nav-item">
-          <a id="characters" class="nav-link ca-pointer {% if characters %}active{% endif %}" hx-trigger="click, characterListChanged from:body" hx-get="{% url 'campaigns:characters:hx-list' campaign_pk=campaign.id %}" hx-target="#hx-target">Characters</a>
+          <a id="characters" class="nav-link ca-pointer {% if characters %}active{% endif %}" hx-trigger="click, characterListChanged from:body" hx-get="{% url 'campaigns:characters:list' campaign_pk=campaign.id %}" hx-target="#hx-target">Characters</a>
         </li>
       </ul>
     </div>
