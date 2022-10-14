@@ -1,83 +1,43 @@
+{% block inline_javascript %}
 <script>
-  /**
-   * Find a feature for a certain id.
-   * The id was added while looping through the locations.
-   *
-   * @param featureID int
-   * @returns {*}
-   */
-  function getFeature(featureID) {
-    return data.features.find(({id}) => id === featureID)
-  }
-
-  /**
-   * Get the update form HTML from the backend and push it into the modal.
-   *
-   * @param featureID int
-   */
-  function openEditModal(featureID) {
-    map.closePopup()
-    const feature = getFeature(featureID);
-    const { updateURL, longitude, latitude } = feature.properties
-    fetch(updateURL).then(response => {
-      return response.text()
-    }).then(newHTML => {
-      document.getElementById("dialog").innerHTML = newHTML
-      document.getElementById("id_latitude").value = latitude
-      document.getElementById("id_longitude").value = longitude
-    })
-    modal.show()
-  }
-
-  /**
-   * Get the delete confirmation form HTML from the backend and push it into the modal.
-   *
-   * @param featureID int
-   */
-  function deleteLocation(featureID) {
-    map.closePopup()
-    const feature = getFeature(featureID)
-    const deleteURL = feature.properties.deleteURL
-    fetch(deleteURL).then(response => {
-      return response.text()
-    }).then(newHTML => {
-      document.getElementById("dialog").innerHTML = newHTML
-    })
-    modal.show()
-  }
-
-  let data = {
-    "type": "FeatureCollection",
-    "features": [],
-  }
-  {% for location in locations %}
-    // Loop over locations and add them to a FeatureCollection which is then used to build the markers on the map.
-    data.features.push({
-      "type": "Feature",
-      "id": "{{ location.id }}",
-      "geometry": {
-        "type": "Point",
-        "coordinates": ["{{ location.longitude }}", "{{ location.latitude }}"] {# Coordinates here need to be reversed. #}
-      },
-      "properties": {
-        "name": "{{ location.name }}",
-        "description": "{{ location.description }}",
-        "latitude": "{{ location.latitude }}",
-        "longitude": "{{ location.longitude }}",
-        "updateURL": "{% url 'campaigns:maps:locations:update' campaign_pk=location.map.campaign.id map_pk=location.map.id location_pk=location.id %}",
-        "deleteURL": "{% url 'campaigns:maps:locations:delete' campaign_pk=location.map.campaign.id map_pk=location.map.id location_pk=location.id %}"
+  function addMarkersToMap(data) {
+    L.geoJSON(data, {
+      onEachFeature: function (feature, layer) {
+        layer.on("click", (e) => {
+          let dialog = htmx.find("#dialog")
+          fetch(feature.properties.detailUrl).then(response => {
+            return response.text()
+          }).then(newHTML => {
+            dialog.innerHTML = newHTML
+            htmx.process(dialog)
+          })
+          modal.show()
+        })
       }
-    })
-  {% endfor %}
-  L.geoJSON(data, {
-    onEachFeature: function(feature, layer) {
-      layer.bindPopup(
-        // Add location data to the location popup.
-        '<h4>' + feature.properties.name + '</h4>' +
-        '<br />' + '<p class="mb-3">' + feature.properties.description + '</p>' +
-        '<br />' + '<div class="row"><div class="col-5"><button class="btn btn-primary btn-sm" type="button" onclick="openEditModal(\'' + feature.id + '\')">Edit</button></div>' +
-        '<div class="col-5"><button class="btn btn-danger btn-sm" type="button" onclick="deleteLocation(\'' + feature.id + '\')">Delete</button></div></div>')
+    }).addTo(map)
+  }
 
+  try {
+    let data = {
+      "type": "FeatureCollection",
+      "features": [],
     }
-  }).addTo(map)
+    {# Loop over locations and add them to a FeatureCollection which is then used to build the markers on the map. #}
+    {% for location in locations %}
+      data.features.push({
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": ["{{ location.longitude }}", "{{ location.latitude }}"] {# Coordinates here need to be reversed. #}
+        },
+        "properties": {
+          "detailUrl": "{% url 'campaigns:maps:locations:detail' campaign_pk=location.map.campaign.id map_pk=location.map.id location_pk=location.id %}",
+        }
+      })
+    {% endfor %}
+    addMarkersToMap(data)
+  } catch (error) {
+    console.log(error)
+  }
 </script>
+{% endblock %}

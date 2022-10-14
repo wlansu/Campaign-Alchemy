@@ -5,6 +5,7 @@ import pytest
 from django.core.exceptions import PermissionDenied
 from django.test.client import Client, RequestFactory
 from django.urls import reverse
+from PIL.ImageFile import ImageFile
 
 from apps.locations.models import Location
 from apps.locations.views import LocationDeleteView, LocationUpdateView
@@ -85,7 +86,7 @@ def test_location_update(
     "user,expected_result",
     [
         (pytest.lazy_fixture("dm"), does_not_raise()),
-        (pytest.lazy_fixture("player1"), pytest.raises(PermissionDenied)),
+        (pytest.lazy_fixture("player1"), does_not_raise()),
         (pytest.lazy_fixture("player2"), pytest.raises(PermissionDenied)),
     ],
 )
@@ -119,16 +120,13 @@ def test_location_delete(
 @pytest.mark.parametrize(
     "user,status_code",
     [
-        (pytest.lazy_fixture("dm"), 302),
-        (pytest.lazy_fixture("player1"), 302),
+        (pytest.lazy_fixture("dm"), 204),
+        (pytest.lazy_fixture("player1"), 204),
         (pytest.lazy_fixture("player2"), 302),
     ],
 )
 def test_location_create(
-    user: User,
-    status_code: int,
-    client: Client,
-    map: Map,
+    user: User, status_code: int, client: Client, map: Map, mock_image: ImageFile
 ) -> None:
     """Any User with a Character in the Location's Map's Campaign can create a Location."""
     if not user.username == "player2":
@@ -141,7 +139,7 @@ def test_location_create(
             kwargs={"campaign_pk": map.campaign_id, "map_pk": map.pk},
         ),
         headers=headers,
-        data={"name": "Test", "longitude": 1, "latitude": 1},
+        data={"name": "Test", "longitude": 1, "latitude": 1, "image": mock_image},
     )
     assert response.status_code == status_code
     if not user.username == "player2":

@@ -47,3 +47,11 @@ htmx.on("campaignChanged", (e) => {
 htmx.on("userChanged", (e) => {
   modal.hide()
 })
+
+htmx.on("locationChanged", (e) => {
+  modal.hide()
+})
+
+htmx.on("locationListChanged", (e) => {
+  modal.hide()
+})
