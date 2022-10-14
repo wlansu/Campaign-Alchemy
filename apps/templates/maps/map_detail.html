@@ -11,17 +11,15 @@
     {% if map.description %}
       <p>{{ map.description }}</p>
     {% endif %}
+    <div class="row mt-3 mb-3">
+      <div class="col-sm-12 ">
+        <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:maps:update' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="#dialog">Edit</button>
+        <button type="button" class="btn btn-danger" hx-get="{% url 'campaigns:maps:delete' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="#dialog">Delete</button>
+      </div>
+    </div>
     <div id="map">
       <div class="overlay" hx-trigger="load from:body" hx-get="{% url 'campaigns:maps:locations:list' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="this"></div>
     </div>
-  </div>
-</div>
-
-<!-- Action buttons -->
-<div class="row mt-3">
-  <div class="col-sm-12 ">
-    <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:maps:update' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="#dialog">Edit</button>
-    <button type="button" class="btn btn-danger" hx-get="{% url 'campaigns:maps:delete' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="#dialog">Delete</button>
   </div>
 </div>
 {% endblock content %}

@@ -2,7 +2,13 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from django.urls import reverse
-from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
 
 from apps.locations.forms import LocationForm
 from apps.locations.models import Location
@@ -103,4 +109,22 @@ class LocationDeleteView(CanCreateMixin, CampaignAndMapIncluded, DeleteView):
         location = super().get_object(queryset)
         if self.request.user == location.map.campaign.dm:
             return location
+        raise PermissionDenied
+
+
+class LocationDetailView(CanCreateMixin, CampaignAndMapIncluded, DetailView):
+
+    model = Location
+    template_name = "locations/location_detail.html"
+    pk_url_kwarg = "location_pk"
+    context_object_name = "location"
+
+    def get_object(self, queryset: QuerySet = None) -> Location:
+        """Acceptance criteria:
+        - Anyone with access to the Campaign can view the Location.
+        """
+        user: User = self.request.user
+        campaign_pk = self.kwargs["campaign_pk"]
+        if user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+            return super().get_object(queryset)
         raise PermissionDenied
