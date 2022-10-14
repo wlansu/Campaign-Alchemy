@@ -100,6 +100,16 @@ class LocationUpdateView(
     context_object_name = "location"
     pk_url_kwarg = "location_pk"
 
+    def get_object(self, queryset: QuerySet = None) -> Map:
+        """Acceptance criteria:
+        - Everyone with access to the campaign can update a Location.
+        """
+        map = super().get_object(queryset)
+        user: User = self.request.user
+        if user.has_read_access_to_campaign(campaign_pk=self.kwargs["campaign_pk"]):
+            return map
+        raise PermissionDenied()
+
     def form_valid(self, form: BaseForm) -> HttpResponse:
         """Return a No-Content and set the HTMX trigger so the modal will be closed.
 
@@ -114,6 +124,16 @@ class LocationDeleteView(CanCreateMixin, CampaignAndMapIncluded, DeleteView):
     model = Location
     template_name = "confirm_delete.html"
     pk_url_kwarg = "location_pk"
+
+    def get_object(self, queryset: QuerySet = None) -> Map:
+        """Acceptance criteria:
+        - Everyone with access to the campaign can delete a Location.
+        """
+        map = super().get_object(queryset)
+        user: User = self.request.user
+        if user.has_read_access_to_campaign(campaign_pk=self.kwargs["campaign_pk"]):
+            return map
+        raise PermissionDenied()
 
     def get_success_url(self) -> str:
         return reverse(
@@ -137,7 +157,6 @@ class LocationDetailView(CanCreateMixin, CampaignAndMapIncluded, DetailView):
         - Anyone with access to the Campaign can view the Location.
         """
         user: User = self.request.user
-        campaign_pk = self.kwargs["campaign_pk"]
-        if user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+        if user.has_read_access_to_campaign(campaign_pk=self.kwargs["campaign_pk"]):
             return super().get_object(queryset)
         raise PermissionDenied
