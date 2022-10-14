@@ -1,5 +1,6 @@
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
+from django.forms import BaseForm
 from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from django.urls import reverse
 from django.views.generic import (
@@ -19,7 +20,7 @@ from apps.users.models import User
 
 class LocationDispatchMixin:
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        """Anyone with access to the Campaign can update a Location.."""
+        """Anyone with access to the Campaign can perform CRUD operations on a Location."""
         user: User = request.user
         if not user.is_authenticated:
             return self.handle_no_permission()
@@ -55,9 +56,13 @@ class LocationCreateView(
     template_name = "locations/location_form.html"
 
     def form_valid(self, form: LocationForm) -> HttpResponse:
-        """Set the Locations Map by retrieving the map pk from the url."""
+        """Set the Locations Map by retrieving the map pk from the url.
+
+        Return a No-Content and set the HTMX trigger so the modal will be closed and the location list refreshed.
+        """
         form.instance.map = Map.objects.get(id=self.kwargs["map_pk"])
-        return super().form_valid(form)
+        self.object = form.save()
+        return HttpResponse(status=204, headers={"HX-Trigger": "locationListChanged"})
 
 
 class LocationListView(CanCreateMixin, ListView):
@@ -95,6 +100,14 @@ class LocationUpdateView(
     context_object_name = "location"
     pk_url_kwarg = "location_pk"
 
+    def form_valid(self, form: BaseForm) -> HttpResponse:
+        """Return a No-Content and set the HTMX trigger so the modal will be closed.
+
+        There is no need to refresh the location list as the marker position cannot be changed.
+        """
+        self.object = form.save()
+        return HttpResponse(status=204, headers={"HX-Trigger": "locationChanged"})
+
 
 class LocationDeleteView(CanCreateMixin, CampaignAndMapIncluded, DeleteView):
 
@@ -102,14 +115,14 @@ class LocationDeleteView(CanCreateMixin, CampaignAndMapIncluded, DeleteView):
     template_name = "confirm_delete.html"
     pk_url_kwarg = "location_pk"
 
-    def get_object(self, queryset: QuerySet = None) -> Map:
-        """Acceptance criteria:
-        - Only a DM can delete a location
-        """
-        location = super().get_object(queryset)
-        if self.request.user == location.map.campaign.dm:
-            return location
-        raise PermissionDenied
+    def get_success_url(self) -> str:
+        return reverse(
+            "campaigns:maps:detail",
+            kwargs={
+                "campaign_pk": self.object.map.campaign_id,
+                "map_pk": self.object.map_id,
+            },
+        )
 
 
 class LocationDetailView(CanCreateMixin, CampaignAndMapIncluded, DetailView):

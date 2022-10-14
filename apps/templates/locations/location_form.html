@@ -1,9 +1,10 @@
 {% load crispy_forms_tags crispy_forms_filters %}
 
-<form action="{% url 'campaigns:maps:locations:create' campaign_pk=campaign_pk map_pk=map_pk %}" class="modal-content" enctype="multipart/form-data" method="post">
+{% block content %}
+<form hx-post="{% if location %}{% url 'campaigns:maps:locations:update' campaign_pk=campaign_pk map_pk=map_pk location_pk=location.id %}{% else %}{% url 'campaigns:maps:locations:create' campaign_pk=campaign_pk map_pk=map_pk %}{% endif %}" class="modal-content" enctype="multipart/form-data">
   {% csrf_token %}
   <div class="modal-header">
-    <h5 class="modal-title">Edit Location</h5>
+    <h5 class="modal-title">{% if location %}Update {{ location.name }}{% else %}Create{% endif %}</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
   </div>
   <div class="modal-body">
@@ -14,3 +15,4 @@
     <button type="submit" class="btn btn-primary">Save</button>
   </div>
 </form>
+{% endblock %}

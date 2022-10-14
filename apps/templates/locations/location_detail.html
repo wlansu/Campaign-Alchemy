@@ -1,3 +1,4 @@
+{% load static %}
 {% block content %}
 <div class="modal-content">
   <div class="modal-header">
@@ -5,7 +6,14 @@
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
   </div>
   <div class="modal-body">
-    {{ location.description }}
+    <div class="row">
+      <div class="col-4">
+        <img class="img-fluid" src="{% if location.image %}{{ location.image.url }}{% else %}{% static 'images/default_location.jpg' %}{% endif %}" alt="Image of {{ location.name }}">
+      </div>
+      <div class="col-6">
+        <p>{{ location.description }}</p>
+      </div>
+    </div>
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:maps:locations:update' campaign_pk=campaign_pk map_pk=map_pk location_pk=location.id %}" hx-target="#dialog">Edit</button>

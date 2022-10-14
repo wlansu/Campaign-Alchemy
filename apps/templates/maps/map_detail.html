@@ -18,7 +18,7 @@
       </div>
     </div>
     <div id="map">
-      <div class="overlay" hx-trigger="load from:body" hx-get="{% url 'campaigns:maps:locations:list' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="this"></div>
+      <div class="overlay" hx-trigger="load from:body, locationListChanged from:body" hx-get="{% url 'campaigns:maps:locations:list' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="this"></div>
     </div>
   </div>
 </div>
@@ -44,6 +44,7 @@ function onMapClick(e) {
     document.getElementById("dialog").innerHTML = newHTML
     document.getElementById("id_latitude").value = lat
     document.getElementById("id_longitude").value = lng
+    htmx.process(document.getElementById("dialog"))
   })
   modal.show()
 }

@@ -11,6 +11,7 @@ class Location(TimeStampedModel):
     map = models.ForeignKey(
         "maps.Map", on_delete=models.CASCADE, related_name="locations"
     )
+    image = models.ImageField(upload_to="locations/", null=True)
 
     def __str__(self) -> str:
         return self.name
