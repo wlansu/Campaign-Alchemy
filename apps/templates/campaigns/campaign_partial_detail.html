@@ -1,9 +1,7 @@
-<div class="text-center">
-  <h2>{{ campaign.name }}</h2>
-  <p>{{ campaign.description }}</p>
-  <p>Share this invite code with your players so they can add characters to the campaign: <i class="bloodred">{{ campaign.invite_code }}</i></p>
-  <div class="mb-3">
-    <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:update' campaign.id %}" hx-target="#dialog">Edit</button>
-    <button type="button" class="btn btn-danger" hx-get="{% url 'campaigns:delete' campaign.id %}" hx-target="#dialog">Delete</button>
-  </div>
+<div>
+  {% include "components/_title_image_text.html" with object=campaign default_image_filename="images/default_campaign_image.jpg" %}
+  <p class="text-center mt-3">Share this invite code with your players so they can add characters to the campaign: <i class="bloodred">{{ campaign.invite_code }}</i></p>
+  {% url 'campaigns:update' campaign.id as edit_url %}
+  {% url 'campaigns:delete' campaign.id as delete_url %}
+  {% include "components/_edit_delete_buttons.html" with edit_url=edit_url delete_url=delete_url %}
 </div>

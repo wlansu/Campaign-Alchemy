@@ -9,9 +9,10 @@
     {% include 'characters/_partial_character_detail.html' %}
   </div>
   <div class="border-top"></div>
-  <div class="text-center mt-3">
-    <button type="button" class="btn btn-primary" hx-get="{% url 'characters:update' character.id %}" hx-target="#dialog">Edit</button>
-    <button type="button" class="btn btn-danger" hx-get="{% url 'characters:delete' character.id %}" hx-target="#dialog">Delete</button>
-  </div>
+  {% if request.user == character.player %}
+    {% url 'characters:update' character.id as edit_url %}
+    {% url 'characters:delete' character.id as delete_url %}
+    {% include "components/_edit_delete_buttons.html" with edit_url=edit_url delete_url=delete_url %}
+  {% endif %}
 </div>
 {% endblock content %}

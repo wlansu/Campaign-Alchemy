@@ -1,0 +1,10 @@
+{% load static %}
+<h2 class="text-center">{{ object.name }}</h2>
+<div class="row">
+  <div class="col-sm-4">
+    <img src="{% if object.image %}{{ object.image.url }}{% else %}{% static default_image_filename %}{% endif %}" alt="{{ object.name }} Image" class="img-fluid">
+  </div>
+  <div class="col-sm-6">
+    <p>{{ object.description|safe }}</p>
+  </div>
+</div>

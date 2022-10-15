@@ -185,3 +185,7 @@ body {
     background-color: var(--ca-darkgray);
     border-top: 1px solid var(--ca-darkgray);
 }
+
+ul {
+    list-style-position: inside;
+}

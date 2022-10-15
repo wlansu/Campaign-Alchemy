@@ -23,6 +23,7 @@ urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     path("404/", custom_page_not_found),
     path("sentry-debug/", trigger_error),
+    path("tinymce/", include("tinymce.urls")),
     path(
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
     ),

@@ -73,6 +73,7 @@ THIRD_PARTY_APPS = [
     "allauth.socialaccount.providers.google",
     "django_cleanup.apps.CleanupConfig",
     "django_htmx",
+    "tinymce",
 ]
 
 LOCAL_APPS = [

@@ -1,17 +1,18 @@
 from django.db import models
 from model_utils.models import TimeStampedModel
+from tinymce.models import HTMLField
 
 
 class Location(TimeStampedModel):
 
     name = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
+    description = HTMLField(blank=True)
     longitude = models.FloatField(default=0)
     latitude = models.FloatField(default=0)
     map = models.ForeignKey(
         "maps.Map", on_delete=models.CASCADE, related_name="locations"
     )
-    image = models.ImageField(upload_to="locations/", null=True)
+    image = models.ImageField(upload_to="locations/", blank=True, null=True)
 
     def __str__(self) -> str:
         return self.name
