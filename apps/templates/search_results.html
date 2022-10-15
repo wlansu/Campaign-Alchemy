@@ -1,4 +1,4 @@
-{% load campaigns_filters %}
+{% load campaigns_filters bleach_tags %}
 
 {% block content %}
   <div class="modal-content bg-main">
@@ -15,7 +15,7 @@
           <div class="col-7">
             <a href="{{ result.get_absolute_url }}">{{ result.name }}</a>
             {% if result.description %}
-            <p>{{ result.description|truncatewords_html:25 }}</p>
+            <p>{{ result.description|bleach|truncatewords_html:25 }}</p>
             {% endif %}
           </div>
         </div>

@@ -74,6 +74,7 @@ THIRD_PARTY_APPS = [
     "django_cleanup.apps.CleanupConfig",
     "django_htmx",
     "tinymce",
+    "django_bleach",
 ]
 
 LOCAL_APPS = [
@@ -297,5 +298,27 @@ TINYMCE_DEFAULT_CONFIG = {
     "height": 500,
     "menubar": False,
     "plugins": "lists,link",
-    "toolbar": "styleselect | forecolor | bold italic | link | bullist numlist",
+    "toolbar": "styleselect | bold italic | link | bullist numlist",
 }
+
+# Bleach
+BLEACH_ALLOWED_TAGS = ["p", "b", "i", "u", "em", "strong", "a", "li", "ul", "ol", "div"]
+
+# Which HTML attributes are allowed
+BLEACH_ALLOWED_ATTRIBUTES = {"*": ["id", "class", "href", "title"]}
+
+# Which CSS properties are allowed in 'style' attributes (assuming style is
+# an allowed attribute)
+BLEACH_ALLOWED_STYLES = [
+    "font-family",
+    "font-weight",
+    "text-decoration",
+    "font-variant",
+]
+
+# Which protocols (and pseudo-protocols) are allowed in 'src' attributes
+# (assuming src is an allowed attribute)
+BLEACH_ALLOWED_PROTOCOLS = ["http", "https"]
+
+# Strip unknown tags if True, replace with HTML escaped characters if False
+BLEACH_STRIP_TAGS = True
