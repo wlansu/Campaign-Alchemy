@@ -26,7 +26,6 @@ htmx.on("htmx:configRequest", (e) => {
   try {
     tinyMCE.triggerSave()
     const richContent = document.querySelector('#id_description')
-    console.log(richContent.value)
     e.detail.parameters['description'] = richContent.value
   } catch (error) {
 
