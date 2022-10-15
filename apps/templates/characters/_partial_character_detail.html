@@ -1,15 +1,6 @@
-<div class="col-3">
-  <div class="card border-dark dark-color-scheme">
-    <img src="{{ character.image.url }}" alt="Image of {{ character.name }}" class="card-img">
-    {% if character.is_npc %}
-    <div class="card-body text-center whitegreen">
-      <h3 class="card-text">NPC</h3>
-    </div>
-    {% endif %}
-    {% include 'characters/character_card_footer.html' %}
-  </div>
-</div>
-<div class="col-7">
-  <h2>{{ character.name }}</h2>
-  <p>{{ character.description|safe }}</p>
+<div>
+  {% include "components/_title_image_text.html" with object=character default_image_filename="" %}
+  {% url 'characters:update' character.id as edit_url %}
+  {% url 'characters:delete' character.id as delete_url %}
+  {% include "components/_edit_delete_buttons.html" with edit_url=edit_url delete_url=delete_url %}
 </div>

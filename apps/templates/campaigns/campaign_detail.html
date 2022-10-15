@@ -7,7 +7,7 @@
 <div class="container">
 
   <div class="row mb-3 border-bottom" hx-get="{% url 'campaigns:detail' campaign_pk=campaign.pk %}" hx-trigger="campaignChanged from:body" hx-target="this">
-    {% include 'campaigns/campaign_partial_detail.html' %}
+    {% include 'campaigns/_partial_campaign_detail.html' %}
   </div>
 
   <nav class="navbar navbar-expand-lg navbar-light dark-color-scheme mb-3">

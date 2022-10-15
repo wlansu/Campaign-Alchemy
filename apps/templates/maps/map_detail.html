@@ -6,11 +6,12 @@
 {% block content %}
 <div class="row full-height">
   <div class="col-sm-12 text-center">
-    <h2>{{ map.name }}</h2>
-    <p>{{ map.description|safe }}</p>
+    <div hx-get="{% url 'campaigns:maps:detail' campaign_pk=map.campaign_id map_pk=map.id %}" hx-trigger="mapChanged from:body" hx-target="this">
+      {% include 'maps/_partial_map_detail.html' %}
+    </div>
     <h5><i>Click</i> on the map to add location markers.</h5>
-    {% url 'campaigns:maps:update' campaign_pk=map.campaign.id map_pk=map.id as edit_url %}
-    {% url 'campaigns:maps:delete' campaign_pk=map.campaign.id map_pk=map.id as delete_url%}
+    {% url 'campaigns:maps:update' campaign_pk=map.campaign_id map_pk=map.id as edit_url %}
+    {% url 'campaigns:maps:delete' campaign_pk=map.campaign_id map_pk=map.id as delete_url%}
     {% include "components/_edit_delete_buttons.html" with edit_url=edit_url delete_url=delete_url %}
     <div id="map">
       <div class="overlay" hx-trigger="load from:body, locationListChanged from:body" hx-get="{% url 'campaigns:maps:locations:list' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="this"></div>
@@ -33,15 +34,33 @@ function onMapClick(e) {
   const lng = e.latlng.lng
   const lat = e.latlng.lat
   const url = "{% url 'campaigns:maps:locations:create' campaign_pk=map.campaign.id map_pk=map.id %}"
-  fetch(url).then(response => {
-    console.log(response)
-    return response.text()
-  }).then(newHTML => {
-    document.getElementById("dialog").innerHTML = newHTML
-    document.getElementById("id_latitude").value = lat
-    document.getElementById("id_longitude").value = lng
-    htmx.process(document.getElementById("dialog"))
-  })
+  const request = new Request(url)
+  fetch(request)
+    .then(response => response.text())
+    .then((text) => {
+      document.getElementById("dialog").innerHTML = text
+      document.getElementById("id_latitude").value = lat
+      document.getElementById("id_longitude").value = lng
+      htmx.process(document.getElementById("dialog"))
+      {# Editor needs to be removed after every use since it won't reinitialize itself. #}
+      tinymce.remove()
+      tinymce.init({
+        selector:'textarea',
+        menubar: false,
+        plugins: "link",
+        toolbar: 'styleselect | forecolor | bold italic | link'
+      })
+      {# The content isn't actually part of the POST request so we need to add it. #}
+      htmx.on("htmx:configRequest", (e) => {
+      try {
+        tinyMCE.triggerSave()
+        const richContent = document.querySelector('#id_description')
+        e.detail.parameters['description'] = richContent.value
+      } catch (error) {
+
+      }
+})
+    })
   modal.show()
 }
 map.on('click', onMapClick);
