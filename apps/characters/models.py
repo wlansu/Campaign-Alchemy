@@ -18,8 +18,17 @@ class Character(TimeStampedModel):
         null=True,
     )
     player = models.ForeignKey(
-        "users.User", on_delete=models.SET_NULL, related_name="characters", null=True
+        "users.User",
+        on_delete=models.SET_NULL,
+        related_name="player_characters",
+        null=True,
     )
+    creator = models.ForeignKey(
+        "users.User",
+        on_delete=models.SET_NULL,
+        related_name="creator_characters",
+        null=True,
+    )  # The creator is needed to let the User view NPC's
     is_npc = models.BooleanField(
         default=False
     )  # If no Player was assigned the Character is an NPC

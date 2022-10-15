@@ -2,7 +2,7 @@ from typing import Optional
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django.forms import BaseForm
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -36,7 +36,7 @@ class CharacterListView(CanCreateMixin, ListView):
         Acceptance criteria:
             - Anyone with access to the Campaign
             OR
-            - The User is the Player of the Characters
+            - The User is the Player or Creator of the Characters
         """
         campaign_pk = self.kwargs.get("campaign_pk", None)
         user: User = self.request.user
@@ -47,7 +47,11 @@ class CharacterListView(CanCreateMixin, ListView):
                 campaign=campaign_pk
             )
         else:
-            return Character.objects.select_related("player").filter(player=user)
+            return (
+                Character.objects.select_related("player")
+                .filter(Q(player=user) | Q(creator=user))
+                .distinct()
+            )
 
     def get_template_names(self) -> list[str]:
         if self.request.htmx:
@@ -66,7 +70,9 @@ def add_to_campaign(request: HttpRequest, character_pk: int) -> HttpResponse:
 
     Return a No-Content and set the HTMX trigger so the modal is closed and the character list refreshed.
     """
-    character = get_object_or_404(Character, player=request.user, id=character_pk)
+    character = get_object_or_404(
+        Character, Q(player=request.user) | Q(creator=request.user), id=character_pk
+    )
     if request.method == "POST":
         form = AddToCampaignForm(request.POST, request=request)
         if form.is_valid():
@@ -92,10 +98,15 @@ def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpRespons
 
     Acceptance criteria:
         - The Player of the Character
+        - The Creator of the Character
         - The DM of the Characters Campaign
     """
     character = get_object_or_404(Character, id=character_pk)
-    if request.user == character.player or request.user == character.campaign.dm:
+    if (
+        request.user == character.player
+        or request.user == character.creator
+        or request.user == character.campaign.dm
+    ):
         character.campaign = None
         character.save()
         return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
@@ -117,11 +128,16 @@ class CharacterDetailView(CanCreateMixin, DetailView):
         """
         character = super().get_object(queryset)
         user: User = self.request.user
-        if character.player == user or user.has_read_access_to_campaign(
-            campaign_pk=character.campaign_id
+        if (
+            not character.campaign_id
+            and character.player == user
+            or character.creator == user
         ):
             return character
-        raise PermissionDenied
+        elif user.has_read_access_to_campaign(campaign_pk=character.campaign_id):
+            return character
+        else:
+            raise PermissionDenied
 
     def get_template_names(self) -> list[str]:
         if self.request.htmx:
@@ -142,6 +158,7 @@ class CharacterCreateView(CanCreateMixin, CreateView):
         """
         if form.data.get("is_npc") != "on":
             form.instance.player = self.request.user
+        form.instance.creator = self.request.user
         self.object = form.save()
 
         return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
@@ -160,7 +177,10 @@ class CharacterUpdateView(CanCreateMixin, UpdateView):
         - Only a Player can update their Character
         """
         character = super().get_object(queryset)
-        if character.player == self.request.user:
+        if (
+            character.player == self.request.user
+            or character.creator == self.request.user
+        ):
             return character
         raise PermissionDenied
 
@@ -189,7 +209,10 @@ class CharacterDeleteView(CanCreateMixin, DeleteView):
         - Only a Player can delete their own Character.
         """
         character = super().get_object(queryset)
-        if character.player == self.request.user:
+        if (
+            character.player == self.request.user
+            or character.creator == self.request.user
+        ):
             return character
         raise PermissionDenied
 

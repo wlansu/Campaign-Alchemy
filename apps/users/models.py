@@ -39,11 +39,12 @@ class User(AbstractUser):
             if self.id == campaign.dm_id:
                 return True
 
-            player_characters = self.characters.values_list("player_id")
+            player_characters = self.player_characters.values_list("player_id")
+            creator_characters = self.creator_characters.values_list("player_id")
+            all_characters = player_characters.union(creator_characters)
             campaign_characters = campaign.characters.values_list("player_id")
             has_read_access = any(
-                character_id in campaign_characters
-                for character_id in player_characters
+                character_id in campaign_characters for character_id in all_characters
             )
             cache.set(
                 f"{self.id}.user_has_read_access_to_campaign", has_read_access, 600
