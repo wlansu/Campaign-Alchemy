@@ -302,7 +302,28 @@ TINYMCE_DEFAULT_CONFIG = {
 }
 
 # Bleach
-BLEACH_ALLOWED_TAGS = ["p", "b", "i", "u", "em", "strong", "a", "li", "ul", "ol", "div"]
+BLEACH_ALLOWED_TAGS = [
+    "p",
+    "b",
+    "i",
+    "u",
+    "em",
+    "strong",
+    "a",
+    "li",
+    "ul",
+    "ol",
+    "div",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "br",
+    "hr",
+    "span",
+]
 
 # Which HTML attributes are allowed
 BLEACH_ALLOWED_ATTRIBUTES = {"*": ["id", "class", "href", "title"]}
