@@ -3,12 +3,13 @@ from django.contrib.postgres.search import SearchVectorField
 from django.core.cache import cache
 from django.db import models
 from model_utils.models import TimeStampedModel
+from tinymce.models import HTMLField
 
 
 class Character(TimeStampedModel):
 
     name = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
+    description = HTMLField(blank=True)
     image = models.ImageField(upload_to="characters/", null=True)
     campaign = models.ForeignKey(
         "campaigns.Campaign",

@@ -2,6 +2,7 @@ from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
 from django.db import models
 from model_utils.models import TimeStampedModel
+from tinymce.models import HTMLField
 
 
 class Map(TimeStampedModel):
@@ -10,7 +11,7 @@ class Map(TimeStampedModel):
     """
 
     name = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
+    description = HTMLField(blank=True)
     image = models.ImageField(upload_to="maps/")
     resolution_height = models.IntegerField(null=True)
     resolution_width = models.IntegerField(null=True)

@@ -48,23 +48,6 @@ class CampaignAndMapIncluded:
         )
 
 
-class LocationCreateView(
-    CanCreateMixin, LocationDispatchMixin, CampaignAndMapIncluded, CreateView
-):
-
-    form_class = LocationForm
-    template_name = "locations/location_form.html"
-
-    def form_valid(self, form: LocationForm) -> HttpResponse:
-        """Set the Locations Map by retrieving the map pk from the url.
-
-        Return a No-Content and set the HTMX trigger so the modal will be closed and the location list refreshed.
-        """
-        form.instance.map = Map.objects.get(id=self.kwargs["map_pk"])
-        self.object = form.save()
-        return HttpResponse(status=204, headers={"HX-Trigger": "locationListChanged"})
-
-
 class LocationListView(CanCreateMixin, ListView):
 
     model = Location
@@ -88,6 +71,24 @@ class LocationListView(CanCreateMixin, ListView):
             )
 
         return Location.objects.none()
+
+
+class LocationCreateView(
+    CanCreateMixin, LocationDispatchMixin, CampaignAndMapIncluded, CreateView
+):
+
+    model = Location
+    form_class = LocationForm
+    template_name = "locations/location_form.html"
+
+    def form_valid(self, form: LocationForm) -> HttpResponse:
+        """Set the Locations Map by retrieving the map pk from the url.
+
+        Return a No-Content and set the HTMX trigger so the modal will be closed and the location list refreshed.
+        """
+        form.instance.map = Map.objects.get(id=self.kwargs["map_pk"])
+        self.object = form.save()
+        return HttpResponse(status=204, headers={"HX-Trigger": "locationListChanged"})
 
 
 class LocationUpdateView(

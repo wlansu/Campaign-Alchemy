@@ -1,4 +1,4 @@
-{% load static %}
+{% load static bleach_tags %}
 {% block content %}
 <div class="modal-content">
   <div class="modal-header">
@@ -11,13 +11,12 @@
         <img class="img-fluid" src="{% if location.image %}{{ location.image.url }}{% else %}{% static 'images/default_location.jpg' %}{% endif %}" alt="Image of {{ location.name }}">
       </div>
       <div class="col-6">
-        <p>{{ location.description }}</p>
+        <p>{{ location.description|bleach }}</p>
       </div>
     </div>
   </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:maps:locations:update' campaign_pk=campaign_pk map_pk=map_pk location_pk=location.id %}" hx-target="#dialog">Edit</button>
-    <button type="button" class="btn btn-danger" hx-get="{% url 'campaigns:maps:locations:delete' campaign_pk=campaign_pk map_pk=map_pk location_pk=location.id %}" hx-target="#dialog">Delete</button>
-  </div>
+  {% url 'campaigns:maps:locations:update' campaign_pk=campaign_pk map_pk=map_pk location_pk=location.id as edit_url %}
+  {% url 'campaigns:maps:locations:delete' campaign_pk=campaign_pk map_pk=map_pk location_pk=location.id as delete_url%}
+  {% include "components/_edit_delete_buttons.html" with edit_url=edit_url delete_url=delete_url %}
 </div>
 {% endblock %}

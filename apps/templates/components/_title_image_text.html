@@ -1,0 +1,20 @@
+{% load static campaigns_filters bleach_tags %}
+<h2 class="text-center">{{ object.name }}</h2>
+<div class="row">
+  <div class="col-sm-4">
+    <div class="card border-dark dark-color-scheme">
+      <img src="{% if object.image %}{{ object.image.url }}{% else %}{% static default_image_filename %}{% endif %}" alt="{{ object.name }} Image" class="img-fluid">
+      {% if object.is_npc %}
+        <div class="card-body text-center whitegreen">
+          <h3 class="card-text">NPC</h3>
+        </div>
+      {% endif %}
+      {% if object|to_class_name == "Character" %}
+        {% include 'characters/character_card_footer.html' with character=object %}
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-sm-6 overflow-auto" style="height: 50vh">
+    <p>{{ object.description|bleach }}</p>
+  </div>
+</div>

@@ -35,7 +35,7 @@ class CampaignListView(CanCreateMixin, ListView):
 
     def get_template_names(self) -> list[str]:
         if self.request.htmx:
-            return ["campaigns/campaign_partial_list.html"]
+            return ["campaigns/_partial_campaign_list.html"]
         return [self.template_name]
 
 
@@ -64,7 +64,7 @@ class CampaignDetailView(CanCreateMixin, DetailView):
 
     def get_template_names(self) -> list[str]:
         if self.request.htmx:
-            return ["campaigns/campaign_partial_detail.html"]
+            return ["campaigns/_partial_campaign_detail.html"]
         return [self.template_name]
 
 

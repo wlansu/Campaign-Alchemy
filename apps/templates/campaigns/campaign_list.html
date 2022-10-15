@@ -11,7 +11,7 @@
     </div>
   </div>
   <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-4" hx-get="{% url 'campaigns:list' %}" hx-trigger="campaignListChanged from:body" hx-target="this">
-    {% include 'campaigns/campaign_partial_list.html' %}
+    {% include 'campaigns/_partial_campaign_list.html' %}
   </div>
 </div>
 {% endblock %}

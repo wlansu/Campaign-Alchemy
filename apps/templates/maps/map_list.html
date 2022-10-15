@@ -13,11 +13,7 @@
   <div class="card radius-15 bg dark-color-scheme">
     <div class="card-body text-center">
       <div class="p-4 border radius-15">
-        {% if map.image %}
-          <img src="{{ map.image.url }}" width="110" height="110" class="rounded-circle shadow" alt="">
-        {% else %}
-          <img src="{% static 'images/default_campaign_image.jpg' %}" width="110" height="110" class="rounded-circle shadow" alt="">
-        {% endif %}
+        <img src="{% if map.image %}{{ map.image.url }}{% else %}{% static 'images/default_campaign_image.jpg' %}{% endif %}" class="shadow img-fluid" alt="">
         <h5 class="mt-2 whitegreen">{{ map.name }}</h5>
       </div>
     </div>

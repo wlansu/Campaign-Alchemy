@@ -77,7 +77,7 @@ class MapDetailView(CanCreateMixin, DetailView):
 
     def get_template_names(self) -> list[str]:
         if self.request.htmx:
-            return ["maps/map_partial_detail.html"]
+            return ["maps/_partial_map_detail.html"]
         return [self.template_name]
 
 

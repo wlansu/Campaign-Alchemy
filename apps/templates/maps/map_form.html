@@ -1,19 +1,6 @@
-{% load crispy_forms_filters %}
-{% load crispy_forms_tags %}
-
-{% block content %}
-  <form class="modal-content" enctype="multipart/form-data" hx-post="{% if map %}{% url 'campaigns:maps:update' campaign_pk=map.campaign_id map_pk=map.id %}{% else %}{% url 'campaigns:maps:create' campaign_pk=campaign.id %}{% endif %}">
-    {% csrf_token %}
-    <div class="modal-header">
-      <h5 class="modal-title">{% if map %}Update {{ map.name }}{% else %}Create{% endif %}</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-    </div>
-    <div class="modal-body">
-      {{ form|crispy }}
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-      <button type="submit" class="btn btn-primary">Yes</button>
-    </div>
-  </form>
-{% endblock %}
+{% if map %}
+  {% url 'campaigns:maps:update' campaign_pk=map.campaign_id map_pk=map.id as url %}
+{% else %}
+  {% url 'campaigns:maps:create' campaign_pk=campaign.id as url %}
+{% endif %}
+{% include "components/_modal_form.html" with object=map url=url %}
