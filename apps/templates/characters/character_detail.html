@@ -8,11 +8,5 @@
   <div class="row mb-3" hx-get="{% url 'characters:detail' character_pk=character.pk %}" hx-trigger="characterChanged from:body" target="this">
     {% include 'characters/_partial_character_detail.html' %}
   </div>
-  <div class="border-top"></div>
-  {% if request.user == character.player %}
-    {% url 'characters:update' character.id as edit_url %}
-    {% url 'characters:delete' character.id as delete_url %}
-    {% include "components/_edit_delete_buttons.html" with edit_url=edit_url delete_url=delete_url %}
-  {% endif %}
 </div>
 {% endblock content %}

@@ -1,6 +1,9 @@
 <div>
   {% include "components/_title_image_text.html" with object=character default_image_filename="" %}
-  {% url 'characters:update' character.id as edit_url %}
-  {% url 'characters:delete' character.id as delete_url %}
-  {% include "components/_edit_delete_buttons.html" with edit_url=edit_url delete_url=delete_url %}
+  {% if request.user == character.player or request.user == character.creator %}
+    <div class="border-top"></div>
+    {% url 'characters:update' character.id as edit_url %}
+    {% url 'characters:delete' character.id as delete_url %}
+    {% include "components/_edit_delete_buttons.html" with edit_url=edit_url delete_url=delete_url %}
+  {% endif %}
 </div>
