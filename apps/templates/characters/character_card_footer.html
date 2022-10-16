@@ -13,7 +13,7 @@
 
     </div>
     <div class="col-1">
-      {% if request.user == character.player or request.user == character.campaign.dm %}
+      {% if request.user == character.player or request.user == character.creator or request.user == character.campaign.dm %}
       <img
         alt="Remove character from campaign"
         class="ca-pointer"
@@ -33,7 +33,7 @@
     <div class="col-9">
     </div>
     <div class="col-1">
-      {% if request.user == character.player or request.user == character.campaign.dm %}
+      {% if request.user == character.player or request.user == character.creator or request.user == character.campaign.dm %}
       <img
         alt="Add character to campaign"
         class="ca-pointer"
