@@ -71,6 +71,16 @@ const parseResult = new DOMParser().parseFromString(image_url, "text/html")
 const parsedUrl = parseResult.documentElement.textContent;
 const bounds = [ [0, 0], ["{{ map.resolution_height }}","{{ map.resolution_width }}"]];
 L.imageOverlay(parsedUrl, bounds).addTo(map)
+L.Marker.prototype.options.icon = L.icon({
+    iconRetinaUrl: "{% static 'css/images/marker-icon-2x.png' %}",
+    iconUrl: "{% static 'css/images/marker-icon.png' %}",
+    shadowUrl: "{% static 'css/images/marker-shadow.png' %}",
+    iconSize: [20, 36],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    tooltipAnchor: [16, -28],
+    shadowSize: [41, 41],
+});
 map.fitBounds(bounds)
 </script>
 {% endblock inline_javascript %}
