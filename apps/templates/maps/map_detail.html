@@ -55,6 +55,8 @@ function onMapClick(e) {
       htmx.on("htmx:configRequest", (e) => {
         try {
           tinyMCE.triggerSave()
+          const richContent = document.querySelector('#id_description')
+          e.detail.parameters['description'] = richContent.value
         } catch (error) {
 
         }
