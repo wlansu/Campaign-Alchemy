@@ -188,6 +188,7 @@ sentry_sdk.init(
     environment=env("SENTRY_ENVIRONMENT", default="production"),
     traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.2),
     send_default_pii=True,
+    release=env("GIT_HASH"),
 )
 
 # Your stuff...
