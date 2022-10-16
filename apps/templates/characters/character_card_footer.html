@@ -23,6 +23,9 @@
         hx-trigger="click"
         hx-get="{% url 'characters:remove' character.pk %}"
         hx-target="#dialog"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Remove from campaign"
       >
       {% endif %}
     </div>
@@ -40,9 +43,20 @@
         hx-trigger="click"
         hx-get="{% url 'characters:add' character.pk %}"
         hx-target="#dialog"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Add to campaign"
       >
       {% endif %}
     </div>
   {% endif %}
   </div>
 </div>
+
+{% block inline_jacascript %}
+<script>
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+{% endblock %}
