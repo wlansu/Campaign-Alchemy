@@ -23,7 +23,14 @@ class Location(TimeStampedModel):
     def get_absolute_url(self) -> str:
         from django.urls import reverse
 
-        return reverse("campaigns:maps:locations:detail", kwargs={"pk": self.pk})
+        return reverse(
+            "campaigns:maps:locations:detail",
+            kwargs={
+                "campaign_pk": self.map.campaign_id,
+                "map_pk": self.map_id,
+                "location_pk": self.pk,
+            },
+        )
 
     class Meta:
         verbose_name = "Location"

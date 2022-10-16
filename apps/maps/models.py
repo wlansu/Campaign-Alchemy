@@ -26,6 +26,14 @@ class Map(TimeStampedModel):
     def __repr__(self) -> str:
         return f"<Map: {self.name}>"
 
+    def get_absolute_url(self) -> str:
+        from django.urls import reverse
+
+        return reverse(
+            "campaigns:maps:detail",
+            kwargs={"campaign_pk": self.campaign_id, "map_pk": self.pk},
+        )
+
     def save(self, *args, **kwargs) -> None:
         """Set the resolutions on image save."""
         super().save(*args, **kwargs)

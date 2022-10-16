@@ -28,6 +28,11 @@ class Campaign(TimeStampedModel):
     def __repr__(self) -> str:
         return f"<Campaign: {self.name}>"
 
+    def get_absolute_url(self) -> str:
+        from django.urls import reverse
+
+        return reverse("campaigns:detail", kwargs={"campaign_pk": self.pk})
+
     @staticmethod
     def _generate_invite_code() -> uuid.UUID:
         return uuid.uuid4()
