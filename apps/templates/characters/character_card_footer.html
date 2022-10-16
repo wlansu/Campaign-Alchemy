@@ -8,7 +8,7 @@
     {# Don't show the campaign link on the campaign detail page, we're already there. #}
     {% url 'campaigns:characters:list' campaign_pk=character.campaign_id as url %}
     {% url 'campaigns:characters:npcs' campaign_pk=character.campaign_id as npc_url %}
-    {% if not request.path == url or not request.path == npc_url %}
+    {% if not request.path == url and not request.path == npc_url %}
       <a href="{% url 'campaigns:detail' campaign_pk=character.campaign_id %}"><h5 class="text-center">{{ character.campaign }}</h5></a>
     {% endif %}
 
