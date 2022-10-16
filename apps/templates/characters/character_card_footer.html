@@ -7,7 +7,8 @@
 
     {# Don't show the campaign link on the campaign detail page, we're already there. #}
     {% url 'campaigns:characters:list' campaign_pk=character.campaign_id as url %}
-    {% if not request.path == url %}
+    {% url 'campaigns:characters:npcs' campaign_pk=character.campaign_id as npc_url %}
+    {% if not request.path == url or request.path == npc_url %}
       <a href="{% url 'campaigns:detail' campaign_pk=character.campaign_id %}"><h5 class="text-center">{{ character.campaign }}</h5></a>
     {% endif %}
 
@@ -55,6 +56,7 @@
 
 {% block inline_jacascript %}
 <script>
+  {# Enable tooltip toggling. Probably best to move this to project.css #}
   $(function () {
     $('[data-toggle="tooltip"]').tooltip()
   })
