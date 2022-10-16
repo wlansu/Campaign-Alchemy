@@ -65,9 +65,10 @@ function onMapClick(e) {
 map.on('click', onMapClick);
 
 const image_url = "{{ map.image.url }}"
-const parseResult = new DOMParser().parseFromString(image_url, "text/html");
+const parseResult = new DOMParser().parseFromString(image_url, "text/html")
+const parsedUrl = parseResult.documentElement.textContent;
 const bounds = [ [0, 0], ["{{ map.resolution_height }}","{{ map.resolution_width }}"]];
-L.imageOverlay(parseResult, bounds).addTo(map)
+L.imageOverlay(parsedUrl, bounds).addTo(map)
 map.fitBounds(bounds)
 </script>
 {% endblock inline_javascript %}
