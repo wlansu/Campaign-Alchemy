@@ -44,7 +44,7 @@ class CharacterListView(CanCreateMixin, ListView):
             if not user.has_read_access_to_campaign(campaign_pk=campaign_pk):
                 raise PermissionDenied
             return Character.objects.select_related("campaign").filter(
-                campaign=campaign_pk
+                campaign=campaign_pk, is_npc=False
             )
         else:
             return (
@@ -57,6 +57,24 @@ class CharacterListView(CanCreateMixin, ListView):
         if self.request.htmx:
             return ["characters/_partial_character_list.html"]
         return [self.template_name]
+
+
+class NPCListView(CharacterListView):
+    def get_queryset(self) -> QuerySet:
+        campaign_pk = self.kwargs.get("campaign_pk", None)
+        user: User = self.request.user
+        if campaign_pk:
+            if not user.has_read_access_to_campaign(campaign_pk=campaign_pk):
+                raise PermissionDenied
+            return Character.objects.select_related("campaign").filter(
+                campaign=campaign_pk, is_npc=True
+            )
+        else:
+            return (
+                Character.objects.select_related("player")
+                .filter(Q(player=user) | Q(creator=user))
+                .distinct()
+            )
 
 
 @login_required
@@ -193,6 +211,7 @@ class CharacterUpdateView(CanCreateMixin, UpdateView):
             form.instance.player = self.request.user
         else:
             form.instance.player = None
+            form.instance.creator = self.request.user
         self.object = form.save()
 
         return HttpResponse(status=204, headers={"HX-Trigger": "characterChanged"})

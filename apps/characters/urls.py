@@ -6,6 +6,7 @@ from apps.characters.views import (
     CharacterDetailView,
     CharacterListView,
     CharacterUpdateView,
+    NPCListView,
     add_to_campaign,
     remove_from_campaign,
 )
@@ -13,6 +14,7 @@ from apps.characters.views import (
 app_name = "characters"
 urlpatterns = [
     path("", view=CharacterListView.as_view(), name="list"),
+    path("npcs/", view=NPCListView.as_view(), name="npcs"),
     path("create/", view=CharacterCreateView.as_view(), name="create"),
     path(
         "detail/<int:character_pk>/", view=CharacterDetailView.as_view(), name="detail"
