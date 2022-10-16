@@ -51,16 +51,14 @@ function onMapClick(e) {
         toolbar: 'styleselect | bold italic | link | bullist numlist',
         language: "en_US",
       })
-      {# The content isn't actually part of the POST request so we need to add it. #}
+      {# Trigger the save on the tinymce editor since it can't do it itself due to the way it's been loaded. #}
       htmx.on("htmx:configRequest", (e) => {
-      try {
-        tinyMCE.triggerSave()
-        const richContent = document.querySelector('#id_description')
-        e.detail.parameters['description'] = richContent.value
-      } catch (error) {
+        try {
+          tinyMCE.triggerSave()
+        } catch (error) {
 
-      }
-})
+        }
+      })
     })
   modal.show()
 }
