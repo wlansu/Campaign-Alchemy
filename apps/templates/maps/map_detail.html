@@ -48,7 +48,8 @@ function onMapClick(e) {
         selector:'textarea',
         menubar: false,
         plugins: "lists,link",
-        toolbar: 'styleselect | bold italic | link | bullist numlist'
+        toolbar: 'styleselect | bold italic | link | bullist numlist',
+        language: "en_US",
       })
       {# The content isn't actually part of the POST request so we need to add it. #}
       htmx.on("htmx:configRequest", (e) => {

@@ -299,6 +299,7 @@ TINYMCE_DEFAULT_CONFIG = {
     "menubar": False,
     "plugins": "lists,link",
     "toolbar": "styleselect | bold italic | link | bullist numlist",
+    "language": "en_US",
 }
 
 # Bleach
