@@ -2,6 +2,7 @@ from uuid import UUID
 
 from django import forms
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.db.models import Q
 
 from apps.campaigns.models import Campaign
 from apps.characters.models import Character
@@ -28,7 +29,7 @@ class AddToCampaignForm(forms.Form):
         """Check that the Character exists."""
         data = self.cleaned_data["character_pk"]
         character_exists = Character.objects.filter(
-            id=data, player=self.request.user
+            Q(player=self.request.user) | Q(creator=self.request.user), id=data
         ).exists()
         if not character_exists:
             raise PermissionDenied
