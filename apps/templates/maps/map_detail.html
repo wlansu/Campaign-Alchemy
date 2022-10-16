@@ -53,12 +53,14 @@ function onMapClick(e) {
       })
       {# Trigger the save on the tinymce editor since it can't do it itself due to the way it's been loaded. #}
       htmx.on("htmx:configRequest", (e) => {
-        try {
-          tinyMCE.triggerSave()
-          const richContent = document.querySelector('#id_description')
-          e.detail.parameters['description'] = richContent.value
-        } catch (error) {
+        if (e.detail.verb === "post") {
+          try {
+            tinyMCE.triggerSave()
+            const richContent = document.querySelector('#id_description')
+            e.detail.parameters['description'] = richContent.value
+          } catch (error) {
 
+          }
         }
       })
     })
