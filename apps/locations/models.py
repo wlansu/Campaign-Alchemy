@@ -36,3 +36,4 @@ class Location(TimeStampedModel):
         verbose_name = "Location"
         verbose_name_plural = "Locations"
         indexes = (models.Index(fields=["name"]),)
+        ordering = ("-created",)

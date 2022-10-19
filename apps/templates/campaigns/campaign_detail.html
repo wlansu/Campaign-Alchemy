@@ -53,5 +53,15 @@ npcs.addEventListener("click", (e) => {
   maps.classList.remove("active")
   npcs.classList.add("active")
 })
+
+const STICKY_OFFSET = 160;
+
+document.addEventListener("htmx:after-swap", (event) => {
+  if (!(event.target instanceof HTMLElement)) {
+    return;
+  }
+
+  window.scrollTo(0, event.target.offsetTop - STICKY_OFFSET);
+});
 </script>
 {% endblock %}

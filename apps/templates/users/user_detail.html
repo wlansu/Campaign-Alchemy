@@ -11,7 +11,7 @@
 
   {% if object == request.user %}
   <div class="row">
-    <div class="col-sm-12">
+    <div class="col-12">
       <button class="btn btn-primary" hx-get="{% url 'users:update' %}" hx-target="#dialog">My Info</button>
       <a class="btn btn-primary" href="{% url 'account_email' %}" role="button">E-Mail</a>
     </div>
