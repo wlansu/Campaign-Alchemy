@@ -6,7 +6,7 @@
 {% block content %}
 <div class="container">
 
-  <div class="row mb-3 border-bottom" hx-get="{% url 'campaigns:detail' campaign_pk=campaign.pk %}" hx-trigger="campaignChanged from:body" hx-target="this">
+  <div class="row mb-3" hx-get="{% url 'campaigns:detail' campaign_pk=campaign.pk %}" hx-trigger="campaignChanged from:body" hx-target="this">
     {% include 'campaigns/_partial_campaign_detail.html' %}
   </div>
 

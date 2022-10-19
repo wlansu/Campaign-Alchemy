@@ -17,12 +17,11 @@
       <a class="text-decoration-none text-reset" href="{% url 'characters:detail' character.pk %}">
         <div class="card-body text-center">
           <div class="p-4 border radius-15">
-            {% if character.image %}
-              <img src="{{ character.image.url }}" width="140" height="140" class="rounded-circle shadow" alt="Image of {{ character.name }}">
-            {% else %}
-              <img src="{% static 'images/default_campaign_image.jpg' %}" width="140" height="140" class="rounded-circle shadow" alt="Default character image">
-            {% endif %}
+            <img src="{{ character.image.url }}" width="140" height="140" class="rounded-circle shadow" alt="Image of {{ character.name }}">
             <h5 class="mt-2 whitegreen">{{ character.name }}</h5>
+            {% if character.is_npc %}
+              <h6 class="whitegreen">NPC</h6>
+            {% endif %}
           </div>
         </div>
       </a>
