@@ -4,8 +4,8 @@
 {% block title %}Map: {{ map.name }}{% endblock %}
 
 {% block content %}
-<div class="row full-height">
-  <div class="col-sm-12 text-center">
+<div class="row">
+  <div class="col-12 text-center">
     <div hx-get="{% url 'campaigns:maps:detail' campaign_pk=map.campaign_id map_pk=map.id %}" hx-trigger="mapChanged from:body" hx-target="this">
       {% include 'maps/_partial_map_detail.html' %}
     </div>
@@ -13,11 +13,18 @@
     {% url 'campaigns:maps:update' campaign_pk=map.campaign_id map_pk=map.id as edit_url %}
     {% url 'campaigns:maps:delete' campaign_pk=map.campaign_id map_pk=map.id as delete_url%}
     {% include "components/_edit_delete_buttons.html" with edit_url=edit_url delete_url=delete_url %}
-    <div id="map">
-      <div class="overlay" hx-trigger="load from:body, locationListChanged from:body" hx-get="{% url 'campaigns:maps:locations:list' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="this"></div>
-    </div>
+{#    <div id="map">#}
+{#      <div class="overlay"></div>#}
+{#    </div>#}
   </div>
 </div>
+<div class="row">
+  <div class="col-8">
+    <div id="map"></div>
+  </div>
+  <div class="col-4" hx-trigger="load from:body, locationListChanged from:body, locationChanged from:body" hx-get="{% url 'campaigns:maps:locations:list' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="this"></div>
+</div>
+{% if locations %}<h1>TEST</h1>{% endif %}
 {% endblock content %}
 
 {% block inline_javascript %}

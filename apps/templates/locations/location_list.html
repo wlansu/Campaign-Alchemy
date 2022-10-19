@@ -1,3 +1,15 @@
+{% load static bleach_tags %}
+{% for location in locations %}
+  <div class="row mb-3 dark-color-scheme rounded-2 ca-pointer" hx-get="{% url 'campaigns:maps:locations:detail' campaign_pk=location.map.campaign.id map_pk=location.map.id location_pk=location.id %}" hx-trigger="click" hx-target="#dialog">
+    <div class="col-4 mt-2">
+      <img src="{% if location.image %}{{ location.image.url }}{% else %}{% static 'images/default_location.jpg' %}{% endif %}" alt="Image of {{ location.name }}" class="img-fluid">
+    </div>
+    <div class="col-8">
+      <h4>{{ location.name }}</h4>
+      <p>{{ location.description|bleach|truncatewords_html:25 }}</p>
+    </div>
+  </div>
+{% endfor %}
 {% block inline_javascript %}
 <script>
   function addMarkersToMap(data) {
@@ -39,5 +51,7 @@
   } catch (error) {
     console.log(error)
   }
+
+
 </script>
 {% endblock %}

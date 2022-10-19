@@ -55,12 +55,3 @@ htmx.on("locationChanged", (e) => {
 htmx.on("locationListChanged", (e) => {
   modal.hide()
 })
-
-const STICKY_OFFSET = 240;
-
-document.addEventListener("htmx:after-swap", (event) => {
-  if (!(event.target instanceof HTMLElement)) {
-    return;
-  }
-  window.scrollTo(0, event.target.offsetTop - STICKY_OFFSET);
-});

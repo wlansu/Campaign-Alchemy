@@ -170,6 +170,7 @@ body {
 
 #map {
   height: 95vh;
+  background-color: var(--ca-darkgray);
 }
 
 .full-height {
@@ -188,4 +189,23 @@ body {
 
 ul {
     list-style-position: inside;
+}
+
+/* large devices */
+@media (min-width: 1200px) {
+  .container {
+     max-width: 1600px;
+   }
+}
+/* extra large devices */
+@media screen and (min-width: 1800px) {
+  .container {
+    max-width: 1800px;
+  }
+}
+/* extra extra large devices */
+@media screen and (min-width: 2400px) {
+  .container {
+    max-width: 2400px;
+  }
 }
