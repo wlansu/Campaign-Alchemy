@@ -72,6 +72,12 @@ class LocationListView(CanCreateMixin, ListView):
 
         return Location.objects.none()
 
+    def get_context_data(self, **kwargs) -> dict:
+        """Pass the campaign and map pk's to the template context."""
+        context = super().get_context_data(**kwargs)
+        context["active_location"] = self.request.GET.get("active_location")
+        return context
+
 
 class LocationCreateView(
     CanCreateMixin, LocationDispatchMixin, CampaignAndMapIncluded, CreateView

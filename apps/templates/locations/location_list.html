@@ -12,10 +12,29 @@
 {% endfor %}
 {% block inline_javascript %}
 <script>
+  var active_marker = {}
+
+  function toggleIcons(layer) {
+    if ("setIcon" in active_marker) {
+      active_marker.setIcon(blueIcon)
+    }
+    active_marker = layer
+    active_marker.setIcon(redIcon)
+  }
+
   function addMarkersToMap(data) {
     L.geoJSON(data, {
       onEachFeature: function (feature, layer) {
+        try {
+          {# Ignore when active_location is None #}
+          if (layer.feature.properties.id === {{ active_location }}) {
+            layer.setIcon(redIcon)
+            active_marker = layer
+          }
+        } catch(e) {}
         layer.on("click", (e) => {
+          toggleIcons(layer)
+          window.history.pushState({}, null, document.URL.split("?")[0])  {# Remove the querystring. #}
           let dialog = htmx.find("#dialog")
           fetch(feature.properties.detailUrl).then(response => {
             return response.text()
@@ -29,29 +48,24 @@
     }).addTo(map)
   }
 
-  try {
-    let data = {
-      "type": "FeatureCollection",
-      "features": [],
-    }
-    {# Loop over locations and add them to a FeatureCollection which is then used to build the markers on the map. #}
-    {% for location in locations %}
-      data.features.push({
-        "type": "Feature",
-        "geometry": {
-          "type": "Point",
-          "coordinates": ["{{ location.longitude }}", "{{ location.latitude }}"] {# Coordinates here need to be reversed. #}
-        },
-        "properties": {
-          "detailUrl": "{% url 'campaigns:maps:locations:detail' campaign_pk=location.map.campaign.id map_pk=location.map.id location_pk=location.id %}",
-        }
-      })
-    {% endfor %}
-    addMarkersToMap(data)
-  } catch (error) {
-    console.log(error)
+  var data = {
+    "type": "FeatureCollection",
+    "features": [],
   }
-
-
+  {# Loop over locations and add them to a FeatureCollection which is then used to build the markers on the map. #}
+  {% for location in locations %}
+    data.features.push({
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": ["{{ location.longitude }}", "{{ location.latitude }}"] {# Coordinates here need to be reversed. #}
+      },
+      "properties": {
+        "detailUrl": "{% url 'campaigns:maps:locations:detail' campaign_pk=location.map.campaign.id map_pk=location.map.id location_pk=location.id %}",
+        "id": {{ location.id }}
+      }
+    })
+  {% endfor %}
+  addMarkersToMap(data)
 </script>
 {% endblock %}
