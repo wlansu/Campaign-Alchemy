@@ -191,6 +191,10 @@ ul {
     list-style-position: inside;
 }
 
+#active_location {
+  border: 2px var(--ca-bloodred);
+}
+
 /* large devices */
 @media (min-width: 1200px) {
   .container {

@@ -70,9 +70,11 @@ class MapDetailView(CanCreateMixin, DetailView):
     def get_context_data(self, **kwargs) -> dict:
         """Pass the LocationForm to the template context."""
         context = super().get_context_data(**kwargs)
+        active_location = self.request.GET.get("active_location")
         context["location_form"] = LocationForm(
             initial={"map": Map.objects.get(id=self.kwargs["map_pk"])}
         )
+        context["active_location"] = active_location
         return context
 
     def get_template_names(self) -> list[str]:
