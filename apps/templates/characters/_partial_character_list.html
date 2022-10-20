@@ -17,7 +17,7 @@
       <a class="text-decoration-none text-reset" href="{% url 'characters:detail' character.pk %}">
         <div class="card-body text-center">
           <div class="p-4 border radius-15">
-            <img src="{{ character.image.url }}" width="140" height="140" class="rounded-circle shadow" alt="Image of {{ character.name }}">
+            <img src="{% if character.image %}{{ character.image.url }}{% else %}{% static 'images/default_character.jpg' %}{% endif %}" width="140" height="140" class="rounded-circle shadow" alt="Image of {{ character.name }}">
             <h5 class="mt-2 whitegreen">{{ character.name }}</h5>
             {% if character.is_npc %}
               <h6 class="whitegreen">NPC</h6>

@@ -1,5 +1,5 @@
 <div>
-  {% include "components/_title_image_text.html" with object=character default_image_filename="" %}
+  {% include "components/_title_image_text.html" with object=character default_image_filename="images/default_character.jpg" %}
   {% if request.user == character.player or request.user == character.creator %}
     {% url 'characters:update' character.id as edit_url %}
     {% url 'characters:delete' character.id as delete_url %}
