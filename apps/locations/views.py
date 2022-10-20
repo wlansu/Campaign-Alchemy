@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.forms import BaseForm
@@ -93,8 +95,16 @@ class LocationCreateView(
         Return a No-Content and set the HTMX trigger so the modal will be closed and the location list refreshed.
         """
         form.instance.map = Map.objects.get(id=self.kwargs["map_pk"])
-        self.object = form.save()
+        self.object: Location = form.save()
+        characters = form.cleaned_data.get("characters", None)
+        if characters:
+            self.object.characters.add(*characters)
         return HttpResponse(status=204, headers={"HX-Trigger": "locationListChanged"})
+
+    def get_form_kwargs(self) -> dict[str:Any]:
+        kwargs = super().get_form_kwargs()
+        kwargs.update({"campaign_id": self.kwargs["campaign_pk"]})
+        return kwargs
 
 
 class LocationUpdateView(
@@ -117,12 +127,20 @@ class LocationUpdateView(
             return map
         raise PermissionDenied()
 
+    def get_form_kwargs(self) -> dict[str:Any]:
+        kwargs = super().get_form_kwargs()
+        kwargs.update({"campaign_id": self.object.map.campaign_id})
+        return kwargs
+
     def form_valid(self, form: BaseForm) -> HttpResponse:
         """Return a No-Content and set the HTMX trigger so the modal will be closed.
 
         There is no need to refresh the location list as the marker position cannot be changed.
         """
         self.object = form.save()
+        characters = form.cleaned_data.get("characters", None)
+        if characters:
+            self.object.characters.add(*characters)
         return HttpResponse(status=204, headers={"HX-Trigger": "locationChanged"})
 
 
