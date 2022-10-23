@@ -16,11 +16,15 @@ def search_all(request: HttpRequest) -> HttpResponse:
     See: https://pganalyze.com/blog/full-text-search-django-postgres
     """
     query = request.GET.get("search")
-    characters = Character.objects.filter(vector_column=query).filter(
-        Q(player=request.user)
-        | Q(creator=request.user)
-        | Q(campaign__dm=request.user)
-        | Q(campaign__characters__player=request.user)
+    characters = (
+        Character.objects.filter(vector_column=query)
+        .filter(
+            Q(player=request.user)
+            | Q(creator=request.user)
+            | Q(campaign__dm=request.user)
+            | Q(campaign__characters__player=request.user)
+        )
+        .distinct()
     )
     campaigns = (
         Campaign.objects.filter(vector_column=query)
