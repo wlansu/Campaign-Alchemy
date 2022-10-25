@@ -1,10 +1,12 @@
 from typing import Any
 
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db.models import QuerySet
+from django.db.models import Max, QuerySet
 from django.forms import BaseForm
 from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from django.urls import reverse
+from django.views.decorators.http import require_http_methods
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -50,7 +52,7 @@ class CampaignAndMapIncluded:
         )
 
 
-class LocationListView(CanCreateMixin, ListView):
+class LocationListView(CanCreateMixin, CampaignAndMapIncluded, ListView):
 
     model = Location
     template_name = "locations/location_list.html"
@@ -94,7 +96,9 @@ class LocationCreateView(
 
         Return a No-Content and set the HTMX trigger so the modal will be closed and the location list refreshed.
         """
-        form.instance.map = Map.objects.get(id=self.kwargs["map_pk"])
+        map = Map.objects.get(id=self.kwargs["map_pk"])
+        form.instance.map = map
+        form.instance.order = get_max_order(map.id)
         self.object: Location = form.save()
         characters = form.cleaned_data.get("characters", None)
         if characters:
@@ -185,3 +189,30 @@ class LocationDetailView(CanCreateMixin, CampaignAndMapIncluded, DetailView):
         if user.has_read_access_to_campaign(campaign_pk=self.kwargs["campaign_pk"]):
             return super().get_object(queryset)
         raise PermissionDenied
+
+
+@require_http_methods(["POST"])
+@login_required
+def sort_locations(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpResponse:
+    location_pks_order = request.POST.getlist("location_order")
+    locations = []
+    for idx, location_pk in enumerate(location_pks_order, start=1):
+        location = Location.objects.get(pk=location_pk)
+        location.order = idx
+        location.save(update_fields=["order"])
+        locations.append(location)
+
+    return HttpResponse(
+        status=204,
+        headers={"HX-Trigger": "locationListChanged"},
+        content={"locations": locations},
+    )
+
+
+def get_max_order(map_id: int) -> int:
+    existing_locations = Location.objects.filter(map=map_id)
+    if not existing_locations:
+        return 1
+    else:
+        current_max = existing_locations.aggregate(max_order=Max("order"))["max_order"]
+        return current_max + 1

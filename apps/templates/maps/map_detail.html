@@ -24,6 +24,7 @@
 {% endblock content %}
 
 {% block inline_javascript %}
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script>
 {# See: https://github.com/pointhi/leaflet-color-markers for more colors. #}
 const redIcon = L.icon({
@@ -101,5 +102,17 @@ const bounds = [[0, 0], ["{{ map.resolution_height }}","{{ map.resolution_width 
 L.imageOverlay(parsedUrl, bounds).addTo(map)
 L.Marker.prototype.options.icon = blueIcon
 map.fitBounds(bounds)
+
+htmx.on("htmx:afterSettle", (e) => {
+  var sortables = document.body.querySelectorAll(".sortable");
+  console.log(sortables)
+  for (var i = 0; i < sortables.length; i++) {
+      var sortable = sortables[i];
+      new Sortable(sortable, {
+          animation: 150,
+          ghostClass: 'blue-background-class'
+      });
+  }
+})
 </script>
 {% endblock inline_javascript %}
