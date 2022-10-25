@@ -12,24 +12,7 @@
 
 <div class="row mt-1">
 {% for character in characters %}
-  <div class="col-3">
-    <div class="card h-100 radius-15 bg dark-color-scheme">
-      <a class="text-decoration-none text-reset" href="{% url 'characters:detail' character.pk %}">
-        <div class="card-body text-center">
-          <div class="p-4 border radius-15">
-            {% if character.image %}
-              {% thumbnail character.image "250x250" crop="center" as image %}
-                <img src="{{ image.url }}" width="{{ image.width }}" height="{{ image.height }}" class="rounded-circle shadow" alt="">
-              {% endthumbnail %}
-            {% else %}
-              <img src="{% static 'images/default_character.jpg' %}" width="250" height="250" class="rounded-circle shadow" alt="">
-            {% endif %}
-            <h5 class="mt-2 whitegreen">{{ character.name }}</h5>
-          </div>
-        </div>
-      </a>
-      {% include 'characters/character_card_footer.html' %}
-    </div>
-  </div>
+  {% url 'characters:detail' character.pk as url %}
+  {% include 'components/_card_item.html' with object=character url=url default_image='images/default_character.jpg' %}
 {% endfor %}
 </div>
