@@ -1,9 +1,15 @@
-{% load static campaigns_filters bleach_tags %}
+{% load static campaigns_filters bleach_tags thumbnail %}
 <h2 class="text-center">{{ object.name }}</h2>
 <div class="row">
   <div class="col-4">
     <div class="card border-dark dark-color-scheme">
-      <img src="{% if object.image %}{{ object.image.url }}{% else %}{% static default_image_filename %}{% endif %}" alt="{{ object.name }} Image" class="img-fluid">
+      {% if object.image %}
+        {% thumbnail object.image "500x500" crop="center" as image %}
+          <img src="{{ image.url }}" height="{{ image.height }}" width="{{ image.width }}" alt="Image of {{ object.name }}" class="img-fluid">
+        {% endthumbnail %}
+      {% else %}
+        <img src="{% static default_image_filename %}" alt="Image of {{ object.name }}" class="img-fluid">
+      {% endif %}
       {% if object.is_npc %}
         <div class="card-body text-center whitegreen">
           <h3 class="card-text">NPC</h3>

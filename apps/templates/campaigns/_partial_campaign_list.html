@@ -1,20 +1,6 @@
-{% load static %}
+{% load static thumbnail %}
 
 {% for campaign in campaigns %}
-<div class="col">
-<a class="text-decoration-none text-reset" href="{% url 'campaigns:detail' campaign_pk=campaign.id %}">
-  <div class="card h-100 radius-15 bg dark-color-scheme">
-    <div class="card-body text-center">
-      <div class="p-4 border radius-15">
-        {% if campaign.image %}
-          <img src="{{ campaign.image.url }}" width="110" height="110" class="rounded-circle shadow" alt="">
-        {% else %}
-          <img src="{% static 'images/default_campaign_image.jpg' %}" width="110" height="110" class="rounded-circle shadow" alt="">
-        {% endif %}
-        <h5 class="mb-5 mt-5">{{ campaign.name }}</h5>
-      </div>
-    </div>
-  </div>
-</a>
-</div>
+  {% url 'campaigns:detail' campaign_pk=campaign.id as url %}
+  {% include "components/_card_item.html" with object=campaign url=url default_image='images/default_campaign_image.jpg' %}
 {% endfor %}

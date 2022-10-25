@@ -1,4 +1,4 @@
-{% load static %}
+{% load static thumbnail %}
 
 <div class="row text-center">
   <div class="col mb-2">
@@ -8,17 +8,7 @@
 
 <div class="row mt-1">
 {% for map in maps %}
-<div class="col-3">
-  <a class="text-decoration-none text-reset" href="{% url 'campaigns:maps:detail' campaign_pk=map.campaign_id map_pk=map.id %}">
-  <div class="card radius-15 bg dark-color-scheme">
-    <div class="card-body text-center">
-      <div class="p-4 border radius-15">
-        <img src="{% if map.image %}{{ map.image.url }}{% else %}{% static 'images/default_campaign_image.jpg' %}{% endif %}" class="shadow img-fluid" alt="">
-        <h5 class="mt-2 whitegreen">{{ map.name }}</h5>
-      </div>
-    </div>
-  </div>
-  </a>
-</div>
+  {% url 'campaigns:maps:detail' campaign_pk=map.campaign_id map_pk=map.id as url %}
+  {% include 'components/_card_item.html' with object=map url=url %}
 {% endfor %}
 </div>

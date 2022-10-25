@@ -1,0 +1,23 @@
+{% load static thumbnail campaigns_filters %}
+
+<div class="col-3">
+  <div class="card h-100 radius-15 bg dark-color-scheme">
+    <a class="text-decoration-none text-reset" href="{{ url }}">
+      <div class="card-body text-center">
+        <div class="p-4 border radius-15">
+          {% if object.image %}
+            {% thumbnail object.image "250x250" crop="center" as image %}
+              <img src="{{ image.url }}" width="{{ image.width }}" height="{{ image.height }}" class="rounded-circle shadow" alt="Image of {{ object.name }}">
+            {% endthumbnail %}
+          {% else %}
+            <img src="{% static default_image %}" width="250" height="250" class="rounded-circle shadow" alt="Image of {{ object.name }}">
+          {% endif %}
+          <h5 class="mt-2 whitegreen">{{ object.name }}</h5>
+        </div>
+      </div>
+    </a>
+    {% if object|to_class_name == "Character" %}
+    {% include 'characters/character_card_footer.html' %}
+    {% endif %}
+  </div>
+</div>
