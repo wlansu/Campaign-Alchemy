@@ -1,4 +1,4 @@
-{% load static %}
+{% load static thumbnail %}
 
 <div class="row text-center">
   <div class="col mb-2">
@@ -13,7 +13,9 @@
   <div class="card radius-15 bg dark-color-scheme">
     <div class="card-body text-center">
       <div class="p-4 border radius-15">
-        <img src="{% if map.image %}{{ map.image.url }}{% else %}{% static 'images/default_campaign_image.jpg' %}{% endif %}" class="shadow img-fluid" alt="">
+        {% thumbnail map.image "300x200" crop="center" as image %}
+          <img src="{{ image.url }}" width="{{ image.width }}" height="{{ image.height }}" alt="Image of the map" class="shadow img-fluid">
+        {% endthumbnail %}
         <h5 class="mt-2 whitegreen">{{ map.name }}</h5>
       </div>
     </div>

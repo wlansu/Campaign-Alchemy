@@ -1,4 +1,4 @@
-{% load static %}
+{% load static thumbnail %}
 
 {% for campaign in campaigns %}
 <div class="col">
@@ -7,9 +7,11 @@
     <div class="card-body text-center">
       <div class="p-4 border radius-15">
         {% if campaign.image %}
-          <img src="{{ campaign.image.url }}" width="110" height="110" class="rounded-circle shadow" alt="">
+          {% thumbnail campaign.image "250x250" crop="center" as image %}
+            <img src="{{ image.url }}" width="{{ image.width }}" height="{{ image.height }}" class="rounded-circle shadow" alt="">
+          {% endthumbnail %}
         {% else %}
-          <img src="{% static 'images/default_campaign_image.jpg' %}" width="110" height="110" class="rounded-circle shadow" alt="">
+          <img src="{% static 'images/default_campaign_image.jpg' %}" width="250" height="250" class="rounded-circle shadow" alt="">
         {% endif %}
         <h5 class="mb-5 mt-5">{{ campaign.name }}</h5>
       </div>

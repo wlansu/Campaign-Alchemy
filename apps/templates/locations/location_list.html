@@ -1,8 +1,14 @@
-{% load static bleach_tags %}
+{% load static bleach_tags thumbnail %}
 {% for location in locations %}
   <div class="row mb-3 dark-color-scheme rounded-2 ca-pointer" hx-get="{% url 'campaigns:maps:locations:detail' campaign_pk=location.map.campaign.id map_pk=location.map.id location_pk=location.id %}" hx-trigger="click" hx-target="#dialog">
     <div class="col-4 mt-2">
-      <img src="{% if location.image %}{{ location.image.url }}{% else %}{% static 'images/default_location.jpg' %}{% endif %}" alt="Image of {{ location.name }}" class="img-fluid">
+      {% if location.image %}
+        {% thumbnail location.image "150x150" crop="center" as image %}
+          <img src="{{ image.url }}" height="{{ image.height }}" width="{{ image.width }}" alt="Image of the location" class="img-fluid">
+        {% endthumbnail %}
+      {% else %}
+        <img src="{% static 'images/default_location.jpg' %}" height="150" width="150" alt="Default location image" class="img-fluid">
+      {% endif %}
     </div>
     <div class="col-8">
       <h4>{{ location.name }}</h4>

@@ -1,4 +1,4 @@
-{% load static bleach_tags %}
+{% load static bleach_tags thumbnail %}
 {% block content %}
 <div class="modal-content">
   <div class="modal-header">
@@ -8,7 +8,13 @@
   <div class="modal-body">
     <div class="row">
       <div class="col-4">
-        <img class="img-fluid" src="{% if location.image %}{{ location.image.url }}{% else %}{% static 'images/default_location.jpg' %}{% endif %}" alt="Image of {{ location.name }}">
+        {% if location.image %}
+          {% thumbnail location.image "150x150" crop="center" as image %}
+            <img src="{{ image.url }}" height="{{ image.height }}" width="{{ image.width }}" alt="Image of {{ object.name }}" class="img-fluid">
+          {% endthumbnail %}
+        {% else %}
+          <img src="{% static 'images/default_location.jpg' %}" alt="Image of {{ location.name }}" class="img-fluid">
+        {% endif %}
       </div>
       <div class="col-6">
         <p>{{ location.description|bleach }}</p>
