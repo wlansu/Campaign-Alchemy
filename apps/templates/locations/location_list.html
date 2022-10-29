@@ -1,4 +1,7 @@
 {% load static bleach_tags thumbnail %}
+<form id="sortForm" class="sortable" hx-post="{% url 'campaigns:maps:locations:sort' campaign_pk=campaign_pk map_pk=map_pk %}" hx-trigger="end">
+<h3 class="text-center">Drag to sort</h3>
+<div class="htmx-indicator whitegreen text-center mb-1">Updating...</div>
 {% for location in locations %}
   <div class="row mb-3 dark-color-scheme rounded-2 ca-pointer" hx-get="{% url 'campaigns:maps:locations:detail' campaign_pk=location.map.campaign.id map_pk=location.map.id location_pk=location.id %}" hx-trigger="click" hx-target="#dialog">
     <div class="col-4 mt-2">
@@ -14,8 +17,10 @@
       <h4>{{ location.name }}</h4>
       <p>{{ location.description|bleach|truncatewords_html:25 }}</p>
     </div>
+    <input type="hidden" name="location_order" value="{{ location.id }}">
   </div>
 {% endfor %}
+</form>
 {% block inline_javascript %}
 <script>
   var active_marker = {}
