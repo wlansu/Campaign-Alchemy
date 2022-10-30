@@ -18,4 +18,4 @@ python manage.py collectstatic --noinput --verbosity 0
 echo "Compressing files"
 python manage.py compress
 
-gunicorn campaignalchemy.asgi:application --workers 4 --worker-class apps.utils.UvicornWorker --bind 0.0.0.0:8000
+gunicorn campaignalchemy.wsgi:application --bind 0.0.0.0:8000
