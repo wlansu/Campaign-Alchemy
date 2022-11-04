@@ -18,4 +18,4 @@ python manage.py collectstatic --noinput --verbosity 0
 echo "Compressing files"
 python manage.py compress
 
-gunicorn campaignalchemy.wsgi:application --bind 0.0.0.0:8000 --workers 3
+gunicorn campaignalchemy.wsgi:application --bind 0.0.0.0:8000 --workers 2 --threads 4 --worker-tmp-dir /dev/shm --log-file -
