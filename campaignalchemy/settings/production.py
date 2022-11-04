@@ -148,22 +148,12 @@ LOGGING = {
             "format": "%(levelname)s %(asctime)s %(module)s "
             "%(process)d %(thread)d %(message)s"
         },
-'       simple': {
-            'format': '%(asctime)s SENDER_NAME PROGRAM_NAME: %(message)s',
-            'datefmt': '%Y-%m-%dT%H:%M:%S',
-        },
     },
     "handlers": {
         "console": {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "verbose",
-        },
-        'SysLog': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.SysLogHandler',
-            'formatter': 'simple',
-            'address': ('logs3.papertrailapp.com:22651', "Campaign Alchemy")
         },
     },
     "root": {"level": "INFO", "handlers": ["console"]},
