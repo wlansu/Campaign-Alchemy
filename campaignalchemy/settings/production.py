@@ -160,7 +160,7 @@ LOGGING = {
     "loggers": {
         "django.db.backends": {
             "level": "ERROR",
-            "handlers": ["console", "SysLog"],
+            "handlers": ["console"],
             "propagate": False,
         },
         # Errors logged by the SDK itself
