@@ -147,7 +147,11 @@ LOGGING = {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
             "%(process)d %(thread)d %(message)s"
-        }
+        },
+'       simple': {
+            'format': '%(asctime)s SENDER_NAME PROGRAM_NAME: %(message)s',
+            'datefmt': '%Y-%m-%dT%H:%M:%S',
+        },
     },
     "handlers": {
         "console": {
