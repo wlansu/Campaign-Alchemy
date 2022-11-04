@@ -86,7 +86,7 @@ AWS_LOCATION = "static"
 # https://docs.djangoproject.com/en/dev/ref/settings/#default-from-email
 DEFAULT_FROM_EMAIL = env(
     "DJANGO_DEFAULT_FROM_EMAIL",
-    default="Campaign Alchemy <noreply@example.com>",
+    default="Campaign Alchemy <noreply@campaignalchemy.nl>",
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#server-email
 SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
@@ -95,6 +95,11 @@ EMAIL_SUBJECT_PREFIX = env(
     "DJANGO_EMAIL_SUBJECT_PREFIX",
     default="[Campaign Alchemy]",
 )
+EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
+ANYMAIL = {
+    "MAILJET_API_KEY": "cec058830a44ad2045b546512c7779f6",
+    "MAILJET_SECRET_KEY": env("MAILJET_SECRET_KEY"),
+}
 
 # ADMIN
 # ------------------------------------------------------------------------------
