@@ -164,8 +164,15 @@ def test_character_delete(
         (pytest.lazy_fixture("player2"), 302),
     ],
 )
+@pytest.mark.parametrize(
+    "data",
+    [
+        {"name": "Test", "image": pytest.lazy_fixture("mock_image")},
+        {"name": "Test"}
+    ]
+)
 def test_character_create(
-    user: User, status_code: int, client: Client, mock_image: ImageFile
+    user: User, status_code: int, data: dict, client: Client, mock_image: ImageFile
 ) -> None:
     """All logged-in users can create a character."""
     if not user.username == "player2":
@@ -175,7 +182,7 @@ def test_character_create(
     response = client.post(
         reverse("characters:create"),
         headers=headers,
-        data={"name": "Test", "image": mock_image},
+        data=data,
         format="multipart",
     )
     assert response.status_code == status_code
