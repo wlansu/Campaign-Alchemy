@@ -166,10 +166,7 @@ def test_character_delete(
 )
 @pytest.mark.parametrize(
     "data",
-    [
-        {"name": "Test", "image": pytest.lazy_fixture("mock_image")},
-        {"name": "Test"}
-    ]
+    [{"name": "Test", "image": pytest.lazy_fixture("mock_image")}, {"name": "Test"}],
 )
 def test_character_create(
     user: User, status_code: int, data: dict, client: Client, mock_image: ImageFile
