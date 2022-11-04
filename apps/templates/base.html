@@ -70,8 +70,16 @@
               </ul>
             </li>
             {% else %}
-            <li class="nav-item">
-              <a href="{% provider_login_url "google" %}">Sign in with Google</a>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Sign in
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% provider_login_url "google" %}">Sign in with Google</a></li>
+                <li><a class="dropdown-item" href="{% url "account_login" %}">Log in with email</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url "account_signup" %}">Sign up with email</a></li>
+              </ul>
             </li>
             {% endif %}
           {% endif %}

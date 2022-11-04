@@ -76,6 +76,7 @@ THIRD_PARTY_APPS = [
     "tinymce",
     "django_bleach",
     "sorl.thumbnail",
+    "anymail",
 ]
 
 LOCAL_APPS = [
