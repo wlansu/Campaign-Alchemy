@@ -10,7 +10,7 @@ class Character(TimeStampedModel):
 
     name = models.CharField(max_length=255)
     description = HTMLField(blank=True)
-    image = models.ImageField(upload_to="characters/", null=True)
+    image = models.ImageField(upload_to="characters/", null=True, blank=True)
     campaign = models.ForeignKey(
         "campaigns.Campaign",
         on_delete=models.SET_NULL,
