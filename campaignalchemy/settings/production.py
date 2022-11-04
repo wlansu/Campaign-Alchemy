@@ -154,13 +154,19 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "verbose",
-        }
+        },
+        'SysLog': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.SysLogHandler',
+            'formatter': 'simple',
+            'address': ('logs3.papertrailapp.com:22651', "Campaign Alchemy")
+        },
     },
     "root": {"level": "INFO", "handlers": ["console"]},
     "loggers": {
         "django.db.backends": {
             "level": "ERROR",
-            "handlers": ["console"],
+            "handlers": ["console", "SysLog"],
             "propagate": False,
         },
         # Errors logged by the SDK itself
