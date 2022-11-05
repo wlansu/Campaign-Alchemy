@@ -1,3 +1,6 @@
+from crispy_forms.bootstrap import InlineCheckboxes
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Field, Layout, Submit
 from django.forms import ModelForm, ModelMultipleChoiceField
 from django.forms.fields import FloatField
 from django.forms.widgets import CheckboxSelectMultiple, HiddenInput
@@ -29,3 +32,18 @@ class LocationForm(ModelForm):
             self.fields["characters"].queryset = Character.objects.filter(
                 campaign=campaign_id
             ).order_by("name")
+        self.helper = FormHelper(self)
+        self.helper.form_id = "location-form"
+        self.helper.form_class = "location-form mb-4"
+        self.helper.form_method = "GET"
+        self.helper.use_custom_control = True
+        self.helper.label_class = "font-weight-bold"
+        self.helper.add_input(Submit("submit", "Submit", css_class="float-end"))
+        self.helper.layout = Layout(
+            Field("name"),
+            Field("description"),
+            Field("image"),
+            Field("longitude", type="hidden"),
+            Field("latitude", type="hidden"),
+            InlineCheckboxes("characters", css_class="character-checkboxes"),
+        )

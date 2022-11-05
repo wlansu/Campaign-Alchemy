@@ -213,3 +213,12 @@ ul {
     max-width: 2400px;
   }
 }
+
+.character-checkboxes div {
+  min-width: 4rem;
+}
+
+.character-checkboxes {
+  max-height: 10rem;
+  overflow-y: auto;
+}
