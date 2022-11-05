@@ -1,6 +1,8 @@
 from typing import Optional
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.messages import SUCCESS
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, QuerySet
 from django.forms import BaseForm
@@ -95,6 +97,7 @@ def add_to_campaign(request: HttpRequest, character_pk: int) -> HttpResponse:
         form = AddToCampaignForm(request.POST, request=request)
         if form.is_valid():
             form.save()
+            messages.add_message(request, SUCCESS, "Character added to campaign.")
             return HttpResponse(
                 status=204, headers={"HX-Trigger": "characterListChanged"}
             )
@@ -127,6 +130,7 @@ def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpRespons
     ):
         character.campaign = None
         character.save()
+        messages.add_message(request, SUCCESS, "Character removed from campaign.")
         return HttpResponse(status=204, headers={"HX-Trigger": "characterListChanged"})
     raise PermissionDenied
 
