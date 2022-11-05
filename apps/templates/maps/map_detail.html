@@ -53,9 +53,14 @@ const map = L.map("map", {
   scrollWheelZoom: false,
   attributionControl: false,
   crs: L.CRS.Simple,
-  minZoom: -10,
-  maxZoom: 5,
+  center: [0, 0],
+  minZoom: 1,
+  maxZoom: 4,
 })
+
+const southWest = map.unproject([0, {{ map.resolution_height }}], map.getMaxZoom() -1)
+const northEast = map.unproject([{{ map.resolution_width }}, 0], map.getMaxZoom() -1)
+const bounds = new L.LatLngBounds(southWest, northEast)
 
 function onMapClick(e) {
   const lng = e.latlng.lng
@@ -98,7 +103,6 @@ const image_url = "{{ map.image.url }}"
 {# The url needs to be parsed because otherwise the url string won't be a correct url. #}
 const parseResult = new DOMParser().parseFromString(image_url, "text/html")
 const parsedUrl = parseResult.documentElement.textContent;
-const bounds = [[0, 0], ["{{ map.resolution_height }}","{{ map.resolution_width }}"]];
 L.imageOverlay(parsedUrl, bounds).addTo(map)
 L.Marker.prototype.options.icon = blueIcon
 map.fitBounds(bounds)
