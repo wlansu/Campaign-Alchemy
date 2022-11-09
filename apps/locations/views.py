@@ -77,7 +77,10 @@ class LocationListView(CanCreateMixin, CampaignAndMapIncluded, ListView):
         return Location.objects.none()
 
     def get_context_data(self, **kwargs) -> dict:
-        """Pass the campaign and map pk's to the template context."""
+        """Pass the location that should be active to the template context.
+
+        This comes from the search modal so the User will know which marker on the map is the one that was searched for.
+        """
         context = super().get_context_data(**kwargs)
         context["active_location"] = self.request.GET.get("active_location")
         return context

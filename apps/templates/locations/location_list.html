@@ -35,6 +35,7 @@
   function addMarkersToMap(data) {
     L.geoJSON(data, {
       onEachFeature: function (feature, layer) {
+        layer.bindTooltip(layer.feature.properties.name, {permanent: true, direction: 'top', offset:L.point(-17, -15)})
         try {
           {# Ignore when active_location is None #}
           if (layer.feature.properties.id === {{ active_location }}) {
@@ -68,11 +69,12 @@
       "type": "Feature",
       "geometry": {
         "type": "Point",
-        "coordinates": ["{{ location.longitude }}", "{{ location.latitude }}"] {# Coordinates here need to be reversed. #}
+        "coordinates": ["{{ location.longitude }}", "{{ location.latitude }}"], {# Coordinates here need to be reversed. #}
       },
       "properties": {
         "detailUrl": "{% url 'campaigns:maps:locations:detail' campaign_pk=location.map.campaign.id map_pk=location.map.id location_pk=location.id %}",
-        "id": {{ location.id }}
+        "id": {{ location.id }},
+        "name": "{{ location.name }}"
       }
     })
   {% endfor %}
