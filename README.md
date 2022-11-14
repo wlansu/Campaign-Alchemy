@@ -6,6 +6,9 @@ Campaign Alchemy is a website that allows the creation of maps with location mar
 ## What's the tech stack?
 The site is written in Python/Django with HTMX to allow for a SPA look and feel.
 
+## Where can I sign up?
+Nowhere yet, it's still in beta, but if you're interested do let me know and I'll see if I can speed up development!
+
 ## Running the project in PyCharm
 
 ### Docker-Compose
