@@ -11,7 +11,7 @@ Nowhere yet, it's still in beta, but if you're interested do let me know and I'l
 
 ## Running the project in PyCharm
 
-## Copy and change local env files
+### Copy and change local env files
 Copy the files in the .envs/.example directory to the .envs/.local directory and change any variables to suit your needs.
 
 ### Docker-Compose
