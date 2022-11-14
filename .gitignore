@@ -136,3 +136,4 @@ dmypy.json
 /.envs/.production/
 /apps/media/
 /staticfiles/
+/.envs/.local/
