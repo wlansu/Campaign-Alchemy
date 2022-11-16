@@ -6,8 +6,6 @@
   {% url 'campaigns:maps:locations:create' campaign_pk=campaign_pk map_pk=map_pk as url %}
 {% endif %}
 
-{% block extra_head %}{{ form.media }}{% endblock %}
-
 {% block content %}
   <form class="modal-content" enctype="multipart/form-data" hx-post="{{ url }}">
     {% csrf_token %}
@@ -19,20 +17,4 @@
       {% crispy form %}
     </div>
   </form>
-{% endblock %}
-
-{% block inline-javascript %}
-<script>
-htmx.on("htmx:configRequest", (e) => {
-  if (e.detail.verb === "post") {
-    try {
-      tinyMCE.triggerSave()
-      const richContent = document.querySelector('#id_description')
-      e.detail.parameters['description'] = richContent.value
-    } catch (error) {
-
-    }
-  }
-})
-</script>
 {% endblock %}
