@@ -17,7 +17,7 @@
 </div>
 <div class="row">
   <div class="col-8">
-    <div id="map"></div>
+    <div id="map" hx-trigger="mapClicked" hx-get="{% url 'campaigns:maps:locations:create' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="#dialog"></div>
   </div>
   <div class="col-4" hx-trigger="load from:body, locationListChanged from:body, locationChanged from:body" hx-get="{% url 'campaigns:maps:locations:list' campaign_pk=map.campaign.id map_pk=map.id %}?active_location={{ active_location }}" hx-target="this"></div>
 </div>
@@ -62,42 +62,26 @@ const southWest = map.unproject([0, {{ map.resolution_height }}], map.getMaxZoom
 const northEast = map.unproject([{{ map.resolution_width }}, 0], map.getMaxZoom() -1)
 const bounds = new L.LatLngBounds(southWest, northEast)
 
-function onMapClick(e) {
+{# The click event in HTMX is handled slightly differently so the get request would trigger every time instead of just on a click. #}
+map.on('click', (e) => {
+  htmx.trigger("#map", "mapClicked")
   const lng = e.latlng.lng
   const lat = e.latlng.lat
-  const url = "{% url 'campaigns:maps:locations:create' campaign_pk=map.campaign.id map_pk=map.id %}"
-  const request = new Request(url)
-  fetch(request)
-    .then(response => response.text())
-    .then((text) => {
-      document.getElementById("dialog").innerHTML = text
-      document.getElementById("id_latitude").value = lat
-      document.getElementById("id_longitude").value = lng
-      {# HTMX needs to process the new htmx inside the modal. #}
-      htmx.process(document.getElementById("dialog"))
-      {# Editor needs to be removed after every use since it won't reinitialize itself. #}
-      tinymce.remove()
-      tinymce.init({
-        selector:'textarea',
-        menubar: false,
-        plugins: "lists,link",
-        toolbar: 'styleselect | bold italic | link | bullist numlist',
-        language: "en_US",
-      })
-      {# Trigger the save on the tinymce editor since it can't do it itself due to the way it's been loaded. #}
-      htmx.on("htmx:configRequest", (e) => {
-        if (e.detail.verb === "post") {
-          try {
-            tinyMCE.triggerSave()
-            const richContent = document.querySelector('#id_description')
-            e.detail.parameters['description'] = richContent.value
-          } catch (error) {}
-        }
-      })
-    })
-  modal.show()
-}
-map.on('click', onMapClick);
+  htmx.on("htmx:afterSettle", (e) => {
+    document.getElementById("id_latitude").value = lat
+    document.getElementById("id_longitude").value = lng
+  })
+  {# Trigger the save on the tinymce editor since it can't do it itself due to the way it's been loaded. #}
+  htmx.on("htmx:configRequest", (e) => {
+    if (e.detail.verb === "post") {
+      try {
+        tinyMCE.triggerSave()
+        const richContent = document.querySelector('#id_description')
+        e.detail.parameters['description'] = richContent.value
+      } catch (error) {}
+    }
+  })
+})
 
 const image_url = "{{ map.image.url }}"
 {# The url needs to be parsed because otherwise the url string won't be a correct url. #}
@@ -109,7 +93,6 @@ map.fitBounds(bounds)
 
 htmx.on("htmx:afterSettle", (e) => {
   var sortables = document.body.querySelectorAll(".sortable");
-  console.log(sortables)
   for (var i = 0; i < sortables.length; i++) {
       var sortable = sortables[i];
       new Sortable(sortable, {
