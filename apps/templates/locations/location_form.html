@@ -6,33 +6,12 @@
   {% url 'campaigns:maps:locations:create' campaign_pk=campaign_pk map_pk=map_pk as url %}
 {% endif %}
 
-{% block extra_head %}{{ form.media }}{% endblock %}
-
-{% block content %}
-  <form class="modal-content" enctype="multipart/form-data" hx-post="{{ url }}">
-    {% csrf_token %}
-    <div class="modal-header">
-      <h5 class="modal-title">{% if object %}Update {{ object.name }}{% else %}Create{% endif %}</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-    </div>
-    <div class="modal-body">
-      {% crispy form %}
-    </div>
-  </form>
-{% endblock %}
-
-{% block inline-javascript %}
-<script>
-htmx.on("htmx:configRequest", (e) => {
-  if (e.detail.verb === "post") {
-    try {
-      tinyMCE.triggerSave()
-      const richContent = document.querySelector('#id_description')
-      e.detail.parameters['description'] = richContent.value
-    } catch (error) {
-
-    }
-  }
-})
-</script>
-{% endblock %}
+<form class="modal-content" enctype="multipart/form-data" hx-post="{{ url }}">
+  <div class="modal-header">
+    <h5 class="modal-title">{% if object %}Update {{ object.name }}{% else %}Create{% endif %}</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  </div>
+  <div class="modal-body">
+    {% crispy form %}
+  </div>
+</form>

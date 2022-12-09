@@ -27,8 +27,6 @@
       <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
       <script src="{% static 'js/leaflet.js' %}"></script>
       <script src="{% static 'js/htmx.min.js' %}"></script>
-      <script src="{% static 'tinymce/tinymce.min.js' %}"></script>
-      <script src="{% static 'django_tinymce/init_tinymce.js' %}"></script>
       {% django_htmx_script %}
       {% compress js %}
         <script defer src="{% static 'js/project.js' %}"></script>
@@ -113,13 +111,6 @@
     </div>
 
     {% block inline_javascript %}
-    {% comment %}
-    Script tags with only code, no src (defer by default). To run
-    with a "defer" so that you run inline code:
-    <script>
-      window.addEventListener('DOMContentLoaded', () => {/* Run whatever you want */});
-    </script>
-    {% endcomment %}
     {% endblock inline_javascript %}
     {% include 'toasts.html' %}
     <script src="{% static 'js/toasts.js' %}"></script>
