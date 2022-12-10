@@ -1,19 +1,9 @@
 # syntax=docker/dockerfile:1
-FROM python:3.10-slim-bullseye
+FROM python:3.11
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/root/.local/bin:$PATH"
 WORKDIR /code
-RUN apt-get update && apt-get install -y \
-  # Poetry needs curl \
-  curl \
-  # psycopg2 dependencies
-  libpq-dev \
-  # Translations dependencies
-  gettext \
-  # cleaning up unused files
-  && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
-  && rm -rf /var/lib/apt/lists/*
 RUN pip3 install --upgrade pip
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
