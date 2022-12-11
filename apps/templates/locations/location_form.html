@@ -15,3 +15,17 @@
     {% crispy form %}
   </div>
 </form>
+
+<script>
+htmx.on("htmx:configRequest", (e) => {
+  if (e.detail.verb === "post") {
+    try {
+      tinyMCE.triggerSave()
+      const richContent = document.querySelector('#id_description')
+      e.detail.parameters['description'] = richContent.value
+    } catch (error) {
+
+    }
+  }
+})
+</script>
