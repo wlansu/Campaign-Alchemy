@@ -16,10 +16,10 @@
   </div>
 </div>
 <div class="row">
-  <div class="col-8">
+  <div class="col-12">
     <div id="map" hx-trigger="mapClicked" hx-get="{% url 'campaigns:maps:locations:create' campaign_pk=map.campaign.id map_pk=map.id %}" hx-target="#dialog"></div>
   </div>
-  <div class="col-4" hx-trigger="load from:body, locationListChanged from:body, locationChanged from:body" hx-get="{% url 'campaigns:maps:locations:list' campaign_pk=map.campaign.id map_pk=map.id %}?active_location={{ active_location }}" hx-target="this"></div>
+  <div hx-trigger="load from:body, locationListChanged from:body, locationChanged from:body" hx-get="{% url 'campaigns:maps:locations:list' campaign_pk=map.campaign.id map_pk=map.id %}?active_location={{ active_location }}" hx-target="this"></div>
 </div>
 {% endblock content %}
 
