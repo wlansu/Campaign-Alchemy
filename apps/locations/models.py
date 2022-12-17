@@ -15,8 +15,8 @@ class Location(TimeStampedModel):
         "maps.Map", on_delete=models.CASCADE, related_name="locations"
     )
     image = models.ImageField(upload_to="locations/", blank=True, null=True)
-    order = models.PositiveSmallIntegerField()
     vector_column = SearchVectorField(null=True)
+    hidden = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return self.name
@@ -46,4 +46,3 @@ class Location(TimeStampedModel):
         verbose_name = "Location"
         verbose_name_plural = "Locations"
         indexes = (models.Index(fields=["name"]), GinIndex(fields=["vector_column"]))
-        ordering = ("order",)

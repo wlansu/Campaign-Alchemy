@@ -4,7 +4,11 @@
 
   function toggleIcons(layer) {
     if ("setIcon" in active_marker) {
-      active_marker.setIcon(blueIcon)
+      if (active_marker.feature.properties.hidden === "True") {
+        active_marker.setIcon(greyIcon)
+      } else {
+        active_marker.setIcon(blueIcon)
+      }
     }
     active_marker = layer
     active_marker.setIcon(redIcon)
@@ -14,6 +18,9 @@
     L.geoJSON(data, {
       onEachFeature: function (feature, layer) {
         layer.bindTooltip(layer.feature.properties.name, {permanent: true, direction: 'top', offset:L.point(-17, -15)})
+        if (layer.feature.properties.hidden === "True") {
+            layer.setIcon(greyIcon)
+        }
         try {
           {# Ignore when active_location is None #}
           if (layer.feature.properties.id === {{ active_location }}) {
@@ -52,7 +59,8 @@
       "properties": {
         "detailUrl": "{% url 'campaigns:maps:locations:detail' campaign_pk=location.map.campaign.id map_pk=location.map.id location_pk=location.id %}",
         "id": {{ location.id }},
-        "name": "{{ location.name }}"
+        "name": "{{ location.name }}",
+        "hidden": "{{ location.hidden }}"
       }
     })
   {% endfor %}
