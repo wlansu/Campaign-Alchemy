@@ -1,12 +1,10 @@
-from typing import Any
+from typing import Any, Type
 
-from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db.models import Max, QuerySet
+from django.db.models import QuerySet
 from django.forms import BaseForm
 from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from django.urls import reverse
-from django.views.decorators.http import require_http_methods
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -15,7 +13,8 @@ from django.views.generic import (
     UpdateView,
 )
 
-from apps.locations.forms import LocationForm
+from apps.campaigns.models import Campaign
+from apps.locations.forms import DMLocationForm, LocationForm
 from apps.locations.models import Location
 from apps.maps.models import Map
 from apps.mixins import CanCreateMixin
@@ -68,11 +67,16 @@ class LocationListView(CanCreateMixin, CampaignAndMapIncluded, ListView):
         if campaign_pk and map_pk:
             if not user.has_read_access_to_campaign(campaign_pk=campaign_pk):
                 raise PermissionDenied
-            return (
+            locations = (
                 Location.objects.select_related("map", "map__campaign")
                 .filter(map__campaign=campaign_pk)
                 .filter(map=map_pk)
             )
+            campaign = Campaign.objects.get(pk=campaign_pk)
+            if not campaign.dm_id == user.id:
+                locations = locations.exclude(hidden=True)
+
+            return locations
 
         return Location.objects.none()
 
@@ -91,8 +95,14 @@ class LocationCreateView(
 ):
 
     model = Location
-    form_class = LocationForm
     template_name = "locations/location_form.html"
+
+    def get_form_class(self) -> Type[LocationForm | DMLocationForm]:
+        map = Map.objects.get(id=self.kwargs["map_pk"])
+        dm = map.campaign.dm
+        if self.request.user.id == dm.id:
+            return DMLocationForm
+        return LocationForm
 
     def form_valid(self, form: LocationForm) -> HttpResponse:
         """Set the Locations Map by retrieving the map pk from the url.
@@ -101,7 +111,6 @@ class LocationCreateView(
         """
         map = Map.objects.get(id=self.kwargs["map_pk"])
         form.instance.map = map
-        form.instance.order = get_max_order(map.id)
         self.object: Location = form.save()
         characters = form.cleaned_data.get("characters", None)
         if characters:
@@ -119,19 +128,25 @@ class LocationUpdateView(
 ):
 
     model = Location
-    form_class = LocationForm
     template_name = "locations/location_form.html"
     context_object_name = "location"
     pk_url_kwarg = "location_pk"
+
+    def get_form_class(self) -> Type[LocationForm | DMLocationForm]:
+        map = Map.objects.get(id=self.kwargs["map_pk"])
+        dm = map.campaign.dm
+        if self.request.user.id == dm.id:
+            return DMLocationForm
+        return LocationForm
 
     def get_object(self, queryset: QuerySet = None) -> Map:
         """Acceptance criteria:
         - Everyone with access to the campaign can update a Location.
         """
-        map = super().get_object(queryset)
+        location = super().get_object(queryset)
         user: User = self.request.user
         if user.has_read_access_to_campaign(campaign_pk=self.kwargs["campaign_pk"]):
-            return map
+            return location
         raise PermissionDenied()
 
     def get_form_kwargs(self) -> dict[str:Any]:
@@ -161,10 +176,10 @@ class LocationDeleteView(CanCreateMixin, CampaignAndMapIncluded, DeleteView):
         """Acceptance criteria:
         - Everyone with access to the campaign can delete a Location.
         """
-        map = super().get_object(queryset)
+        location = super().get_object(queryset)
         user: User = self.request.user
         if user.has_read_access_to_campaign(campaign_pk=self.kwargs["campaign_pk"]):
-            return map
+            return location
         raise PermissionDenied()
 
     def get_success_url(self) -> str:
@@ -192,30 +207,3 @@ class LocationDetailView(CanCreateMixin, CampaignAndMapIncluded, DetailView):
         if user.has_read_access_to_campaign(campaign_pk=self.kwargs["campaign_pk"]):
             return super().get_object(queryset)
         raise PermissionDenied
-
-
-@require_http_methods(["POST"])
-@login_required
-def sort_locations(request: HttpRequest, campaign_pk: int, map_pk: int) -> HttpResponse:
-    location_pks_order = request.POST.getlist("location_order")
-    locations = []
-    for idx, location_pk in enumerate(location_pks_order, start=1):
-        location = Location.objects.get(pk=location_pk)
-        location.order = idx
-        location.save(update_fields=["order"])
-        locations.append(location)
-
-    return HttpResponse(
-        status=204,
-        headers={"HX-Trigger": "locationListChanged"},
-        content={"locations": locations},
-    )
-
-
-def get_max_order(map_id: int) -> int:
-    existing_locations = Location.objects.filter(map=map_id)
-    if not existing_locations:
-        return 1
-    else:
-        current_max = existing_locations.aggregate(max_order=Max("order"))["max_order"]
-        return current_max + 1

@@ -38,6 +38,17 @@ const redIcon = L.icon({
   shadowSize: [41, 41],
 })
 
+const greyIcon = L.icon({
+  iconRetinaUrl: "{% static 'css/images/marker-icon-2x-grey.png' %}",
+  iconUrl: "{% static 'css/images/marker-icon-grey.png' %}",
+  shadowUrl: "{% static 'css/images/marker-shadow.png' %}",
+  iconSize: [20, 36],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  tooltipAnchor: [16, -28],
+  shadowSize: [41, 41],
+})
+
 const blueIcon = L.icon({
   iconRetinaUrl: "{% static 'css/images/marker-icon-2x.png' %}",
   iconUrl: "{% static 'css/images/marker-icon.png' %}",

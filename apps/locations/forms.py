@@ -47,3 +47,28 @@ class LocationForm(ModelForm):
             Field("latitude", type="hidden"),
             InlineCheckboxes("characters", css_class="character-checkboxes"),
         )
+
+
+class DMLocationForm(LocationForm):
+    class Meta(LocationForm.Meta):
+        fields = [
+            "name",
+            "hidden",
+            "description",
+            "image",
+            "longitude",
+            "latitude",
+            "characters",
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.helper.layout = Layout(
+            Field("name"),
+            Field("hidden"),
+            Field("description"),
+            Field("image"),
+            Field("longitude", type="hidden"),
+            Field("latitude", type="hidden"),
+            InlineCheckboxes("characters", css_class="character-checkboxes"),
+        )
