@@ -36,16 +36,12 @@
   </head>
 
   <body class="bg-main" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-
-    <nav class="navbar navbar-expand-lg navbar-light dark-color-scheme mb-3">
+    <nav class="navbar navbar-expand-lg navbar-light">
       <div class="container-fluid">
         {% url 'home' as url %}
         <a class="navbar-brand {% if request.path == url %}active{% endif %}" href="{{ url }}">Campaign Alchemy</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <ul class="navbar-nav">
           {% if request.user %}
             {% if request.user.is_authenticated %}
             <li class="nav-item">
@@ -82,23 +78,24 @@
             {% endif %}
           {% endif %}
           </ul>
-          <form class="d-flex" role="search">
-            <input
-              type="search"
-              name="search"
-              class="form-control me-2 search-input"
-              autocomplete="off"
-              placeholder="Search"
-              aria-label="Search"
-              hx-trigger="keyup changed delay:500ms, search"
-              hx-target="#dialog"
-              hx-get="{% url 'full-search' %}"
-              hx-swap="innerHTML"
-            />
-          </form>
         </div>
+        <form class="d-flex" role="search">
+          <input
+            type="search"
+            name="search"
+            class="form-control me-2 search-input"
+            autocomplete="off"
+            placeholder="Search"
+            aria-label="Search"
+            hx-trigger="keyup changed delay:500ms, search"
+            hx-target="#dialog"
+            hx-get="{% url 'full-search' %}"
+            hx-swap="innerHTML"
+          />
+        </form>
       </div>
     </nav>
+    {% include 'toasts.html' %}
 
     <div class="container" id="main-container">
 
@@ -112,7 +109,6 @@
 
     {% block inline_javascript %}
     {% endblock inline_javascript %}
-    {% include 'toasts.html' %}
     <script src="{% static 'js/toasts.js' %}"></script>
   </body>
 </html>
