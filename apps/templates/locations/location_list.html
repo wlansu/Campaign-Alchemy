@@ -1,25 +1,3 @@
-{% load static bleach_tags thumbnail %}
-<form id="sortForm" class="sortable" hx-post="{% url 'campaigns:maps:locations:sort' campaign_pk=campaign_pk map_pk=map_pk %}" hx-trigger="end">
-<div class="htmx-indicator whitegreen text-center mb-1">Updating...</div>
-{% for location in locations %}
-  <div class="row mb-3 dark-color-scheme rounded-2 ca-pointer" style="max-height: 10rem;" hx-get="{% url 'campaigns:maps:locations:detail' campaign_pk=location.map.campaign.id map_pk=location.map.id location_pk=location.id %}" hx-trigger="click" hx-target="#dialog">
-    <div class="col-4 mt-2">
-      {% if location.image %}
-        {% thumbnail location.image "150x100" crop="center" as image %}
-          <img src="{{ image.url }}" height="{{ image.height }}" width="{{ image.width }}" alt="Image of the location" class="img-fluid">
-        {% endthumbnail %}
-      {% else %}
-        <img src="{% static 'images/default_location.jpg' %}" height="100" width="150" alt="Default location image" class="img-fluid">
-      {% endif %}
-    </div>
-    <div class="col-8">
-      <h5>{{ location.name }}</h5>
-      <p>{{ location.description|bleach|truncatewords_html:15 }}</p>
-    </div>
-    <input type="hidden" name="location_order" value="{{ location.id }}">
-  </div>
-{% endfor %}
-</form>
 {% block inline_javascript %}
 <script>
   var active_marker = {}
