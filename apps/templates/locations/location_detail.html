@@ -20,13 +20,6 @@
         <p>{{ location.description|bleach }}</p>
       </div>
     </div>
-    {% if location.characters.all %}
-    <div class="d-flex flex-row mt-3">
-      {% for character in location.characters.all %}
-        <span class="rounded-pill dark-color-scheme ps-2 pe-2"><a class="text-decoration-none" target="_blank" href="{% url 'characters:detail' character_pk=character.id %}">{{ character.name }}</a></span>
-      {% endfor %}
-    </div>
-    {% endif %}
   </div>
   {% url 'campaigns:maps:locations:update' campaign_pk=campaign_pk map_pk=map_pk location_pk=location.id as edit_url %}
   {% url 'campaigns:maps:locations:delete' campaign_pk=campaign_pk map_pk=map_pk location_pk=location.id as delete_url%}

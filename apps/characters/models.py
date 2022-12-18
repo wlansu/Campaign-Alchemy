@@ -32,12 +32,6 @@ class Character(TimeStampedModel):
     is_npc = models.BooleanField(
         default=False
     )  # If no Player was assigned the Character is an NPC
-    location = models.ForeignKey(
-        "locations.Location",
-        on_delete=models.SET_NULL,
-        related_name="characters",
-        null=True,
-    )
     vector_column = SearchVectorField(null=True)
 
     def __str__(self) -> str:
