@@ -1,4 +1,4 @@
-from typing import Any, Type
+from typing import Type
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
@@ -105,22 +105,14 @@ class LocationCreateView(
         return LocationForm
 
     def form_valid(self, form: LocationForm) -> HttpResponse:
-        """Set the Locations Map by retrieving the map pk from the url.
+        """Set the Location's Map by retrieving the map pk from the url.
 
         Return a No-Content and set the HTMX trigger so the modal will be closed and the location list refreshed.
         """
         map = Map.objects.get(id=self.kwargs["map_pk"])
         form.instance.map = map
         self.object: Location = form.save()
-        characters = form.cleaned_data.get("characters", None)
-        if characters:
-            self.object.characters.add(*characters)
         return HttpResponse(status=204, headers={"HX-Trigger": "locationListChanged"})
-
-    def get_form_kwargs(self) -> dict[str:Any]:
-        kwargs = super().get_form_kwargs()
-        kwargs.update({"campaign_id": self.kwargs["campaign_pk"]})
-        return kwargs
 
 
 class LocationUpdateView(
@@ -149,20 +141,12 @@ class LocationUpdateView(
             return location
         raise PermissionDenied()
 
-    def get_form_kwargs(self) -> dict[str:Any]:
-        kwargs = super().get_form_kwargs()
-        kwargs.update({"campaign_id": self.object.map.campaign_id})
-        return kwargs
-
     def form_valid(self, form: BaseForm) -> HttpResponse:
         """Return a No-Content and set the HTMX trigger so the modal will be closed.
 
         There is no need to refresh the location list as the marker position cannot be changed.
         """
         self.object = form.save()
-        characters = form.cleaned_data.get("characters", None)
-        if characters:
-            self.object.characters.add(*characters)
         return HttpResponse(status=204, headers={"HX-Trigger": "locationChanged"})
 
 

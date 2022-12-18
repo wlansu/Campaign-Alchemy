@@ -5,27 +5,4 @@
 {% else %}
   {% url 'campaigns:maps:locations:create' campaign_pk=campaign_pk map_pk=map_pk as url %}
 {% endif %}
-
-<form class="modal-content" enctype="multipart/form-data" hx-post="{{ url }}">
-  <div class="modal-header">
-    <h5 class="modal-title">{% if object %}Update {{ object.name }}{% else %}Create{% endif %}</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-  </div>
-  <div class="modal-body">
-    {% crispy form %}
-  </div>
-</form>
-
-<script>
-htmx.on("htmx:configRequest", (e) => {
-  if (e.detail.verb === "post") {
-    try {
-      tinyMCE.triggerSave()
-      const richContent = document.querySelector('#id_description')
-      e.detail.parameters['description'] = richContent.value
-    } catch (error) {
-
-    }
-  }
-})
-</script>
+{% include "components/_modal_form.html" with object=location url=url %}
