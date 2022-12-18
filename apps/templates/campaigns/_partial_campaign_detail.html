@@ -3,5 +3,7 @@
   <p class="text-center mt-3">Share this invite code with your players, so they can add characters to the campaign: <i class="bloodred">{{ campaign.invite_code }}</i></p>
   {% url 'campaigns:update' campaign.id as edit_url %}
   {% url 'campaigns:delete' campaign.id as delete_url %}
-  {% include "components/_edit_delete_buttons.html" with edit_url=edit_url delete_url=delete_url %}
+  {% if request.user == campaign.dm %}
+    {% include "components/_edit_delete_buttons.html" with edit_url=edit_url delete_url=delete_url %}
+  {% endif %}
 </div>
