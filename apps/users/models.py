@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import BooleanField, CharField
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 
@@ -20,6 +21,11 @@ class User(AbstractUser):
     last_name = None  # type: ignore
     can_be_dm = BooleanField(default=True)
     can_create = BooleanField(default=False)
+
+    @cached_property
+    def is_dm(self) -> bool:
+        """True if the User is a DM in any campaign."""
+        return self.dm_in_campaigns.count() > 0
 
     def get_absolute_url(self) -> str:
         """Get url for user's detail view."""

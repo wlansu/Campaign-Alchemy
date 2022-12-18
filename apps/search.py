@@ -8,6 +8,7 @@ from apps.campaigns.models import Campaign
 from apps.characters.models import Character
 from apps.locations.models import Location
 from apps.maps.models import Map
+from apps.users.models import User
 
 
 def search_all(request: HttpRequest) -> HttpResponse:
@@ -16,6 +17,7 @@ def search_all(request: HttpRequest) -> HttpResponse:
     See: https://pganalyze.com/blog/full-text-search-django-postgres
     """
     query = request.GET.get("search")
+    user: User = request.user
     characters = (
         Character.objects.filter(vector_column=query)
         .filter(
@@ -46,6 +48,10 @@ def search_all(request: HttpRequest) -> HttpResponse:
         )
         .distinct()
     )
+    if not user.is_dm:
+        # TODO: I would rather do this in the query itself but it would become exceedingly complex,
+        #   if it could be done at all.
+        locations = locations.exclude(hidden=True)
 
     results = chain(characters, campaigns, maps, locations)
 
