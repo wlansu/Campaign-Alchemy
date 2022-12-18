@@ -1,4 +1,4 @@
-from typing import Any, Type
+from typing import Type
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
@@ -113,11 +113,6 @@ class LocationCreateView(
         form.instance.map = map
         self.object: Location = form.save()
         return HttpResponse(status=204, headers={"HX-Trigger": "locationListChanged"})
-
-    def get_form_kwargs(self) -> dict[str:Any]:
-        kwargs = super().get_form_kwargs()
-        kwargs.update({"campaign_id": self.kwargs["campaign_pk"]})
-        return kwargs
 
 
 class LocationUpdateView(
