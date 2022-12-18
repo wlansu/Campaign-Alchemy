@@ -12,7 +12,9 @@
     <h5 class="mt-3"><i>Click</i> on the map to add location markers.</h5>
     {% url 'campaigns:maps:update' campaign_pk=map.campaign_id map_pk=map.id as edit_url %}
     {% url 'campaigns:maps:delete' campaign_pk=map.campaign_id map_pk=map.id as delete_url%}
-    {% include "components/_edit_delete_buttons.html" with edit_url=edit_url delete_url=delete_url %}
+    {% if request.user == map.campaign.dm %}
+      {% include "components/_edit_delete_buttons.html" with edit_url=edit_url delete_url=delete_url %}
+    {% endif %}
   </div>
 </div>
 <div class="row">
@@ -61,7 +63,7 @@ const blueIcon = L.icon({
 })
 
 const map = L.map("map", {
-  scrollWheelZoom: false,
+  scrollWheelZoom: true,
   attributionControl: false,
   crs: L.CRS.Simple,
   center: [0, 0],

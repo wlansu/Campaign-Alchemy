@@ -1,10 +1,12 @@
 {% load static thumbnail %}
 
+{% if request.user == campaign.dm %}
 <div class="row text-center">
   <div class="col mb-2">
     <button type="button" class="btn btn-primary" hx-get="{% url 'campaigns:maps:create' campaign_pk=campaign.id %}" hx-target="#dialog">Create</button>
   </div>
 </div>
+{% endif %}
 
 <div class="row mt-1">
 {% for map in maps %}
