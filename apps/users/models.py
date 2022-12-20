@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.cache import cache
+from django.core.mail import send_mail
 from django.db import models
 from django.db.models import BooleanField, CharField
 from django.shortcuts import get_object_or_404
@@ -56,6 +58,22 @@ class User(AbstractUser):
                 f"{self.id}.user_has_read_access_to_campaign", has_read_access, 600
             )
         return has_read_access
+
+    def save(self, *args, **kwargs) -> None:
+        """Overloaded in order to send the Admin an email when a new User is created."""
+        send_email = False
+        if not self.pk:
+            send_email = True
+
+        super().save(*args, **kwargs)
+        if send_email:
+            send_mail(
+                "New user registered",
+                f"{self.username} signed up.",
+                settings.DEFAULT_FROM_EMAIL,
+                [settings.ADMINS[0][1]],
+                fail_silently=False,
+            )
 
     class Meta:
         verbose_name = "User"
