@@ -31,7 +31,6 @@ gunicorn = "^20.1.0"
 django-tinymce = "^3.5.0"
 bleach = "^5.0.1"
 django-bleach = "^3.0.1"
-sorl-thumbnail = "^12.9.0"
 django-anymail = {extras = ["mailjet"], version = "^8.6"}
 psycopg2 = "^2.9.5"
 

@@ -1,5 +1,3 @@
-{% load static thumbnail %}
-
 {% for campaign in campaigns %}
   {% url 'campaigns:detail' campaign_pk=campaign.id as url %}
   {% include "components/_card_item.html" with object=campaign url=url default_image='images/default_campaign_image.jpg' %}

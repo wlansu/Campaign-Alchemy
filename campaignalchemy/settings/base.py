@@ -73,7 +73,6 @@ THIRD_PARTY_APPS = [
     "django_htmx",
     "tinymce",
     "django_bleach",
-    "sorl.thumbnail",
     "anymail",
 ]
 

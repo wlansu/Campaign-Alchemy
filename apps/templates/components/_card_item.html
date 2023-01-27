@@ -1,16 +1,14 @@
-{% load static thumbnail campaigns_filters %}
+{% load static campaigns_filters %}
 
 <div class="col-3">
   <div class="card h-100 radius-15 bg dark-color-scheme">
     <a class="text-decoration-none text-reset" href="{{ url }}">
       <div class="card-body text-center">
-        <div class="p-4 border radius-15">
+        <div class="p-4 border">
           {% if object.image %}
-            {% thumbnail object.image "250x250" crop="center" as image %}
-              <img src="{{ image.url }}" width="{{ image.width }}" height="{{ image.height }}" class="rounded-circle shadow img-fluid" alt="Image of {{ object.name }}">
-            {% endthumbnail %}
+            <img src="{{ object.image.url }}" class="shadow img-fluid" alt="Image of {{ object.name }}">
           {% else %}
-            <img src="{% static default_image %}" width="250" height="250" class="rounded-circle shadow img-fluid" alt="Image of {{ object.name }}">
+            <img src="{% static default_image %}" class="shadow img-fluid" alt="Image of {{ object.name }}">
           {% endif %}
           <h5 class="mt-2 whitegreen">{{ object.name }}</h5>
         </div>

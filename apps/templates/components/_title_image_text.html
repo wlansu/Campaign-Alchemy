@@ -1,12 +1,10 @@
-{% load static campaigns_filters bleach_tags thumbnail %}
+{% load static campaigns_filters bleach_tags %}
 <h2 class="text-center">{{ object.name }}</h2>
 <div class="row">
   <div class="col-4">
     <div class="card border-dark dark-color-scheme">
       {% if object.image %}
-        {% thumbnail object.image "500x500" crop="center" as image %}
-          <img src="{{ image.url }}" height="{{ image.height }}" width="{{ image.width }}" alt="Image of {{ object.name }}" class="img-fluid">
-        {% endthumbnail %}
+        <img src="{{ object.image.url }}" height="{{ image.height }}" width="{{ image.width }}" alt="Image of {{ object.name }}" class="img-fluid">
       {% else %}
         <img src="{% static default_image_filename %}" alt="Image of {{ object.name }}" class="img-fluid">
       {% endif %}
