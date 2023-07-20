@@ -40,7 +40,6 @@ class CampaignListView(CanCreateMixin, ListView):
 
 
 class CampaignDetailView(CanCreateMixin, DetailView):
-
     model = Campaign
     template_name = "campaigns/campaign_detail.html"
     context_object_name = "campaign"
@@ -90,7 +89,6 @@ class CampaignCreateView(CanCreateCampaignMixin, CreateView):
 
 
 class CampaignUpdateView(CanCreateMixin, UpdateView):
-
     model = Campaign
     fields = ["name", "description", "image"]
     template_name = "campaigns/campaign_form.html"
@@ -115,7 +113,6 @@ class CampaignUpdateView(CanCreateMixin, UpdateView):
 
 
 class CampaignDeleteView(CanCreateMixin, DeleteView):
-
     model = Campaign
     template_name = "confirm_delete.html"
     pk_url_kwarg = "campaign_pk"

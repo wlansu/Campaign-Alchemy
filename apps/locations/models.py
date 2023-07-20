@@ -6,7 +6,6 @@ from tinymce.models import HTMLField
 
 
 class Location(TimeStampedModel):
-
     name = models.CharField(max_length=255)
     description = HTMLField(blank=True)
     longitude = models.FloatField(default=0)

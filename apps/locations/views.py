@@ -52,7 +52,6 @@ class CampaignAndMapIncluded:
 
 
 class LocationListView(CanCreateMixin, CampaignAndMapIncluded, ListView):
-
     model = Location
     template_name = "locations/location_list.html"
     context_object_name = "locations"
@@ -93,7 +92,6 @@ class LocationListView(CanCreateMixin, CampaignAndMapIncluded, ListView):
 class LocationCreateView(
     CanCreateMixin, LocationDispatchMixin, CampaignAndMapIncluded, CreateView
 ):
-
     model = Location
     template_name = "locations/location_form.html"
 
@@ -118,7 +116,6 @@ class LocationCreateView(
 class LocationUpdateView(
     CanCreateMixin, LocationDispatchMixin, CampaignAndMapIncluded, UpdateView
 ):
-
     model = Location
     template_name = "locations/location_form.html"
     context_object_name = "location"
@@ -151,7 +148,6 @@ class LocationUpdateView(
 
 
 class LocationDeleteView(CanCreateMixin, CampaignAndMapIncluded, DeleteView):
-
     model = Location
     template_name = "confirm_delete.html"
     pk_url_kwarg = "location_pk"
@@ -177,7 +173,6 @@ class LocationDeleteView(CanCreateMixin, CampaignAndMapIncluded, DeleteView):
 
 
 class LocationDetailView(CanCreateMixin, CampaignAndMapIncluded, DetailView):
-
     model = Location
     template_name = "locations/location_detail.html"
     pk_url_kwarg = "location_pk"

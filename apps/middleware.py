@@ -10,7 +10,6 @@ class HtmxMessageMiddleware(MiddlewareMixin):
     """
 
     def process_response(self, request, response):
-
         # The HX-Request header indicates that the request was made with HTMX
         if "HX-Request" not in request.headers:
             return response

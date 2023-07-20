@@ -25,7 +25,6 @@ from apps.users.models import User
 
 
 class CharacterListView(CanCreateMixin, ListView):
-
     model = Character
     template_name = "characters/character_list.html"
     context_object_name = "characters"
@@ -136,7 +135,6 @@ def remove_from_campaign(request: HttpRequest, character_pk: int) -> HttpRespons
 
 
 class CharacterDetailView(CanCreateMixin, DetailView):
-
     model = Character
     template_name = "characters/character_detail.html"
     context_object_name = "character"
@@ -168,7 +166,6 @@ class CharacterDetailView(CanCreateMixin, DetailView):
 
 
 class CharacterCreateView(CanCreateMixin, CreateView):
-
     model = Character
     fields = ["name", "description", "image", "is_npc"]
     template_name = "characters/character_form.html"
@@ -187,7 +184,6 @@ class CharacterCreateView(CanCreateMixin, CreateView):
 
 
 class CharacterUpdateView(CanCreateMixin, UpdateView):
-
     model = Character
     fields = ["name", "description", "image", "is_npc"]
     template_name = "characters/character_form.html"
@@ -222,7 +218,6 @@ class CharacterUpdateView(CanCreateMixin, UpdateView):
 
 
 class CharacterDeleteView(CanCreateMixin, DeleteView):
-
     model = Character
     template_name = "confirm_delete.html"
     pk_url_kwarg = "character_pk"

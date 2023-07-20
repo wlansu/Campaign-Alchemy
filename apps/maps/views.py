@@ -34,7 +34,6 @@ class CampaignIncluded(CanCreateMixin):
 
 
 class MapListView(CampaignIncluded, ListView):
-
     model = Map
     template_name = "maps/map_list.html"
     context_object_name = "maps"
@@ -51,7 +50,6 @@ class MapListView(CampaignIncluded, ListView):
 
 
 class MapDetailView(CanCreateMixin, DetailView):
-
     model = Map
     template_name = "maps/map_detail.html"
     context_object_name = "map"
@@ -84,7 +82,6 @@ class MapDetailView(CanCreateMixin, DetailView):
 
 
 class MapCreateView(CampaignIncluded, CreateView):
-
     model = Map
     fields = ["name", "description", "image"]
     template_name = "maps/map_form.html"
@@ -112,7 +109,6 @@ class MapCreateView(CampaignIncluded, CreateView):
 
 
 class MapUpdateView(CanCreateMixin, UpdateView):
-
     model = Map
     fields = ["name", "description", "image"]
     template_name = "maps/map_form.html"
@@ -135,7 +131,6 @@ class MapUpdateView(CanCreateMixin, UpdateView):
 
 
 class MapDeleteView(CanCreateMixin, DeleteView):
-
     model = Map
     template_name = "confirm_delete.html"
     pk_url_kwarg = "map_pk"

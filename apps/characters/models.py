@@ -7,7 +7,6 @@ from tinymce.models import HTMLField
 
 
 class Character(TimeStampedModel):
-
     name = models.CharField(max_length=255)
     description = HTMLField(blank=True)
     image = models.ImageField(upload_to="characters/", null=True, blank=True)
